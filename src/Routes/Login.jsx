@@ -1,11 +1,11 @@
 import axios from "axios";
 import { useState } from "react";
-import { useCookies } from "react-cookie";
+
+axios.defaults.withCredentials = true;
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [cookie, setCookie] = useCookies();
 
   function handleLogin() {
     axios
@@ -15,23 +15,19 @@ export default function Login() {
       })
       .then((response) => {
         console.log(response);
-        setCookie("email", response.data[0].email, {
-          maxAge: 60 * 60 * 24 * 365,
-        });
-        setCookie("isAdmin", response.data[0].isAdmin, {
-          maxAge: 60 * 60 * 24 * 365,
-        });
-        window.location.href = "/";
+        if (response.data.isAdmin === 1) {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/projetos";
+        }
       })
       .catch((err) => {
-        console.log(err);
+        //mostrar credenciais erradas
       });
   }
 
   return (
     <>
-      <div>Header</div>
-
       <div>
         <form
           onSubmit={(e) => {
