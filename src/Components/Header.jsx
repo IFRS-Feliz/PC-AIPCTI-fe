@@ -1,20 +1,39 @@
-import { BrowserRouter as Router, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import style from "../assets/css/components/header.module.css";
+import logo from "../assets/img/if.png";
 
 export default function Header() {
   return (
-    <header>
-      <Router>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
+    <>
+      <header className={style.containerHeader}>
+        <nav className={(style.row, style.navHeader)}>
+          <Link to="/" className={style.link}>
+            <img className={style.imagemLogo} src={logo} alt="logo ifrs" />
+          </Link>
+          <h1 className={style.titulo}>
+            Geração de relatório de prestações de contas
+          </h1>
+          <ul className={(style.row, style.ulHeader)}>
             <li>
               <Link to="/login">Login</Link>
             </li>
+            <li>
+              <button
+                onClick={() => {
+                  axios
+                    .get("http://localhost:5000/auth/logout")
+                    .then((response) => console.log(response, "Deslogado"));
+                  window.location.href = "/login";
+                }}
+              >
+                Logout
+              </button>
+            </li>
           </ul>
         </nav>
-      </Router>
-    </header>
+      </header>
+      <hr className={style.verdeForte}></hr>
+    </>
   );
 }

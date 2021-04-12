@@ -1,4 +1,4 @@
-import axios from "axios";
+//import axios from "axios";
 import Header from "./Components/Header";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
@@ -8,21 +8,13 @@ import Projetos from "./Routes/Projetos";
 import Admin from "./Routes/Admin";
 import Adicionar from "./Routes/Adicionar";
 
+import "./assets/css/global.css";
+
 export default function App() {
   return (
     <>
-      <button
-        onClick={() => {
-          axios
-            .get("http://localhost:5000/logout")
-            .then((response) => console.log(response, "Deslogado"));
-          window.location.href = "/login";
-        }}
-      >
-        Logout
-      </button>
-      <Header />
       <Router>
+        <Header />
         <Switch>
           <Route path="/login">
             <Login />

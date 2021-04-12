@@ -1,0 +1,52 @@
+.containerHeader {
+  position: relative;
+  background-color: #2ea042;
+  height: 7rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.verdeForte {
+  height: 0.7rem;
+  width: 100%;
+  border: none;
+  background-color: #247d33;
+  margin-bottom: 1rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.ulHeader {
+  grid-area: ulHeader;
+  list-style: none;
+}
+
+.titulo {
+  grid-area: titulo;
+  color: white;
+  font-size: 1.5rem;
+  margin: auto;
+}
+
+.imagemLogo {
+  grid-area: imagemLogo;
+  width: 3rem;
+}
+
+.navHeader {
+  display: grid;
+  text-align: center;
+  grid-template-columns: 1fr 5fr 1fr;
+  grid-template-areas: "imagemLogo titulo ulHeader";
+}
+
+.link {
+  width: min-content;
+  margin: auto;
+}
