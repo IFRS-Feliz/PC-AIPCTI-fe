@@ -1,0 +1,34 @@
+.h1 {
+  text-align: center;
+  margin: 2rem;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.filtrar {
+  margin: 0 1rem;
+  border: solid #d95d39 0.2rem;
+  border-radius: 0.5rem;
+  width: 20rem;
+  padding: 0 1rem;
+  outline: none;
+}
+
+.addAdmin {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  outline: none;
+  background-color: white;
+  cursor: pointer;
+}
+
+.svgAdmin {
+  width: 100%;
+  height: 100%;
+  fill: #d95d39;
+}

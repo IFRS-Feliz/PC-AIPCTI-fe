@@ -1,0 +1,64 @@
+.containerProjeto {
+  display: flex;
+  height: 2rem;
+  background-color: #ededed;
+  border: solid 0.2rem #e2e2e2;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  width: 45rem;
+  border-radius: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.5rem;
+}
+
+.nomeProjeto {
+  font-size: 0.8rem;
+}
+
+.editarProjeto {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 2rem;
+  margin-bottom: 1rem;
+}
+
+.containerEditar {
+  background-color: #e2e2e2;
+  border-radius: 0.5rem;
+  transform: translateX(2.5rem);
+  position: relative;
+}
+
+.inputProjeto {
+  height: 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  outline: none;
+  margin: 0.5rem 0;
+  width: 40rem;
+}
+
+.botaoProjeto {
+  position: absolute;
+  right: 0rem;
+  bottom: 0rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 5rem;
+  border: none;
+  background-color: #d95d39;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.espacamento {
+  margin-top: 1rem;
+}
+
+.saveProject {
+  fill: white;
+  transform: translate(0.3rem, 0.5rem);
+  width: 1.5rem;
+}

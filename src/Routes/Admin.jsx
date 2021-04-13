@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import User from "../Components/User";
+import style from "../assets/css/routes/admin.module.css";
 
 axios.defaults.withCredentials = true;
 
@@ -30,11 +31,24 @@ export default function Admin() {
 
   return (
     <>
-      <h1>Usuários</h1>
-      <a href="/admin/adicionar">
-        <button>+</button>
-      </a>
-      <p>Filtrar</p>
+      <h1 className={style.h1}>Usuários</h1>
+      <div className={style.container}>
+        <input type="text" placeholder="Filtrar" className={style.filtrar} />
+        <a href="/admin/adicionar">
+          <button className={style.addAdmin}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              className={style.svgAdmin}
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
+            </svg>
+          </button>
+        </a>
+      </div>
 
       <div className="users">
         {users.map((user) => {

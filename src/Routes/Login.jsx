@@ -2,8 +2,6 @@ import axios from "axios";
 import { useState } from "react";
 
 import style from "../assets/css/routes/login.module.css";
-import svgUser from "../assets/icon/account_box-24px.svg";
-import svgPassword from "../assets/icon/password-24px.svg";
 
 axios.defaults.withCredentials = true;
 
@@ -71,7 +69,6 @@ export default function Login() {
           <span className={style.spanLogin}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              enable-background="new 0 0 24 24"
               height="24"
               viewBox="0 0 24 24"
               width="24"
@@ -100,7 +97,6 @@ export default function Login() {
             <button onClick={handleLogin} className={style.botaoLogin}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                enable-background="new 0 0 24 24"
                 height="20"
                 viewBox="0 0 24 24"
                 width="24"
