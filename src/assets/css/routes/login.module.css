@@ -76,7 +76,7 @@ html {
 
 .pBotao {
   width: 100%;
-  transform: translateX(-12px);
+  transform: translateX(-0.5rem);
 }
 
 #botaoLogin {
