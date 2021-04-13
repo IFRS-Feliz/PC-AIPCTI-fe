@@ -5,8 +5,10 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Login from "./Routes/Login";
 import Home from "./Routes/Home";
 import Projetos from "./Routes/Projetos";
-import Admin from "./Routes/Admin";
-import Adicionar from "./Routes/Adicionar";
+import Admin from "./Routes/Admin/Admin";
+import Usuarios from "./Routes/Admin/Usuarios/Usuarios";
+import Adicionar from "./Routes/Admin/Usuarios/Adicionar";
+import Editais from "./Routes/Admin/Editais/Editais";
 
 import "./assets/css/global.css";
 
@@ -16,19 +18,25 @@ export default function App() {
       <Router>
         <Header />
         <Switch>
-          <Route path="/login">
+          <Route exact path="/login">
             <Login />
           </Route>
-          <Route path="/admin/adicionar">
+          <Route exact path="/admin/usuarios/adicionar">
             <Adicionar />
           </Route>
-          <Route path="/admin">
+          <Route exact path="/admin/usuarios">
+            <Usuarios />
+          </Route>
+          <Route exact path="/admin/editais">
+            <Editais />
+          </Route>
+          <Route exact path="/admin">
             <Admin />
           </Route>
-          <Route path="/projetos">
+          <Route exact path="/projetos">
             <Projetos />
           </Route>
-          <Route path="/">
+          <Route exact path="/">
             <Home />
           </Route>
         </Switch>

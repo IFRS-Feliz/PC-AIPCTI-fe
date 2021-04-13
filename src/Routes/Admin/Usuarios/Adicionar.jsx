@@ -1,9 +1,9 @@
-import axios from "../axios";
+import axios from "../../../axios";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import NovoProjeto from "../Components/NovoProjeto";
+import NovoProjeto from "../../../Components/NovoProjeto";
 
-import style from "../assets/css/routes/adicionar.module.css";
+import style from "../../../assets/css/routes/adicionar.module.css";
 
 export default function Adicionar() {
   const history = useHistory();
@@ -62,7 +62,7 @@ export default function Adicionar() {
         console.log(e);
       });
 
-    history.push("/admin");
+    history.push("/admin/usuarios");
   }
 
   return (

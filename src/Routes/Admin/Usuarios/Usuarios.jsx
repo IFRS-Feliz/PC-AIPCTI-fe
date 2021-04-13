@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "../axios";
+import axios from "../../../axios";
 
-import User from "../Components/User";
+import User from "../../../Components/User";
 import { useHistory } from "react-router";
 
-import style from "../assets/css/routes/admin.module.css";
+import style from "../../../assets/css/routes/usuarios.module.css";
 
 export default function Admin() {
   const history = useHistory();
@@ -43,7 +43,7 @@ export default function Admin() {
         <input type="text" placeholder="Filtrar" className={style.filtrar} />
 
         <button
-          onClick={() => history.push("/admin/adicionar")}
+          onClick={() => history.push("/admin/usuarios/adicionar")}
           className={style.addAdmin}
         >
           <svg
