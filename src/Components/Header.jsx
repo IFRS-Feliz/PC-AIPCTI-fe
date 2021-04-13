@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
 import style from "../assets/css/components/header.module.css";
 import logo from "../assets/img/if.png";
 
 export default function Header() {
+  const history = useHistory();
+
   return (
     <>
       <header className={style.containerHeader}>
@@ -24,7 +26,7 @@ export default function Header() {
                   axios
                     .get("http://localhost:5000/auth/logout")
                     .then((response) => console.log(response, "Deslogado"));
-                  window.location.href = "/login";
+                  history.push("/login");
                 }}
               >
                 Logout

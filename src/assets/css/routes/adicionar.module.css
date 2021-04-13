@@ -1,0 +1,79 @@
+.containerAdicionar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.adicionarH1 {
+  margin-bottom: 1.5rem;
+}
+
+.adicionarUserForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.adicionarUserFormField {
+  display: flex;
+  justify-content: flex-start;
+  width: 90%;
+  margin-bottom: 0.4rem;
+}
+
+.adicionarUserFormField input {
+  width: calc(100% - 5rem);
+}
+
+.adicionarUserFormField label {
+  width: 5rem;
+}
+
+.adicionarHr {
+  margin: 1.5rem 0;
+  width: 90%;
+}
+
+.adicionarBotaoMaisProjeto {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.3rem;
+  margin-bottom: 1rem;
+
+  border: none;
+  background-color: #d95d39;
+  outline: none;
+}
+
+.adicionarBotaoMaisProjeto svg,
+.adicionarBotaoMaisProjeto p {
+  margin: 0.1rem 0.15rem;
+  color: white;
+}
+
+.adicionarBotaoCriarUsuario {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: fixed;
+  right: 0;
+  bottom: 0;
+
+  border-top-left-radius: 4rem;
+  height: 3rem;
+  width: 3rem;
+
+  border: none;
+  background-color: #d95d39;
+  outline: none;
+}
+
+.adicionarBotaoCriarUsuario svg {
+  transform: translate(0.3rem, 0.3rem);
+}
