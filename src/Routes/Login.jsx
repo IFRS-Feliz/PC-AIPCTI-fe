@@ -1,31 +1,36 @@
-import axios from "../axios";
-import { useState } from "react";
-import { useHistory } from "react-router";
+import { loginAxios } from "../axios";
+import { useContext, useState } from "react";
+import AuthContext, { isAdmin } from "../Contexts/Auth";
 
 import style from "../assets/css/routes/login.module.css";
+import { Redirect } from "react-router-dom";
 
 export default function Login() {
-  const history = useHistory();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const { Login, user } = useContext(AuthContext);
+
+  //Realocar redirect futuramente para melhor organização
+  if (user) {
+    if (isAdmin()) return <Redirect to="/admin" />;
+    else return <Redirect to="/projetos" />;
+  }
+
   function handleLogin() {
-    axios
-      .post("http://localhost:5000/auth/login", {
+    loginAxios
+      .post("/auth/login", {
         email: email,
         password: password,
       })
       .then((response) => {
-        console.log(response);
-        if (response.data.isAdmin === 1) {
-          history.push("/admin");
-        } else {
-          history.push("/projetos");
-        }
+        Login(response.data.token);
       })
-      .catch((err) => {
-        //mostrar credenciais erradas
+      .catch((error) => {
+        //mostrar erro na tela futuramente
+        if (error.response.status === 401) {
+          console.log("incorrect credentials", error);
+        }
       });
   }
 

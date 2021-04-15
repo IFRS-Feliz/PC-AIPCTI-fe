@@ -14,18 +14,14 @@ export default function Adicionar() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/edital")
+      .get("/edital")
       .then((response) => {
         setEditais(response.data.results);
       })
       .catch((e) => {
-        if (e.response.status === 403) {
-          history.replace("/projetos");
-        } else if (e.response.status === 401) {
-          history.replace("/login");
-        }
+        console.log(e);
       });
-  }, [history]); //history nas dependencias para tirar warning
+  }, []);
 
   function handleAddProject() {
     setProjetos([
@@ -43,7 +39,7 @@ export default function Adicionar() {
   function handleCreateUser() {
     console.log(user.nome);
     axios
-      .post("http://localhost:5000/usuario", {
+      .post("/usuario", {
         cpf: user.cpf,
         nome: user.nome,
         email: user.email,
@@ -54,7 +50,7 @@ export default function Adicionar() {
       });
 
     axios
-      .post("http://localhost:5000/projeto", {
+      .post("/projeto", {
         cpfUsuario: user.cpf,
         projetos: projetos,
       })

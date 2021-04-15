@@ -1,10 +1,11 @@
-import { Link, useHistory } from "react-router-dom";
-import axios from "axios";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
 import style from "../assets/css/components/header.module.css";
 import logo from "../assets/img/if.png";
+import AuthContext from "../Contexts/Auth";
 
 export default function Header() {
-  const history = useHistory();
+  const { Logout, user } = useContext(AuthContext);
 
   return (
     <>
@@ -17,21 +18,7 @@ export default function Header() {
             Geração de relatório de prestações de contas
           </h1>
           <ul className={(style.row, style.ulHeader)}>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <button
-                onClick={() => {
-                  axios
-                    .get("http://localhost:5000/auth/logout")
-                    .then((response) => console.log(response, "Deslogado"));
-                  history.push("/login");
-                }}
-              >
-                Logout
-              </button>
-            </li>
+            <li>{user && <button onClick={Logout}>Logout</button>}</li>
           </ul>
         </nav>
       </header>
