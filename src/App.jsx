@@ -10,36 +10,51 @@ import Usuarios from "./Routes/Admin/Usuarios/Usuarios";
 import Adicionar from "./Routes/Admin/Usuarios/Adicionar";
 import Editais from "./Routes/Admin/Editais/Editais";
 
+import { AuthContextProvider } from "./Contexts/Auth";
+import WithAuth from "./Routes/WithAuth";
+
 import "./assets/css/global.css";
 
 export default function App() {
   return (
     <>
       <Router>
-        <Header />
-        <Switch>
-          <Route exact path="/login">
-            <Login />
-          </Route>
-          <Route exact path="/admin/usuarios/adicionar">
-            <Adicionar />
-          </Route>
-          <Route exact path="/admin/usuarios">
-            <Usuarios />
-          </Route>
-          <Route exact path="/admin/editais">
-            <Editais />
-          </Route>
-          <Route exact path="/admin">
-            <Admin />
-          </Route>
-          <Route exact path="/projetos">
-            <Projetos />
-          </Route>
-          <Route exact path="/">
-            <Home />
-          </Route>
-        </Switch>
+        <AuthContextProvider>
+          <Header />
+          <Switch>
+            <Route exact path="/">
+              <Home />
+            </Route>
+            <Route exact path="/login">
+              <Login />
+            </Route>
+            <Route exact path="/admin">
+              <WithAuth isAdminOnly={true}>
+                <Admin />
+              </WithAuth>
+            </Route>
+            <Route exact path="/admin/usuarios">
+              <WithAuth isAdminOnly={true}>
+                <Usuarios />
+              </WithAuth>
+            </Route>
+            <Route exact path="/admin/usuarios/adicionar">
+              <WithAuth isAdminOnly={true}>
+                <Adicionar />
+              </WithAuth>
+            </Route>
+            <Route exact path="/admin/editais">
+              <WithAuth isAdminOnly={true}>
+                <Editais />
+              </WithAuth>
+            </Route>
+            <Route exact path="/projetos">
+              <WithAuth>
+                <Projetos />
+              </WithAuth>
+            </Route>
+          </Switch>
+        </AuthContextProvider>
       </Router>
     </>
   );

@@ -13,28 +13,24 @@ export default function Admin() {
   const [editais, setEditais] = useState([]);
   useEffect(() => {
     axios
-      .get("http://localhost:5000/usuario")
+      .get("/usuario")
       .then((response) => {
-        console.log(response.data.results);
+        console.log(response);
         setUsers(response.data.results);
       })
       .catch((e) => {
-        if (e.response.status === 403) {
-          history.replace("/projetos");
-        } else if (e.response.status === 401) {
-          history.replace("/login");
-        }
+        console.log(e);
       });
     axios
-      .get("http://localhost:5000/edital")
+      .get("/edital")
       .then((response) => {
-        console.log(response.data.results);
+        console.log(response);
         setEditais(response.data.results);
       })
       .catch((e) => {
         console.log(e);
       });
-  }, [history]); //history nas dependencias para tirar warning
+  }, []);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../axios";
 import { useState } from "react";
 
 import style from "../assets/css/components/projeto.module.css";
@@ -27,7 +27,7 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
 
   function handleConfirm() {
     axios
-      .put("http://localhost:5000/projeto", {
+      .put("/projeto", {
         cpfUsuario: userInfo.cpf,
         id: projetoNewInfo.id,
         projetoNewInfo: projetoNewInfo,

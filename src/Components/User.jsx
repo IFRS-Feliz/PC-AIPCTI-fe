@@ -1,10 +1,8 @@
 import { useState } from "react";
-import axios from "axios";
+import axios from "../axios";
 
 import Projeto from "./Projeto";
 import style from "../assets/css/components/user.module.css";
-
-axios.defaults.withCredentials = true;
 
 export default function User({ userInfo, editais }) {
   const [projetos, setProjetos] = useState([]);
@@ -34,7 +32,7 @@ export default function User({ userInfo, editais }) {
       setProjetos([]);
     } else {
       axios
-        .get(`http://localhost:5000/projeto?cpfUsuario=${userInfo.cpf}`)
+        .get(`projeto?cpfUsuario=${userInfo.cpf}`)
         .then((response) => setProjetos(response.data.results));
     }
   }
