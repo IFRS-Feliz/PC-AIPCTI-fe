@@ -25,10 +25,15 @@
 
 .adicionarUserFormField input {
   width: calc(100% - 5rem);
+  border-radius: 0.5rem;
+  border: 0.2rem solid #d95d39;
+  padding: 0 0.5rem;
+  height: 1.5rem;
 }
 
 .adicionarUserFormField label {
   width: 5rem;
+  align-self: center;
 }
 
 .adicionarHr {
@@ -38,11 +43,12 @@
 
 .adicionarBotaoMaisProjeto {
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
 
   border-radius: 0.4rem;
-  padding: 0.2rem 0.3rem;
+  padding: 0.5rem;
+  width: 8rem;
   margin-bottom: 1rem;
 
   border: none;
@@ -50,10 +56,10 @@
   outline: none;
 }
 
-.adicionarBotaoMaisProjeto svg,
 .adicionarBotaoMaisProjeto p {
   margin: 0.1rem 0.15rem;
   color: white;
+  margin: auto;
 }
 
 .adicionarBotaoCriarUsuario {

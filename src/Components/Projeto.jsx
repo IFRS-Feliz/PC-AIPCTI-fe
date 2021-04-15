@@ -8,6 +8,16 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
   const [initialProjetoInfo, setInitialProjetoInfo] = useState(projetoInfo);
   const [projetoNewInfo, setProjetoNewInfo] = useState(projetoInfo);
 
+  const [teste, setTeste] = useState(style.teste);
+
+  function animacao() {
+    if (teste === style.teste2) {
+      setTeste(style.teste);
+    } else {
+      setTeste(style.teste2);
+    }
+  }
+
   function handleEdit() {
     if (isHidden) {
       setProjetoNewInfo(initialProjetoInfo);
@@ -34,11 +44,41 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
       <div className={style.containerProjeto}>
         <p className={style.nomeProjeto}>{initialProjetoInfo.nome}</p>
         <div className={style.agruparBotoes}>
-          <button onClick={handleEdit}>Editar</button>
-          <button>Deletar</button>
+          <button
+            onClick={() => {
+              handleEdit();
+              animacao();
+            }}
+            className={style.removerEstilo}
+            id={style.botaoEditar}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              className={style.svgProjeto}
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+            </svg>
+          </button>
+          <button className={style.removerEstilo}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              className={style.svgProjeto}
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+          </button>
         </div>
       </div>
-      <div>
+
+      <div className={teste}>
         {!isHidden && (
           <div className={projetoInfo}>
             <form
@@ -47,71 +87,87 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
               }}
             >
               <div className={style.editarProjeto}>
-                <label htmlFor="nome">Nome:</label>
-                <input
-                  className={style.inputProjeto}
-                  onChange={(e) =>
-                    setProjetoNewInfo({
-                      ...projetoNewInfo,
-                      nome: e.target.value,
-                    })
-                  }
-                  type="text"
-                  value={projetoNewInfo.nome}
-                  id="nome"
-                />
-                <label htmlFor="capital">Capital:</label>
-                <input
-                  className={style.inputProjeto}
-                  onChange={(e) =>
-                    setProjetoNewInfo({
-                      ...projetoNewInfo,
-                      valorRecebidoCapital: e.target.value,
-                      valorRecebidoTotal:
-                        Number(e.target.value) +
-                        Number(projetoNewInfo.valorRecebidoCusteio),
-                    })
-                  }
-                  type="number"
-                  value={projetoNewInfo.valorRecebidoCapital}
-                  id="capital"
-                />
-                <label htmlFor="custeio">Custeio:</label>
-                <input
-                  className={style.inputProjeto}
-                  onChange={(e) =>
-                    setProjetoNewInfo({
-                      ...projetoNewInfo,
-                      valorRecebidoCusteio: e.target.value,
-                      valorRecebidoTotal:
-                        Number(e.target.value) +
-                        Number(projetoNewInfo.valorRecebidoCapital),
-                    })
-                  }
-                  type="number"
-                  value={projetoNewInfo.valorRecebidoCusteio}
-                  id="custeio"
-                />
-                <label htmlFor="edital">Edital:</label>
-                <select
-                  className={style.inputProjeto}
-                  value={projetoNewInfo.idEdital}
-                  id="edital"
-                  onChange={(e) => {
-                    setProjetoNewInfo({
-                      ...projetoNewInfo,
-                      idEdital: e.target.value,
-                    });
-                  }}
-                >
-                  {editais.map((edital) => {
-                    return (
-                      <option key={edital.id} value={edital.id}>
-                        {edital.nome}
-                      </option>
-                    );
-                  })}
-                </select>
+                <div className={style.row}>
+                  <label htmlFor="nome" className={style.labelProjeto}>
+                    Nome:
+                  </label>
+                  <input
+                    className={style.inputProjeto}
+                    onChange={(e) =>
+                      setProjetoNewInfo({
+                        ...projetoNewInfo,
+                        nome: e.target.value,
+                      })
+                    }
+                    type="text"
+                    value={projetoNewInfo.nome}
+                    id="nome"
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="capital" className={style.labelProjeto}>
+                    Capital:
+                  </label>
+                  <input
+                    className={style.inputProjeto}
+                    onChange={(e) =>
+                      setProjetoNewInfo({
+                        ...projetoNewInfo,
+                        valorRecebidoCapital: e.target.value,
+                        valorRecebidoTotal:
+                          Number(e.target.value) +
+                          Number(projetoNewInfo.valorRecebidoCusteio),
+                      })
+                    }
+                    type="number"
+                    value={projetoNewInfo.valorRecebidoCapital}
+                    id="capital"
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="custeio" className={style.labelProjeto}>
+                    Custeio:
+                  </label>
+                  <input
+                    className={style.inputProjeto}
+                    onChange={(e) =>
+                      setProjetoNewInfo({
+                        ...projetoNewInfo,
+                        valorRecebidoCusteio: e.target.value,
+                        valorRecebidoTotal:
+                          Number(e.target.value) +
+                          Number(projetoNewInfo.valorRecebidoCapital),
+                      })
+                    }
+                    type="number"
+                    value={projetoNewInfo.valorRecebidoCusteio}
+                    id="custeio"
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="edital" className={style.labelProjeto}>
+                    Edital:
+                  </label>
+                  <select
+                    className={style.inputProjeto}
+                    value={projetoNewInfo.idEdital}
+                    id="edital"
+                    onChange={(e) => {
+                      setProjetoNewInfo({
+                        ...projetoNewInfo,
+                        idEdital: e.target.value,
+                      });
+                    }}
+                  >
+                    {editais.map((edital) => {
+                      return (
+                        <option key={edital.id} value={edital.id}>
+                          {edital.nome}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
                 <span className={style.espacamento}></span>
                 <button className={style.botaoProjeto} onClick={handleConfirm}>
                   <svg

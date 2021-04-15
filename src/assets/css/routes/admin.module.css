@@ -1,0 +1,44 @@
+.containerAdmin {
+  display: flex;
+  height: 25rem;
+  justify-content: space-between;
+  max-width: 30rem;
+  width: 90%;
+  margin: auto;
+  align-items: center;
+}
+
+.separador {
+  width: 1px;
+  height: 50%;
+  background-color: black;
+}
+
+.botaoAdmin {
+  margin: auto;
+  border-radius: 50%;
+  border: none;
+  padding: 1rem;
+  background-color: #d95d39;
+  width: 10rem;
+  height: 10rem;
+  transition: transform 0.2s ease;
+}
+
+.svgAdmin {
+  transform: scale(3);
+  fill: #fff;
+}
+
+.botaoAdmin:hover {
+  transform: scale(1.15);
+}
+
+.centralizar {
+  text-align: center;
+}
+
+.pAdmin {
+  margin-top: 1rem;
+  font-size: 2rem;
+}

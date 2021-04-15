@@ -9,6 +9,17 @@ axios.defaults.withCredentials = true;
 export default function User({ userInfo, editais }) {
   const [projetos, setProjetos] = useState([]);
   const [arrowClass, setarrowClass] = useState(style.hidden);
+  const [animation, setAnimation] = useState(style.projetosHidden);
+
+  function mostrar() {
+    if (animation === style.projetosHidden) {
+      setTimeout(() => {
+        setAnimation(style.projetosShow);
+      }, 100);
+    } else {
+      setAnimation(style.projetosHidden);
+    }
+  }
 
   function rotacionar() {
     if (arrowClass === style.show) {
@@ -31,7 +42,7 @@ export default function User({ userInfo, editais }) {
   return (
     <div className={style.userContainer}>
       <div className={style.user}>
-        <p>{`${userInfo.nome} - ${userInfo.cpf}`}</p>
+        <p className={style.pUser}>{`${userInfo.nome} - ${userInfo.cpf}`}</p>
         <div className={style.agruparBotoes}>
           <button className={style.botaoUser}>
             <svg
@@ -60,8 +71,9 @@ export default function User({ userInfo, editais }) {
           <p className={style.linhaVertical}>|</p>
           <button
             onClick={() => {
-              handleShowProjects();
+              mostrar();
               rotacionar();
+              handleShowProjects();
             }}
             className={style.botaoUser}
           >
@@ -84,7 +96,9 @@ export default function User({ userInfo, editais }) {
         </div>
       </div>
       {projetos.length > 0 && (
-        <div className="projetos">
+        <div className={animation}>
+          <div className={style.separador}></div>
+
           {projetos.map((projeto, index) => {
             return (
               <Projeto

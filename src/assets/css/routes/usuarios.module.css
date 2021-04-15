@@ -13,8 +13,8 @@
   margin: 0 1rem;
   border: solid #d95d39 0.2rem;
   border-radius: 0.5rem;
-  width: 20rem;
-  padding: 0 1rem;
+  width: 30%;
+  padding: 0 0.5rem;
   outline: none;
 }
 
@@ -23,8 +23,14 @@
   height: 2rem;
   border: none;
   outline: none;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0);
   cursor: pointer;
+  transition: ease 0.3s;
+}
+
+.addAdmin:hover {
+  /* Pode ser tanto 90deg como 180deg precisa ver qual fica melhor */
+  transform: scale(1.3) rotate(180deg);
 }
 
 .svgAdmin {
