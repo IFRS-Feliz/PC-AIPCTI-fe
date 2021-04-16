@@ -11,3 +11,8 @@
 button:hover {
   cursor: pointer;
 }
+
+button:disabled {
+  opacity: 60%;
+  cursor: initial;
+}

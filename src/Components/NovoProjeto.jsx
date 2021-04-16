@@ -1,12 +1,18 @@
+// import { useState } from "react";
 import style from "../assets/css/components/novoProjeto.module.css";
 
 export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
+  // const [errors, setErrors] = useState({
+  //   nome: true,
+  //   capital: false,
+  //   custeio: false,
+  // });
+
   return (
     <form
       className={style.novoProjetoForm}
       onSubmit={(e) => e.preventDefault()}
     >
-      {/* <label htmlFor="nome">Nome:</label> */}
       <div className={style.novoProjetoNome}>
         <input
           onChange={(e) => {
@@ -41,7 +47,8 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
             let newProjetos = [...projetos];
             newProjetos[index].valorRecebidoCapital = e.target.value;
             newProjetos[index].valorRecebidoTotal =
-              e.target.value + projetos[index].valorRecebidoCusteio;
+              Number(e.target.value) +
+              Number(projetos[index].valorRecebidoCusteio);
             setProjetos(newProjetos);
           }}
           type="number"
@@ -56,7 +63,8 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
             let newProjetos = [...projetos];
             newProjetos[index].valorRecebidoCusteio = e.target.value;
             newProjetos[index].valorRecebidoTotal =
-              e.target.value + projetos[index].valorRecebidoCapital;
+              Number(e.target.value) +
+              Number(projetos[index].valorRecebidoCapital);
             setProjetos(newProjetos);
           }}
           type="number"

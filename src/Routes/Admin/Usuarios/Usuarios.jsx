@@ -11,12 +11,15 @@ export default function Admin() {
 
   const [users, setUsers] = useState([]);
   const [editais, setEditais] = useState([]);
+
+  const [searchResults, setSearchResults] = useState([]);
+
   useEffect(() => {
     axios
       .get("/usuario")
       .then((response) => {
-        console.log(response);
         setUsers(response.data.results);
+        setSearchResults(response.data.results);
       })
       .catch((e) => {
         console.log(e);
@@ -24,7 +27,6 @@ export default function Admin() {
     axios
       .get("/edital")
       .then((response) => {
-        console.log(response);
         setEditais(response.data.results);
       })
       .catch((e) => {
@@ -32,31 +34,51 @@ export default function Admin() {
       });
   }, []);
 
+  function handleFilterChange(e) {
+    //filtrar por nome ou cpf
+    setSearchResults(
+      users.filter(
+        (user) =>
+          user.nome
+            .toLowerCase()
+            .includes(e.target.value.toLocaleLowerCase()) ||
+          String(user.cpf).includes(e.target.value)
+      )
+    );
+  }
+
   return (
     <>
       <h1 className={style.h1}>Usuários</h1>
       <div className={style.container}>
-        <input type="text" placeholder="Filtrar" className={style.filtrar} />
+        <div className={style.filtrarContainer}>
+          <input
+            onChange={handleFilterChange}
+            type="text"
+            placeholder="Filtrar por nome ou CPF"
+            className={style.filtrar}
+          />
 
-        <button
-          onClick={() => history.push("/admin/usuarios/adicionar")}
-          className={style.addAdmin}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            className={style.svgAdmin}
+          <button
+            onClick={() => history.push("/admin/usuarios/adicionar")}
+            className={style.addAdmin}
           >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              className={style.svgAdmin}
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="users">
-        {users.map((user) => {
+        {searchResults.map((user) => {
           return <User key={user.cpf} userInfo={user} editais={editais} />;
         })}
       </div>
