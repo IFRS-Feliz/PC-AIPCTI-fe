@@ -23,10 +23,10 @@
   margin-bottom: 0.4rem;
 }
 
-.adicionarUserFormField input {
+.normalInput {
   width: calc(100% - 5rem);
   border-radius: 0.5rem;
-  border: 0.2rem solid #d95d39;
+  border: 0.2rem solid #e2e2e2;
   padding: 0 0.5rem;
   height: 1.5rem;
 }

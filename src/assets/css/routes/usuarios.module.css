@@ -9,11 +9,22 @@
   margin-bottom: 1rem;
 }
 
+.filtrarContainer {
+  display: flex;
+  width: 90%;
+  max-width: 450px;
+  justify-content: center;
+}
+
+.filtrarContainer button {
+  width: 10%;
+}
+
 .filtrar {
+  width: 80%;
   margin: 0 1rem;
   border: solid #d95d39 0.2rem;
   border-radius: 0.5rem;
-  width: 30%;
   padding: 0 0.5rem;
   outline: none;
 }

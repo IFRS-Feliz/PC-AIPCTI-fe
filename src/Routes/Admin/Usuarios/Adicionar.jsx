@@ -8,9 +8,22 @@ import style from "../../../assets/css/routes/adicionar.module.css";
 export default function Adicionar() {
   const history = useHistory();
 
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState({ cpf: "", nome: "", email: "" });
   const [projetos, setProjetos] = useState([]);
   const [editais, setEditais] = useState([]);
+
+  const [errors, setErrors] = useState({
+    cpf: true,
+    nome: true,
+    email: true,
+    projetos: [],
+  });
+
+  const [wasTouched, setWasTouched] = useState({
+    cpf: false,
+    nome: false,
+    email: false,
+  });
 
   useEffect(() => {
     axios
@@ -24,20 +37,26 @@ export default function Adicionar() {
   }, []);
 
   function handleAddProject() {
+    if (editais.length === 0) {
+      alert("É necessário adicionar editais antes de adicionar projetos.");
+      return;
+    }
     setProjetos([
       ...projetos,
       {
         nome: "",
-        valorRecebidoCapital: "",
-        valorRecebidoCusteio: "",
-        valorRecebidoTotal: "",
+        valorRecebidoCapital: 0,
+        valorRecebidoCusteio: 0,
+        valorRecebidoTotal: 0,
         idEdital: 1,
       },
     ]);
   }
 
   function handleCreateUser() {
-    console.log(user.nome);
+    console.log(user);
+    console.log(projetos);
+
     axios
       .post("/usuario", {
         cpf: user.cpf,
@@ -45,20 +64,67 @@ export default function Adicionar() {
         email: user.email,
         isAdmin: false,
       })
-      .catch((e) => {
-        console.log(e);
-      });
-
-    axios
-      .post("/projeto", {
-        cpfUsuario: user.cpf,
-        projetos: projetos,
+      .then(() => {
+        if (projetos.length > 0) {
+          axios
+            .post("/projeto", {
+              cpfUsuario: user.cpf,
+              projetos: projetos,
+            })
+            .then(() => history.push("/admin/usuarios"))
+            .catch((e) => {
+              console.log(e);
+            });
+        }
       })
       .catch((e) => {
         console.log(e);
       });
+  }
 
-    history.push("/admin/usuarios");
+  //form validation
+  function fieldsHaveErrors() {
+    const errosNomesProjetos = !!projetos.filter((p) => p.nome === "").length;
+    return Object.values(errors).includes(true) || errosNomesProjetos;
+  }
+
+  function handleCPFInputChange(e) {
+    //remover caracteres indesejados
+    e.target.value = e.target.value.replace(/[^\d]/g, "");
+
+    setUser({ ...user, cpf: e.target.value });
+
+    //adicionar pontos e hifen
+    if (e.target.value.length === 11) {
+      e.target.value = e.target.value.replace(
+        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+        "$1.$2.$3-$4"
+      );
+    }
+
+    if (e.target.value.length !== 14) {
+      setErrors({ ...errors, cpf: true });
+    } else if (errors.cpf) {
+      setErrors({ ...errors, cpf: false });
+    }
+  }
+
+  function handleNomeInputChange(e) {
+    setUser({ ...user, nome: e.target.value });
+    if (e.target.value.length === 0) {
+      setErrors({ ...errors, nome: true });
+    } else if (errors.nome) {
+      setErrors({ ...errors, nome: false });
+    }
+  }
+
+  function handleEmailInputChange(e) {
+    setUser({ ...user, email: e.target.value });
+    if (!/^[^\s@]+@[^\s@]+$/.test(e.target.value)) {
+      setErrors({ ...errors, email: true });
+    } else if (errors.email) {
+      setErrors({ ...errors, email: false });
+    }
   }
 
   return (
@@ -76,7 +142,14 @@ export default function Adicionar() {
             <input
               id="cpf"
               type="text"
-              onChange={(e) => setUser({ ...user, cpf: e.target.value })}
+              onBlur={() => setWasTouched({ ...wasTouched, cpf: true })}
+              onChange={(e) => handleCPFInputChange(e)}
+              className={
+                errors.cpf && wasTouched.cpf
+                  ? `wrongInput ${style.normalInput}`
+                  : style.normalInput
+              }
+              maxLength={11 + 3}
             />
           </div>
           <div className={style.adicionarUserFormField}>
@@ -84,7 +157,13 @@ export default function Adicionar() {
             <input
               id="nome"
               type="text"
-              onChange={(e) => setUser({ ...user, nome: e.target.value })}
+              onBlur={() => setWasTouched({ ...wasTouched, nome: true })}
+              onChange={(e) => handleNomeInputChange(e)}
+              className={
+                errors.nome && wasTouched.nome
+                  ? `wrongInput ${style.normalInput}`
+                  : style.normalInput
+              }
             />
           </div>
           <div className={style.adicionarUserFormField}>
@@ -92,7 +171,13 @@ export default function Adicionar() {
             <input
               id="email"
               type="email"
-              onChange={(e) => setUser({ ...user, email: e.target.value })}
+              onBlur={() => setWasTouched({ ...wasTouched, email: true })}
+              onChange={(e) => handleEmailInputChange(e)}
+              className={
+                errors.email && wasTouched.email
+                  ? `wrongInput ${style.normalInput}`
+                  : style.normalInput
+              }
             />
           </div>
         </form>
@@ -128,6 +213,7 @@ export default function Adicionar() {
         </button>
         {/* <button onClick={() => console.log(projetos)}>loggar projetos</button> */}
         <button
+          disabled={fieldsHaveErrors()}
           className={style.adicionarBotaoCriarUsuario}
           onClick={handleCreateUser}
         >

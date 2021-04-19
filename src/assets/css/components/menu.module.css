@@ -1,0 +1,31 @@
+.containerMenu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 3rem;
+  width: 100%;
+  background-color: #ededed;
+}
+
+.containerMenu > div {
+  display: flex;
+  justify-content: space-between;
+
+  width: 100%;
+  max-width: 1000px;
+}
+
+.containerInner {
+  display: flex;
+  align-items: center;
+}
+
+.containerInner > div {
+  padding: 1rem;
+}
+
+.containerInner > div:first-child {
+  padding: 0.7rem;
+  padding-right: 2.3rem;
+}

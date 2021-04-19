@@ -1,5 +1,3 @@
-//import axios from "axios";
-import Header from "./Components/Header";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Login from "./Routes/Login";
@@ -9,6 +7,10 @@ import Admin from "./Routes/Admin/Admin";
 import Usuarios from "./Routes/Admin/Usuarios/Usuarios";
 import Adicionar from "./Routes/Admin/Usuarios/Adicionar";
 import Editais from "./Routes/Admin/Editais/Editais";
+import NotFound404 from "./Routes/NotFound404";
+
+import Header from "./Components/Header";
+import Menu from "./Components/Menu";
 
 import { AuthContextProvider } from "./Contexts/Auth";
 import WithAuth from "./Routes/WithAuth";
@@ -21,6 +23,7 @@ export default function App() {
       <Router>
         <AuthContextProvider>
           <Header />
+          <Menu />
           <Switch>
             <Route exact path="/">
               <Home />
@@ -52,6 +55,9 @@ export default function App() {
               <WithAuth>
                 <Projetos />
               </WithAuth>
+            </Route>
+            <Route>
+              <NotFound404 />
             </Route>
           </Switch>
         </AuthContextProvider>
