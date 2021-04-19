@@ -64,25 +64,28 @@ export default function Adicionar() {
         email: user.email,
         isAdmin: false,
       })
-      .catch((e) => {
-        console.log(e);
-      });
-
-    axios
-      .post("/projeto", {
-        cpfUsuario: user.cpf,
-        projetos: projetos,
+      .then(() => {
+        if (projetos.length > 0) {
+          axios
+            .post("/projeto", {
+              cpfUsuario: user.cpf,
+              projetos: projetos,
+            })
+            .then(() => history.push("/admin/usuarios"))
+            .catch((e) => {
+              console.log(e);
+            });
+        }
       })
       .catch((e) => {
         console.log(e);
       });
-
-    history.push("/admin/usuarios");
   }
 
   //form validation
   function fieldsHaveErrors() {
-    return Object.values(errors).includes(true);
+    const errosNomesProjetos = !!projetos.filter((p) => p.nome === "").length;
+    return Object.values(errors).includes(true) || errosNomesProjetos;
   }
 
   function handleCPFInputChange(e) {
@@ -143,7 +146,7 @@ export default function Adicionar() {
               onChange={(e) => handleCPFInputChange(e)}
               className={
                 errors.cpf && wasTouched.cpf
-                  ? `${style.wrongInput} ${style.normalInput}`
+                  ? `wrongInput ${style.normalInput}`
                   : style.normalInput
               }
               maxLength={11 + 3}
@@ -158,7 +161,7 @@ export default function Adicionar() {
               onChange={(e) => handleNomeInputChange(e)}
               className={
                 errors.nome && wasTouched.nome
-                  ? `${style.wrongInput} ${style.normalInput}`
+                  ? `wrongInput ${style.normalInput}`
                   : style.normalInput
               }
             />
@@ -172,7 +175,7 @@ export default function Adicionar() {
               onChange={(e) => handleEmailInputChange(e)}
               className={
                 errors.email && wasTouched.email
-                  ? `${style.wrongInput} ${style.normalInput}`
+                  ? `wrongInput ${style.normalInput}`
                   : style.normalInput
               }
             />

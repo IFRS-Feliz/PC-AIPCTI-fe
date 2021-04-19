@@ -6,7 +6,6 @@
   margin-bottom: 3rem;
   width: 100%;
   background-color: #ededed;
-  height: 3rem;
 }
 
 .containerMenu > div {
@@ -19,6 +18,7 @@
 
 .containerInner {
   display: flex;
+  align-items: center;
 }
 
 .containerInner > div {
@@ -26,5 +26,6 @@
 }
 
 .containerInner > div:first-child {
+  padding: 0.7rem;
   padding-right: 2.3rem;
 }

@@ -83,8 +83,3 @@
 .adicionarBotaoCriarUsuario svg {
   transform: translate(0.3rem, 0.3rem);
 }
-
-/* form verification */
-.wrongInput {
-  border: 0.2rem solid #d95d39;
-}

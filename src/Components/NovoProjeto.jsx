@@ -1,19 +1,22 @@
 // import { useState } from "react";
+import { useState } from "react";
 import style from "../assets/css/components/novoProjeto.module.css";
 
 export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
-  // const [errors, setErrors] = useState({
-  //   nome: true,
-  //   capital: false,
-  //   custeio: false,
-  // });
+  const [nomeWasTouched, setNomeWasTouched] = useState(false);
 
   return (
     <form
       className={style.novoProjetoForm}
       onSubmit={(e) => e.preventDefault()}
     >
-      <div className={style.novoProjetoNome}>
+      <div
+        className={
+          projetos[index].nome === "" && nomeWasTouched
+            ? `wrongInput ${style.novoProjetoNome}`
+            : style.novoProjetoNome
+        }
+      >
         <input
           onChange={(e) => {
             let newProjetos = [...projetos];
@@ -24,6 +27,7 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
           value={projetos[index].nome}
           id="nome"
           placeholder="Nome do projeto"
+          onBlur={() => setNomeWasTouched(true)}
         />
         <button
           onClick={(e) => {
@@ -45,15 +49,17 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
         <input
           onChange={(e) => {
             let newProjetos = [...projetos];
-            newProjetos[index].valorRecebidoCapital = e.target.value;
+            newProjetos[index].valorRecebidoCapital = Number(e.target.value);
             newProjetos[index].valorRecebidoTotal =
               Number(e.target.value) +
               Number(projetos[index].valorRecebidoCusteio);
             setProjetos(newProjetos);
           }}
           type="number"
-          value={projetos[index].valorRecebidoCapital}
+          //acho que nao é necessario por nao ter um valor inicial relevante
+          // value={projetos[index].valorRecebidoCapital}
           id="capital"
+          placeholder={0}
         />
       </div>
       <div className={style.novoProjetoField}>
@@ -61,15 +67,17 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
         <input
           onChange={(e) => {
             let newProjetos = [...projetos];
-            newProjetos[index].valorRecebidoCusteio = e.target.value;
+            newProjetos[index].valorRecebidoCusteio = Number(e.target.value);
             newProjetos[index].valorRecebidoTotal =
               Number(e.target.value) +
               Number(projetos[index].valorRecebidoCapital);
             setProjetos(newProjetos);
           }}
           type="number"
-          value={projetos[index].valorRecebidoCusteio}
+          //acho que nao é necessario por nao ter um valor inicial relevante
+          // value={projetos[index].valorRecebidoCusteio}
           id="custeio"
+          placeholder={0}
         />
       </div>
       <div className={style.novoProjetoField}>
