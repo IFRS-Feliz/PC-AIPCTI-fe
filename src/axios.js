@@ -46,6 +46,13 @@ instance.interceptors.response.use(
       window.location.href = "/projetos";
       return Promise.reject(error);
     }
+
+    if (error.response.status === 500) {
+      //erros nos querys do banco e outros
+      alert("Erro no servidor (500). Tente novamente.");
+      return Promise.reject(error);
+    }
+    return Promise.reject(error);
   }
 );
 

@@ -32,9 +32,12 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
         id: projetoNewInfo.id,
         projetoNewInfo: projetoNewInfo,
       })
-      .then((response) => {
-        if (response.status === 200) {
-          setInitialProjetoInfo(projetoNewInfo);
+      .then(() => {
+        setInitialProjetoInfo(projetoNewInfo);
+      })
+      .catch((e) => {
+        if (e.response.status === 400) {
+          alert("Inputs do projeto incorretos");
         }
       });
   }
@@ -92,7 +95,11 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
                     Nome:
                   </label>
                   <input
-                    className={style.inputProjeto}
+                    className={
+                      projetoNewInfo.nome.length === 0
+                        ? `wrongInput ${style.inputProjeto}`
+                        : style.inputProjeto
+                    }
                     onChange={(e) =>
                       setProjetoNewInfo({
                         ...projetoNewInfo,
@@ -113,15 +120,16 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
                     onChange={(e) =>
                       setProjetoNewInfo({
                         ...projetoNewInfo,
-                        valorRecebidoCapital: e.target.value,
+                        valorRecebidoCapital: Number(e.target.value),
                         valorRecebidoTotal:
                           Number(e.target.value) +
                           Number(projetoNewInfo.valorRecebidoCusteio),
                       })
                     }
                     type="number"
-                    value={projetoNewInfo.valorRecebidoCapital}
+                    value={projetoNewInfo.valorRecebidoCapital || ""} //se for zero, mostrar placeholder para nao travar input
                     id="capital"
+                    placeholder={0}
                   />
                 </div>
                 <div className={style.row}>
@@ -133,15 +141,16 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
                     onChange={(e) =>
                       setProjetoNewInfo({
                         ...projetoNewInfo,
-                        valorRecebidoCusteio: e.target.value,
+                        valorRecebidoCusteio: Number(e.target.value),
                         valorRecebidoTotal:
                           Number(e.target.value) +
                           Number(projetoNewInfo.valorRecebidoCapital),
                       })
                     }
                     type="number"
-                    value={projetoNewInfo.valorRecebidoCusteio}
+                    value={projetoNewInfo.valorRecebidoCusteio || ""} //se for zero, mostrar placeholder para nao travar input
                     id="custeio"
+                    placeholder={0}
                   />
                 </div>
                 <div className={style.row}>
@@ -169,7 +178,11 @@ export default function Projeto({ projetoInfo, userInfo, editais }) {
                   </select>
                 </div>
                 <span className={style.espacamento}></span>
-                <button className={style.botaoProjeto} onClick={handleConfirm}>
+                <button
+                  className={style.botaoProjeto}
+                  onClick={handleConfirm}
+                  disabled={projetoNewInfo.nome.length === 0}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     height="24px"

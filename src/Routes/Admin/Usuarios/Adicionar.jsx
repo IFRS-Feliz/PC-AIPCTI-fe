@@ -54,9 +54,6 @@ export default function Adicionar() {
   }
 
   function handleCreateUser() {
-    console.log(user);
-    console.log(projetos);
-
     axios
       .post("/usuario", {
         cpf: user.cpf,
@@ -73,12 +70,22 @@ export default function Adicionar() {
             })
             .then(() => history.push("/admin/usuarios"))
             .catch((e) => {
-              console.log(e);
+              if (e.response.status === 400) {
+                alert(
+                  "Inputs dos projetos incorretos. O usuário foi criado, para adicionar projetos à ele, volte para a lista de usuários e começe a editá-lo."
+                );
+                history.push("/admin/usuarios");
+              }
             });
+        } else {
+          history.push("/admin/usuarios");
         }
       })
       .catch((e) => {
-        console.log(e);
+        if (e.response.status === 400) {
+          if (e.response.data) alert(e.response.data.msg);
+          else alert("Inputs do usuário incorretos.");
+        }
       });
   }
 

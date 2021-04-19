@@ -33,7 +33,12 @@ export default function User({ userInfo, editais }) {
     } else {
       axios
         .get(`projeto?cpfUsuario=${userInfo.cpf}`)
-        .then((response) => setProjetos(response.data.results));
+        .then((response) => setProjetos(response.data.results))
+        .catch((e) => {
+          if (e.response.status === 400) {
+            alert("verifique o cpf no cadastro desse usuario");
+          }
+        });
     }
   }
 
