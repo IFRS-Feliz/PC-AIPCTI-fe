@@ -26,6 +26,7 @@ export default function Menu() {
                 .split("/")
                 .filter((i) => i !== "").length !== 1 && (
                 <Link
+                  className={style.linkMenu}
                   to={location.pathname.substring(
                     0,
                     location.pathname.lastIndexOf("/")
@@ -46,18 +47,26 @@ export default function Menu() {
           </div>
           <div>
             {isAdmin() ? (
-              <Link to="/admin">Home</Link>
+              <Link to="/admin" className={style.linkMenu}>
+                Home
+              </Link>
             ) : (
-              <Link to="/projetos">Home</Link>
+              <Link to="/projetos" className={style.linkMenu}>
+                Home
+              </Link>
             )}
           </div>
           {isAdmin() ? (
             <>
               <div>
-                <Link to="/admin/usuarios">Usuários</Link>
+                <Link to="/admin/usuarios" className={style.linkMenu}>
+                  Usuários
+                </Link>
               </div>
               <div>
-                <Link to="/admin/editais">Editais</Link>
+                <Link to="/admin/editais" className={style.linkMenu}>
+                  Editais
+                </Link>
               </div>
             </>
           ) : (
@@ -65,7 +74,9 @@ export default function Menu() {
           )}
         </div>
         <div className={style.containerInner}>
-          <div>Account</div>
+          <div className={style.account}>
+            <p>Seja bem vindo(a) {user.nome}</p>
+          </div>
         </div>
       </div>
     </div>
