@@ -4,7 +4,7 @@ import axios from "../axios";
 import Projeto from "./Projeto";
 import style from "../assets/css/components/user.module.css";
 
-export default function User({ userInfo, editais }) {
+export default function User({ userInfo, editais, users, setUsers }) {
   const [projetos, setProjetos] = useState([]);
   const [arrowClass, setarrowClass] = useState(style.hidden);
   const [animation, setAnimation] = useState(style.projetosHidden);
@@ -42,6 +42,20 @@ export default function User({ userInfo, editais }) {
     }
   }
 
+  function handleDelete() {
+    axios
+      .delete("/usuario", {
+        data: { cpf: userInfo.cpf },
+      })
+      .then(() => {
+        let newUsers = users.filter((user) => user.cpf !== userInfo.cpf);
+        setUsers(newUsers);
+      })
+      .catch((e) => {
+        alert("Não foi possível deleter esse usuário. Tente novamente.");
+      });
+  }
+
   return (
     <div className={style.userContainer}>
       <div className={style.user}>
@@ -59,7 +73,12 @@ export default function User({ userInfo, editais }) {
               <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
             </svg>
           </button>
-          <button className={style.botaoUser}>
+          <button
+            onClick={() => {
+              handleDelete();
+            }}
+            className={style.botaoUser}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="24"
@@ -109,6 +128,8 @@ export default function User({ userInfo, editais }) {
                 projetoInfo={projeto}
                 userInfo={userInfo}
                 editais={editais}
+                projetos={projetos}
+                setProjetos={setProjetos}
               />
             );
           })}

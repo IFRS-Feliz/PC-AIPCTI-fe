@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "../../../axios";
 
 import User from "../../../Components/User";
@@ -13,6 +13,8 @@ export default function Admin() {
   const [editais, setEditais] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
+
+  const filterRef = useRef(null);
 
   useEffect(() => {
     axios
@@ -33,6 +35,18 @@ export default function Admin() {
         console.log(e);
       });
   }, []);
+
+  useEffect(() => {
+    setSearchResults(
+      users.filter(
+        (user) =>
+          user.nome
+            .toLowerCase()
+            .includes(filterRef.current.value.toLocaleLowerCase()) ||
+          String(user.cpf).includes(filterRef.current.value)
+      )
+    );
+  }, [users]);
 
   function handleFilterChange(e) {
     //filtrar por nome ou cpf
@@ -57,6 +71,7 @@ export default function Admin() {
             type="text"
             placeholder="Filtrar por nome ou CPF"
             className={style.filtrar}
+            ref={filterRef}
           />
 
           <button
@@ -78,8 +93,16 @@ export default function Admin() {
       </div>
 
       <div className="users">
-        {searchResults.map((user) => {
-          return <User key={user.cpf} userInfo={user} editais={editais} />;
+        {searchResults.map((user, i) => {
+          return (
+            <User
+              key={user.cpf}
+              userInfo={user}
+              editais={editais}
+              users={users}
+              setUsers={setUsers}
+            />
+          );
         })}
       </div>
     </>
