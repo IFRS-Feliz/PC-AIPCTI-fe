@@ -25,6 +25,7 @@
 .ulHeader {
   grid-area: ulHeader;
   list-style: none;
+  display: flex;
 }
 
 .titulo {
@@ -49,4 +50,16 @@
 .link {
   width: min-content;
   margin: auto;
+}
+
+.logout {
+  margin: auto;
+}
+
+.logoutButton {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: #247d33 0.2rem solid;
+  background-color: white;
+  transition: 0.2s ease;
 }

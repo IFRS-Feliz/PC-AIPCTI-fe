@@ -39,6 +39,15 @@
   margin-right: 2.5rem;
   box-sizing: border-box;
   padding: 0 1rem;
+  transition: 0.2s ease;
+}
+
+.inputProjeto:focus {
+  background-color: rgb(255, 240, 240);
+}
+
+.inputProjeto:hover {
+  background-color: rgb(255, 250, 250);
 }
 
 .botaoProjeto {
@@ -53,8 +62,12 @@
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
-  border-top: 0.2rem solid #084c61;
-  border-left: 0.2rem solid #084c61;
+  transition: 0.3s ease;
+}
+
+.botaoProjeto:hover {
+  width: 3.5rem;
+  height: 3.5rem;
 }
 
 .espacamento {
@@ -109,4 +122,10 @@
   height: 13rem;
   overflow: hidden;
   transition: 0.3s ease;
+}
+
+.optionProjeto {
+  margin: 1rem;
+  border-radius: 0.5rem;
+  height: auto;
 }

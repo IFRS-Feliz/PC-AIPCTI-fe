@@ -1,6 +1,6 @@
 .containerAdmin {
   display: flex;
-  height: 25rem;
+  padding: 3rem;
   justify-content: space-between;
   max-width: 30rem;
   width: 90%;
@@ -10,7 +10,7 @@
 
 .separador {
   width: 1px;
-  height: 50%;
+  height: 10rem;
   background-color: black;
 }
 
@@ -41,4 +41,8 @@
 .pAdmin {
   margin-top: 1rem;
   font-size: 2rem;
+}
+
+.tituloAdmin {
+  text-align: center;
 }

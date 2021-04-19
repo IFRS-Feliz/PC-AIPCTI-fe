@@ -18,7 +18,13 @@ export default function Header() {
             Geração de relatório de prestações de contas
           </h1>
           <ul className={(style.row, style.ulHeader)}>
-            <li>{user && <button onClick={Logout}>Logout</button>}</li>
+            <li className={style.logout}>
+              {user && (
+                <button onClick={Logout} className={style.logoutButton}>
+                  Logout
+                </button>
+              )}
+            </li>
           </ul>
         </nav>
       </header>

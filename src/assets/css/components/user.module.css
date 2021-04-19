@@ -85,7 +85,8 @@
   align-items: flex-end;
   overflow: hidden;
   transition: 2s ease;
-  max-height: 50rem;
+  /* A pessoa não pode ter mais de 20 projetos */
+  max-height: 64rem;
 }
 
 .projetosHidden {
