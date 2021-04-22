@@ -10,12 +10,12 @@
 .user {
   display: flex;
   justify-content: space-between;
-  background-color: #2ea042;
+  background-color: #df4229;
   max-width: 50rem;
   margin: 1rem 0;
   border-radius: 0.5rem;
   height: 2rem;
-  border: solid 0.2rem #247d33;
+  border: solid 0.2rem #e0270a;
   padding: 0 0.5rem;
   grid-template-columns: 5fr 0.5fr;
   align-items: center;
@@ -31,7 +31,7 @@
   transform: translateY(-0.1rem);
   font-size: 1.5rem;
   margin: 0 0.2rem;
-  color: #247d33;
+  color: #fff;
   user-select: none;
 }
 
@@ -48,6 +48,7 @@
 
 .pUser {
   color: white;
+  font-weight: bold;
 }
 
 .botaoUser {
@@ -84,9 +85,9 @@
   flex-direction: column;
   align-items: flex-end;
   overflow: hidden;
-  transition: 2s ease;
-  /* A pessoa não pode ter mais de 20 projetos */
-  max-height: 64rem;
+  transition: max-height 700s ease;
+  /* O usuário agora pode ter 49.999 projetos */
+  max-height: 160000rem;
 }
 
 .projetosHidden {

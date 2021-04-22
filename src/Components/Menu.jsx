@@ -75,7 +75,7 @@ export default function Menu() {
         </div>
         <div className={style.containerInner}>
           <div className={style.account}>
-            <p>Seja bem vindo(a) {user.nome}</p>
+            <p>Seja bem vindo(a), {user.nome && user.nome.split(" ")[0]}</p>
           </div>
         </div>
       </div>

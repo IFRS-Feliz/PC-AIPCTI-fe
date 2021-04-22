@@ -35,7 +35,7 @@ export default function Login() {
   }
 
   return (
-    <>
+    <div className={style.centralizar}>
       <div className={style.containerLogin}>
         <form
           onSubmit={(e) => {
@@ -122,6 +122,6 @@ export default function Login() {
           <p className={style.pLogin}>não consegue acessar?</p>
         </form>
       </div>
-    </>
+    </div>
   );
 }

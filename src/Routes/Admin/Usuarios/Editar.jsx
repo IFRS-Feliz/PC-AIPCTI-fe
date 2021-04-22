@@ -175,9 +175,7 @@ export default function Editar() {
           <div>Projetos deletados: {sendDataStatus.deleteProjetos}</div>
         </div>
       )}
-      <h1 className={style.adicionarH1}>
-        Editar {cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}:
-      </h1>
+      <h1 className={style.adicionarH1}>Editar informações do usuário:</h1>
       <form
         className={style.adicionarUserForm}
         onSubmit={(e) => {
