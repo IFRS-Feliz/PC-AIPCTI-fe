@@ -4,6 +4,13 @@ import { useHistory } from "react-router";
 import NovoProjeto from "../../../Components/NovoProjeto";
 
 import style from "../../../assets/css/routes/adicionar.module.css";
+import {
+  handleAddProject,
+  handleCPFInputChange,
+  handleNomeInputChange,
+  handleEmailInputChange,
+  fieldsHaveErrors,
+} from "../../../Helpers/EditarAdicionarUsuario";
 
 export default function Adicionar() {
   const history = useHistory();
@@ -16,9 +23,7 @@ export default function Adicionar() {
     cpf: true,
     nome: true,
     email: true,
-    projetos: [],
   });
-
   const [wasTouched, setWasTouched] = useState({
     cpf: false,
     nome: false,
@@ -36,30 +41,12 @@ export default function Adicionar() {
       });
   }, []);
 
-  function handleAddProject() {
-    if (editais.length === 0) {
-      alert("É necessário adicionar editais antes de adicionar projetos.");
-      return;
-    }
-    setProjetos([
-      ...projetos,
-      {
-        nome: "",
-        valorRecebidoCapital: 0,
-        valorRecebidoCusteio: 0,
-        valorRecebidoTotal: 0,
-        idEdital: 1,
-      },
-    ]);
-  }
-
   function handleCreateUser() {
     axios
       .post("/usuario", {
         cpf: user.cpf,
         nome: user.nome,
         email: user.email,
-        isAdmin: false,
       })
       .then(() => {
         if (projetos.length > 0) {
@@ -89,51 +76,6 @@ export default function Adicionar() {
       });
   }
 
-  //form validation
-  function fieldsHaveErrors() {
-    const errosNomesProjetos = !!projetos.filter((p) => p.nome === "").length;
-    return Object.values(errors).includes(true) || errosNomesProjetos;
-  }
-
-  function handleCPFInputChange(e) {
-    //remover caracteres indesejados
-    e.target.value = e.target.value.replace(/[^\d]/g, "");
-
-    setUser({ ...user, cpf: e.target.value });
-
-    //adicionar pontos e hifen
-    if (e.target.value.length === 11) {
-      e.target.value = e.target.value.replace(
-        /(\d{3})(\d{3})(\d{3})(\d{2})/,
-        "$1.$2.$3-$4"
-      );
-    }
-
-    if (e.target.value.length !== 14) {
-      setErrors({ ...errors, cpf: true });
-    } else if (errors.cpf) {
-      setErrors({ ...errors, cpf: false });
-    }
-  }
-
-  function handleNomeInputChange(e) {
-    setUser({ ...user, nome: e.target.value });
-    if (e.target.value.length === 0) {
-      setErrors({ ...errors, nome: true });
-    } else if (errors.nome) {
-      setErrors({ ...errors, nome: false });
-    }
-  }
-
-  function handleEmailInputChange(e) {
-    setUser({ ...user, email: e.target.value });
-    if (!/^[^\s@]+@[^\s@]+$/.test(e.target.value)) {
-      setErrors({ ...errors, email: true });
-    } else if (errors.email) {
-      setErrors({ ...errors, email: false });
-    }
-  }
-
   return (
     <>
       <div className={style.containerAdicionar}>
@@ -150,7 +92,9 @@ export default function Adicionar() {
               id="cpf"
               type="text"
               onBlur={() => setWasTouched({ ...wasTouched, cpf: true })}
-              onChange={(e) => handleCPFInputChange(e)}
+              onChange={(e) =>
+                handleCPFInputChange(e, errors, setErrors, user, setUser)
+              }
               className={
                 errors.cpf && wasTouched.cpf
                   ? `wrongInput ${style.normalInput}`
@@ -165,7 +109,9 @@ export default function Adicionar() {
               id="nome"
               type="text"
               onBlur={() => setWasTouched({ ...wasTouched, nome: true })}
-              onChange={(e) => handleNomeInputChange(e)}
+              onChange={(e) =>
+                handleNomeInputChange(e, errors, setErrors, user, setUser)
+              }
               className={
                 errors.nome && wasTouched.nome
                   ? `wrongInput ${style.normalInput}`
@@ -179,7 +125,9 @@ export default function Adicionar() {
               id="email"
               type="email"
               onBlur={() => setWasTouched({ ...wasTouched, email: true })}
-              onChange={(e) => handleEmailInputChange(e)}
+              onChange={(e) =>
+                handleEmailInputChange(e, errors, setErrors, user, setUser)
+              }
               className={
                 errors.email && wasTouched.email
                   ? `wrongInput ${style.normalInput}`
@@ -208,7 +156,7 @@ export default function Adicionar() {
 
         <button
           className={style.adicionarBotaoMaisProjeto}
-          onClick={handleAddProject}
+          onClick={() => handleAddProject(editais, setProjetos, projetos)}
         >
           <svg height="1.5rem" width="1.5rem">
             <path
@@ -220,7 +168,7 @@ export default function Adicionar() {
         </button>
         {/* <button onClick={() => console.log(projetos)}>loggar projetos</button> */}
         <button
-          disabled={fieldsHaveErrors()}
+          disabled={fieldsHaveErrors(projetos, errors)}
           className={style.adicionarBotaoCriarUsuario}
           onClick={handleCreateUser}
         >

@@ -83,3 +83,15 @@
 .adicionarBotaoCriarUsuario svg {
   transform: translate(0.3rem, 0.3rem);
 }
+
+.modalStatus {
+  position: fixed;
+  top: 40%;
+  background-color: #ededed;
+  padding: 0.8rem 1rem 1rem 1rem;
+  box-shadow: 0px 0px 5px 1px black;
+}
+
+.modalStatus > div {
+  margin: 1rem;
+}

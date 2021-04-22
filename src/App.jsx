@@ -6,6 +6,7 @@ import Projetos from "./Routes/Projetos";
 import Admin from "./Routes/Admin/Admin";
 import Usuarios from "./Routes/Admin/Usuarios/Usuarios";
 import Adicionar from "./Routes/Admin/Usuarios/Adicionar";
+import Editar from "./Routes/Admin/Usuarios/Editar";
 import Editais from "./Routes/Admin/Editais/Editais";
 import NotFound404 from "./Routes/NotFound404";
 
@@ -44,6 +45,11 @@ export default function App() {
             <Route exact path="/admin/usuarios/adicionar">
               <WithAuth isAdminOnly={true}>
                 <Adicionar />
+              </WithAuth>
+            </Route>
+            <Route exact path="/admin/usuarios/:cpf">
+              <WithAuth isAdminOnly={true}>
+                <Editar />
               </WithAuth>
             </Route>
             <Route exact path="/admin/editais">

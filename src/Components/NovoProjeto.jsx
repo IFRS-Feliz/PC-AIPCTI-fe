@@ -49,15 +49,15 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
         <input
           onChange={(e) => {
             let newProjetos = [...projetos];
-            newProjetos[index].valorRecebidoCapital = Number(e.target.value);
+            newProjetos[index].valorRecebidoCapital =
+              Number(e.target.value) || "";
             newProjetos[index].valorRecebidoTotal =
               Number(e.target.value) +
               Number(projetos[index].valorRecebidoCusteio);
             setProjetos(newProjetos);
           }}
           type="number"
-          //acho que nao é necessario por nao ter um valor inicial relevante
-          // value={projetos[index].valorRecebidoCapital}
+          value={projetos[index].valorRecebidoCapital}
           id="capital"
           placeholder={0}
         />
@@ -67,15 +67,15 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
         <input
           onChange={(e) => {
             let newProjetos = [...projetos];
-            newProjetos[index].valorRecebidoCusteio = Number(e.target.value);
+            newProjetos[index].valorRecebidoCusteio =
+              Number(e.target.value) || "";
             newProjetos[index].valorRecebidoTotal =
               Number(e.target.value) +
               Number(projetos[index].valorRecebidoCapital);
             setProjetos(newProjetos);
           }}
           type="number"
-          //acho que nao é necessario por nao ter um valor inicial relevante
-          // value={projetos[index].valorRecebidoCusteio}
+          value={projetos[index].valorRecebidoCusteio}
           id="custeio"
           placeholder={0}
         />

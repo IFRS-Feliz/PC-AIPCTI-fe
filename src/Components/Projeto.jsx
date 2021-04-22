@@ -34,9 +34,7 @@ export default function Projeto({
   function handleConfirm() {
     axios
       .put("/projeto", {
-        cpfUsuario: userInfo.cpf,
-        id: projetoNewInfo.id,
-        projetoNewInfo: projetoNewInfo,
+        projetos: [projetoNewInfo],
       })
       .then(() => {
         setInitialProjetoInfo(projetoNewInfo);
@@ -44,13 +42,15 @@ export default function Projeto({
       .catch((e) => {
         if (e.response.status === 400) {
           alert("Inputs do projeto incorretos");
+        } else {
+          console.log(e);
         }
       });
   }
 
   function handleDelete() {
     axios
-      .delete("/projeto", { data: { id: projetoInfo.id } })
+      .delete("/projeto", { data: { projetos: [{ id: projetoInfo.id }] } })
       .then((result) => {
         setProjetos(
           projetos.filter((projeto) => projeto.id !== projetoInfo.id)
