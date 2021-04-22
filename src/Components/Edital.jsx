@@ -1,11 +1,17 @@
-import { useState } from "react";
 import axios from "../axios";
-
-import Projeto from "./Projeto";
-import style from "../assets/css/components/user.module.css";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-export default function User({ userInfo, editais, users, setUsers }) {
+import style from "../assets/css/components/user.module.css";
+import Projeto from "./Projeto";
+
+export default function Edital({
+  editalInfo,
+  todosProjetos,
+  setTodosProjetos,
+  todosEditais,
+  setTodosEditais,
+}) {
   const [projetos, setProjetos] = useState([]);
   const [arrowClass, setarrowClass] = useState(style.hidden);
   const [animation, setAnimation] = useState(style.projetosHidden);
@@ -29,41 +35,53 @@ export default function User({ userInfo, editais, users, setUsers }) {
   }
 
   function handleShowProjects() {
-    if (projetos.length > 0) {
-      setProjetos([]);
-    } else {
+    //sempre atualizar a lista de todos os projetos ao visualizar
+    //talvez seja muito pesado, pq todos os editais atualizam seus proprios projetos
+    //quando isso acontece
+    axios
+      .get(`projeto`)
+      .then((response) => setTodosProjetos(response.data.results))
+      .catch((e) => {
+        if (e.response.status === 400) {
+          alert("algo de errado");
+        }
+      });
+  }
+
+  function handleDelete() {
+    if (projetos.length === 0) {
       axios
-        .get(`projeto?cpfUsuario=${userInfo.cpf}`)
-        .then((response) => setProjetos(response.data.results))
+        .delete("/edital", {
+          data: { id: editalInfo.id },
+        })
+        .then(() => {
+          let newTodosEditais = todosEditais.filter(
+            (edital) => edital.id !== editalInfo.id
+          );
+          setTodosEditais(newTodosEditais);
+        })
         .catch((e) => {
-          if (e.response.status === 400) {
-            alert("verifique o cpf no cadastro desse usuario");
-          }
+          alert("Não foi possível deleter esse edital. Tente novamente.");
         });
     }
   }
 
-  function handleDelete() {
-    axios
-      .delete("/usuario", {
-        data: { cpf: userInfo.cpf },
-      })
-      .then(() => {
-        let newUsers = users.filter((user) => user.cpf !== userInfo.cpf);
-        setUsers(newUsers);
-      })
-      .catch((e) => {
-        alert("Não foi possível deleter esse usuário. Tente novamente.");
-      });
-  }
+  //setar projetos do edital
+  useEffect(() => {
+    setProjetos(
+      todosProjetos.filter((projeto) => projeto.idEdital === editalInfo.id)
+    );
+  }, [todosProjetos, editalInfo.id]);
 
   return (
     <div className={style.userContainer}>
       <div className={style.user}>
-        <p className={style.pUser}>{`${userInfo.nome} - ${userInfo.cpf}`}</p>
+        <p
+          className={style.pUser}
+        >{`${editalInfo.nome}  |  ${editalInfo.dataInicio}-${editalInfo.dataFim}`}</p>
         <div className={style.agruparBotoes}>
           <Link
-            to={`/admin/usuarios/${userInfo.cpf}`}
+            to={`/admin/editais/${editalInfo.id}`}
             className={style.botaoUser}
           >
             <svg
@@ -78,9 +96,13 @@ export default function User({ userInfo, editais, users, setUsers }) {
             </svg>
           </Link>
           <button
-            onClick={() => {
-              handleDelete();
-            }}
+            disabled={projetos.length > 0}
+            title={
+              projetos.length > 0
+                ? "Não é possível apagar editais que possuem projetos."
+                : ""
+            }
+            onClick={handleDelete}
             className={style.botaoUser}
           >
             <svg
@@ -96,6 +118,8 @@ export default function User({ userInfo, editais, users, setUsers }) {
           </button>
           <p className={style.linhaVertical}>|</p>
           <button
+            disabled={projetos.length === 0}
+            title={projetos.length === 0 ? "Não possui projetos." : ""}
             onClick={() => {
               mostrar();
               rotacionar();
@@ -124,15 +148,14 @@ export default function User({ userInfo, editais, users, setUsers }) {
       {projetos.length > 0 && (
         <div className={animation}>
           <div className={style.separador}></div>
-
-          {projetos.map((projeto, index) => {
+          {projetos.map((projeto) => {
             return (
               <Projeto
                 key={projeto.id}
                 projetoInfo={projeto}
-                editais={editais}
-                projetos={projetos}
-                setProjetos={setProjetos}
+                editais={todosEditais}
+                projetos={todosProjetos}
+                setProjetos={setTodosProjetos}
               />
             );
           })}

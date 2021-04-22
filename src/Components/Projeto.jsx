@@ -5,7 +5,6 @@ import style from "../assets/css/components/projeto.module.css";
 
 export default function Projeto({
   projetoInfo,
-  userInfo,
   editais,
   projetos,
   setProjetos,
