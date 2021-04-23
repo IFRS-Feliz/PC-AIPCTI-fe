@@ -10,13 +10,12 @@
 .user {
   display: flex;
   justify-content: space-between;
-  background-color: #df4229;
+  background-color: #ca302d;
   max-width: 50rem;
   margin: 1rem 0;
   border-radius: 0.5rem;
-  height: 2rem;
-  border: solid 0.2rem #e0270a;
-  padding: 0 0.5rem;
+  border: solid 0.2rem #a41726;
+  padding: 0.5rem 0.5rem;
   grid-template-columns: 5fr 0.5fr;
   align-items: center;
 }
@@ -25,6 +24,7 @@
   display: flex;
   height: 1rem;
   align-items: center;
+  margin-left: 1rem;
 }
 
 .linhaVertical {
@@ -43,7 +43,6 @@
 
 .pUser {
   color: white;
-  font-weight: bold;
 }
 
 .botaoUser {

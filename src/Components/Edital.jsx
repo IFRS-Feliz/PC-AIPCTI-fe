@@ -73,12 +73,15 @@ export default function Edital({
     );
   }, [todosProjetos, editalInfo.id]);
 
+  const dataInicio = editalInfo.dataInicio.substring(0, 10).split("-");
+  const dataFim = editalInfo.dataFim.substring(0, 10).split("-");
+
   return (
     <div className={style.userContainer}>
       <div className={style.user}>
         <p
           className={style.pUser}
-        >{`${editalInfo.nome}  |  ${editalInfo.dataInicio}-${editalInfo.dataFim}`}</p>
+        >{`${editalInfo.nome}  |  ${dataInicio[2]}/${dataInicio[1]}/${dataInicio[0]} - ${dataFim[2]}/${dataFim[1]}/${dataFim[0]}`}</p>
         <div className={style.agruparBotoes}>
           <Link
             to={`/admin/editais/${editalInfo.id}`}

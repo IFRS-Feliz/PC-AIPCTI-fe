@@ -58,7 +58,7 @@
   height: 3rem;
   border-radius: 5rem;
   border: none;
-  background-color: #df4229;
+  background-color: #ca302d;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
@@ -128,4 +128,25 @@
   margin: 1rem;
   border-radius: 0.5rem;
   height: auto;
+}
+
+/* -=-=-=-=-=-=-=-=-=-= Quando for o site principal =-=-=-=-=-=-=-=-=-=-=-=-= */
+
+.containerProjetoMain {
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+  background-color: #ededed;
+  border: solid 0.2rem #e2e2e2;
+  border-radius: 0.5rem;
+  padding: 0.594rem;
+  align-items: center;
+}
+
+.containerEditarMain {
+  max-width: 50rem;
+  width: 100%;
+  background-color: #e2e2e2;
+  border-radius: 0.5rem;
+  position: relative;
+  margin-bottom: 1rem;
 }

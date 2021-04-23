@@ -68,6 +68,11 @@ export default function Menu() {
                   Editais
                 </Link>
               </div>
+              <div>
+                <Link to="/admin/projetos" className={style.linkMenu}>
+                  Projetos
+                </Link>
+              </div>
             </>
           ) : (
             <></>

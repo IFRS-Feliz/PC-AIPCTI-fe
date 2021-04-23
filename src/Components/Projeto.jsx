@@ -8,6 +8,7 @@ export default function Projeto({
   editais,
   projetos,
   setProjetos,
+  isMain = false,
 }) {
   const [isHidden, setIsHidden] = useState(true);
   const [initialProjetoInfo, setInitialProjetoInfo] = useState(projetoInfo);
@@ -61,8 +62,10 @@ export default function Projeto({
   }
 
   return (
-    <div className={style.containerEditar}>
-      <div className={style.containerProjeto}>
+    <div className={isMain ? style.containerEditarMain : style.containerEditar}>
+      <div
+        className={isMain ? style.containerProjetoMain : style.containerProjeto}
+      >
         <p className={style.nomeProjeto}>{initialProjetoInfo.nome}</p>
         <div className={style.agruparBotoes}>
           <button
