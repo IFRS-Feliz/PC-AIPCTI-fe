@@ -2,7 +2,13 @@
 import { useState } from "react";
 import style from "../assets/css/components/novoProjeto.module.css";
 
-export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
+export default function NovoProjeto({
+  projetos,
+  setProjetos,
+  index,
+  editais = [], //quando estiver sendo criado durante a criacao de um usuario
+  users = [], //quando estiver sendo criado durante a criacao de um edital
+}) {
   const [nomeWasTouched, setNomeWasTouched] = useState(false);
 
   return (
@@ -49,15 +55,14 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
         <input
           onChange={(e) => {
             let newProjetos = [...projetos];
-            newProjetos[index].valorRecebidoCapital =
-              Number(e.target.value) || "";
+            newProjetos[index].valorRecebidoCapital = Number(e.target.value);
             newProjetos[index].valorRecebidoTotal =
               Number(e.target.value) +
               Number(projetos[index].valorRecebidoCusteio);
             setProjetos(newProjetos);
           }}
           type="number"
-          value={projetos[index].valorRecebidoCapital}
+          value={projetos[index].valorRecebidoCapital || ""}
           id="capital"
           placeholder={0}
         />
@@ -67,39 +72,66 @@ export default function NovoProjeto({ projetos, setProjetos, index, editais }) {
         <input
           onChange={(e) => {
             let newProjetos = [...projetos];
-            newProjetos[index].valorRecebidoCusteio =
-              Number(e.target.value) || "";
+            newProjetos[index].valorRecebidoCusteio = Number(e.target.value);
             newProjetos[index].valorRecebidoTotal =
               Number(e.target.value) +
               Number(projetos[index].valorRecebidoCapital);
             setProjetos(newProjetos);
           }}
           type="number"
-          value={projetos[index].valorRecebidoCusteio}
+          value={projetos[index].valorRecebidoCusteio || ""}
           id="custeio"
           placeholder={0}
         />
       </div>
-      <div className={style.novoProjetoField}>
-        <label htmlFor="edital">Edital:</label>
-        <select
-          value={projetos[index].idEdital}
-          id="edital"
-          onChange={(e) => {
-            let newProjetos = [...projetos];
-            newProjetos[index].idEdital = e.target.value;
-            setProjetos(newProjetos);
-          }}
-        >
-          {editais.map((edital) => {
-            return (
-              <option key={edital.id} value={edital.id}>
-                {edital.nome}
-              </option>
-            );
-          })}
-        </select>
-      </div>
+
+      {/*caso seja um projeto esteja sendo criado durante a criacao de um usuario*/}
+      {editais.length > 0 && (
+        <div className={style.novoProjetoField}>
+          <label htmlFor="edital">Edital:</label>
+          <select
+            value={projetos[index].idEdital}
+            id="edital"
+            onChange={(e) => {
+              let newProjetos = [...projetos];
+              newProjetos[index].idEdital = e.target.value;
+              setProjetos(newProjetos);
+            }}
+          >
+            {editais.map((edital) => {
+              return (
+                <option key={edital.id} value={edital.id}>
+                  {edital.nome}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      )}
+
+      {/*caso seja um projeto esteja sendo criado durante a criacao de um edital*/}
+      {users.length > 0 && (
+        <div className={style.novoProjetoField}>
+          <label htmlFor="usuario">Usuario:</label>
+          <select
+            value={projetos[index].cpfUsuario}
+            id="usuario"
+            onChange={(e) => {
+              let newProjetos = [...projetos];
+              newProjetos[index].cpfUsuario = e.target.value;
+              setProjetos(newProjetos);
+            }}
+          >
+            {users.map((user) => {
+              return (
+                <option key={user.cpf} value={user.cpf}>
+                  {user.nome}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      )}
     </form>
   );
 }

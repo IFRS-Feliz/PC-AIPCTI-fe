@@ -42,6 +42,7 @@ export default function Adicionar() {
   }, []);
 
   function handleCreateUser() {
+    //adicionar usuario e em seguida seus projetos
     axios
       .post("/usuario", {
         cpf: user.cpf,
@@ -50,9 +51,11 @@ export default function Adicionar() {
       })
       .then(() => {
         if (projetos.length > 0) {
+          //setar cpf do usuario em cada projeto
+          projetos.forEach((projeto) => (projeto.cpfUsuario = user.cpf));
+          //adicionar projetos
           axios
             .post("/projeto", {
-              cpfUsuario: user.cpf,
               projetos: projetos,
             })
             .then(() => history.push("/admin/usuarios"))
