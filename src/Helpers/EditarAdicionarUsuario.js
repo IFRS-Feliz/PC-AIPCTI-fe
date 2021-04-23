@@ -1,16 +1,25 @@
-export function handleAddProject(editais, setNewProjetos, newProjetos) {
-  if (editais.length === 0) {
-    alert("É necessário adicionar editais antes de adicionar projetos.");
+export function handleAddProject(
+  editaisOrUsuarios,
+  setNewProjetos,
+  newProjetos,
+  cpf = "",
+  edital = ""
+) {
+  if (editaisOrUsuarios.length === 0) {
+    alert(
+      "É necessário ter ao menos um edital e um usuário antes de criar projetos."
+    );
     return;
   }
   setNewProjetos([
     ...newProjetos,
     {
+      cpfUsuario: cpf || editaisOrUsuarios[0].cpf || "", //cpf somente estara setado em casos de edição de usuarios
       nome: "",
       valorRecebidoCapital: 0,
       valorRecebidoCusteio: 0,
       valorRecebidoTotal: 0,
-      idEdital: 1,
+      idEdital: edital || editaisOrUsuarios[0].id || "", //edital somente estara setado em casos de edição de editais
     },
   ]);
 }

@@ -105,7 +105,6 @@ export default function Editar() {
         await axios
           .post("/projeto", {
             projetos: addedProjects,
-            cpfUsuario: cpf,
           })
           .catch(() => (failed.postProjetos = true));
       }
@@ -257,7 +256,9 @@ export default function Editar() {
         })}
 
       <button
-        onClick={() => handleAddProject(editais, setNewProjetos, newProjetos)}
+        onClick={() =>
+          handleAddProject(editais, setNewProjetos, newProjetos, cpf)
+        }
         className={style.adicionarBotaoMaisProjeto}
       >
         <svg height="1.5rem" width="1.5rem">
