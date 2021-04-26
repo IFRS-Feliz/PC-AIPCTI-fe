@@ -1,11 +1,20 @@
+.actualContainerAdmin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .containerAdmin {
   display: flex;
-  padding: 3rem;
-  justify-content: space-between;
-  max-width: 30rem;
-  width: 90%;
-  margin: auto;
+  justify-content: center;
   align-items: center;
+}
+
+.opcoesAdmin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
 }
 
 .separador {
@@ -15,14 +24,20 @@
 }
 
 .botaoAdmin {
-  margin: auto;
-  border-radius: 50%;
-  border: none;
-  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: #ca302d;
   width: 10rem;
   height: 10rem;
+  border-radius: 50%;
+  border: none;
+
   transition: transform 0.2s ease;
+}
+
+.botaoAdmin:hover {
+  transform: scale(1.15);
 }
 
 .svgAdmin {
@@ -30,19 +45,7 @@
   fill: #fff;
 }
 
-.botaoAdmin:hover {
-  transform: scale(1.15);
-}
-
-.centralizar {
-  text-align: center;
-}
-
 .pAdmin {
   margin-top: 1rem;
   font-size: 2rem;
-}
-
-.tituloAdmin {
-  text-align: center;
 }
