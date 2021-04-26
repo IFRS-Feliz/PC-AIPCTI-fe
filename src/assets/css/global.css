@@ -9,6 +9,11 @@
   text-decoration: none;
 }
 
+body,
+html {
+  min-width: 800px;
+}
+
 button:hover {
   cursor: pointer;
 }

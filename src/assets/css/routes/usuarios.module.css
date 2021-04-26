@@ -59,3 +59,49 @@
   width: 90%;
   margin: 2rem auto;
 }
+
+/* -=-=-=-=-=-=-=- Adicionar novos projetos no Projetos -=-=-=-=-=-=-=-= */
+
+.adicionarProjetoProjetos {
+  position: fixed;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.modalProjeto {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.582);
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  z-index: 1;
+}
+
+.botaoModal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: fixed;
+  right: 0;
+  bottom: 0;
+
+  border-top-left-radius: 4rem;
+  height: 3rem;
+  width: 3rem;
+
+  border: none;
+  background-color: #ca302d;
+  outline: none;
+}
+
+.botaoModal svg {
+  transform: translate(0.3rem, 0.3rem);
+  fill: white;
+}
+
+.botaoModal p {
+  text-align: center;
+}

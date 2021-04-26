@@ -1,11 +1,10 @@
 .novoProjetoForm {
   display: flex;
   flex-direction: column;
-  width: 90%;
+  width: 100%;
   max-width: 500px;
 
-  margin-bottom: 1rem;
-  padding: 0.3rem;
+  padding: 0.5rem;
   background-color: #e2e2e2;
   border-radius: 0.7rem;
 }

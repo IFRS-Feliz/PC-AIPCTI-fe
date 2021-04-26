@@ -54,6 +54,8 @@
   border: none;
   background-color: #ca302d;
   outline: none;
+
+  margin-top: 2rem;
 }
 
 .adicionarBotaoMaisProjeto p {

@@ -8,6 +8,7 @@ export default function NovoProjeto({
   index,
   editais = [], //quando estiver sendo criado durante a criacao de um usuario
   users = [], //quando estiver sendo criado durante a criacao de um edital
+  setModal = () => {},
 }) {
   const [nomeWasTouched, setNomeWasTouched] = useState(false);
 
@@ -37,6 +38,7 @@ export default function NovoProjeto({
         />
         <button
           onClick={(e) => {
+            setModal(true);
             let newProjetos = [...projetos];
             newProjetos.splice(index, 1);
             setProjetos(newProjetos);
