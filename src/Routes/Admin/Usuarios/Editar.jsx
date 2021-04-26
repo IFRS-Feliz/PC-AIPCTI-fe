@@ -10,6 +10,7 @@ import {
   handleNomeInputChange,
   handleEmailInputChange,
   fieldsHaveErrors,
+  getProjectArrays,
 } from "../../../Helpers/EditarAdicionarUsuario";
 
 export default function Editar() {
@@ -74,7 +75,7 @@ export default function Editar() {
                   console.log(e);
                 });
             }
-          }
+          } else history.push("/admin/usuarios");
         })
         .catch((e) => {
           console.log(e);
@@ -89,7 +90,7 @@ export default function Editar() {
       addedProjects,
       updatedProjects,
       deletedProjects,
-    } = getProjectArrays();
+    } = getProjectArrays(initialProjetos, newProjetos);
 
     async function sendData() {
       let failed = {};
@@ -147,20 +148,6 @@ export default function Editar() {
     }
 
     sendData();
-  }
-
-  function getProjectArrays() {
-    //projetos novos adicionados durante a edicao nao tem um id
-    //projetos deletados estao no initialProjects mas nao no newProjects
-    return {
-      addedProjects: newProjetos.filter((projeto) => projeto.id === undefined),
-      updatedProjects: newProjetos.filter(
-        (projeto) => projeto.id !== undefined
-      ),
-      deletedProjects: initialProjetos.filter(
-        (projeto) => !newProjetos.includes(projeto)
-      ),
-    };
   }
 
   return (

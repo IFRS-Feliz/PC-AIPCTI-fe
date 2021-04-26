@@ -67,3 +67,48 @@ export function fieldsHaveErrors(projetos, errors) {
   const errosNomesProjetos = !!projetos.filter((p) => p.nome === "").length;
   return Object.values(errors).includes(true) || errosNomesProjetos;
 }
+
+//editais
+export function handleDataInicioInputChange(
+  e,
+  errors,
+  setErrors,
+  edital,
+  setEdital
+) {
+  setEdital({ ...edital, dataInicio: e.target.value });
+  if (e.target.value === "") {
+    setErrors({ ...errors, dataInicio: true });
+  } else if (errors.dataInicio) {
+    setErrors({ ...errors, dataInicio: false });
+  }
+}
+
+export function handleDataFimInputChange(
+  e,
+  errors,
+  setErrors,
+  edital,
+  setEdital
+) {
+  setEdital({ ...edital, dataFim: e.target.value });
+  if (e.target.value === "") {
+    setErrors({ ...errors, dataFim: true });
+  } else if (errors.dataFim) {
+    setErrors({ ...errors, dataFim: false });
+  }
+}
+
+//editar
+
+export function getProjectArrays(initialProjetos, newProjetos) {
+  //projetos novos adicionados durante a edicao nao tem um id
+  //projetos deletados estao no initialProjects mas nao no newProjects
+  return {
+    addedProjects: newProjetos.filter((projeto) => projeto.id === undefined),
+    updatedProjects: newProjetos.filter((projeto) => projeto.id !== undefined),
+    deletedProjects: initialProjetos.filter(
+      (projeto) => !newProjetos.includes(projeto)
+    ),
+  };
+}

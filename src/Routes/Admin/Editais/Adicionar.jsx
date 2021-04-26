@@ -3,13 +3,17 @@ import {
   handleNomeInputChange,
   fieldsHaveErrors,
   handleAddProject,
+  handleDataFimInputChange,
+  handleDataInicioInputChange,
 } from "../../../Helpers/EditarAdicionarUsuario";
 import NovoProjeto from "../../../Components/NovoProjeto";
 import { useState, useEffect } from "react";
 
 import style from "../../../assets/css/routes/adicionar.module.css";
+import { useHistory } from "react-router";
 
 export default function Adicionar() {
+  const history = useHistory();
   const [edital, setEdital] = useState({
     nome: "",
     dataInicio: "",
@@ -43,29 +47,6 @@ export default function Adicionar() {
       });
   }, []);
 
-  function handleDataInicioInputChange(
-    e,
-    errors,
-    setErrors,
-    edital,
-    setEdital
-  ) {
-    setEdital({ ...edital, dataInicio: e.target.value });
-    if (e.target.value === "") {
-      setErrors({ ...errors, dataInicio: true });
-    } else if (errors.dataInicio) {
-      setErrors({ ...errors, dataInicio: false });
-    }
-  }
-  function handleDataFimInputChange(e, errors, setErrors, edital, setEdital) {
-    setEdital({ ...edital, dataFim: e.target.value });
-    if (e.target.value === "") {
-      setErrors({ ...errors, dataFim: true });
-    } else if (errors.dataFim) {
-      setErrors({ ...errors, dataFim: false });
-    }
-  }
-
   function handleCreateEdital() {
     const ano = edital.dataInicio.substring(0, 4);
     console.log(ano);
@@ -78,20 +59,23 @@ export default function Adicionar() {
         ano: ano,
       })
       .then((response) => {
-        console.log(response);
-        const idEdital = response.data.results.insertId;
-        projetos.forEach((projeto) => (projeto.idEdital = idEdital));
-        axios
-          .post("/projeto", { projetos: projetos })
-          .then((response) => {
-            console.log(response);
-          })
-          .catch((e) => {
-            console.log(e);
-          });
+        if (projetos.length > 0) {
+          const idEdital = response.data.results.insertId;
+          projetos.forEach((projeto) => (projeto.idEdital = idEdital));
+          axios
+            .post("/projeto", { projetos: projetos })
+            .then(() => {
+              history.push("/admin/usuarios");
+            })
+            .catch((e) => {
+              alert(
+                "Nao foi possivel adicionar os projetos ao edital. Tente novamente."
+              );
+            });
+        } else history.push("/admin/usuarios");
       })
       .catch((e) => {
-        console.log(e);
+        alert("Nao foi possivel adicionar o edital. Tente novamente.");
       });
   }
 
