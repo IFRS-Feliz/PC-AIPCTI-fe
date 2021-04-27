@@ -8,6 +8,7 @@ import {
   handleDataFimInputChange,
   handleDataInicioInputChange,
   getProjectArrays,
+  handleDataLimiteInputChange,
 } from "../../../Helpers/EditarAdicionarUsuario";
 import NovoProjeto from "../../../Components/NovoProjeto";
 
@@ -21,7 +22,8 @@ export default function Editar() {
     nome: "",
     dataInicio: "",
     dataFim: "",
-    valorIPCT: 0,
+    valorAIPCTI: 0,
+    dataLimitePrestacao: "",
   });
   const [initialProjetos, setInitialProjetos] = useState([]);
   const [newProjetos, setNewProjetos] = useState([]);
@@ -32,13 +34,15 @@ export default function Editar() {
     nome: false,
     dataInicio: false,
     dataFim: false,
-    valorIPCT: false,
+    valorAIPCTI: false,
+    dataLimitePrestacao: false,
   });
   const [wasTouched, setWasTouched] = useState({
     nome: false,
     dataInicio: false,
     dataFim: false,
-    valorIPCT: false,
+    valorAIPCTI: false,
+    dataLimitePrestacao: false,
   });
 
   useEffect(() => {
@@ -53,6 +57,10 @@ export default function Editar() {
             10
           );
           response.data.results[0].dataFim = response.data.results[0].dataFim.substring(
+            0,
+            10
+          );
+          response.data.results[0].dataLimitePrestacao = response.data.results[0].dataLimitePrestacao.substring(
             0,
             10
           );
@@ -89,7 +97,7 @@ export default function Editar() {
 
   const [showStatus, setShowStatus] = useState(false);
   const [sendDataStatus, setSendDataStatus] = useState({
-    postUsuario: "",
+    postEdital: "",
     postProjetos: "",
     putProjetos: "",
     deleteProjetos: "",
@@ -111,8 +119,12 @@ export default function Editar() {
           nome: edital.nome,
           dataInicio: edital.dataInicio,
           dataFim: edital.dataFim,
-          valorIPCT: edital.valorIPCT,
+          valorAIPCTI: edital.valorAIPCTI,
           ano: ano,
+          dataLimitePrestacao: edital.dataLimitePrestacao,
+        })
+        .then((response) => {
+          console.log(response.data.results);
         })
         .catch(() => (failed.postEdital = true));
 
@@ -224,7 +236,7 @@ export default function Editar() {
             />
           </div>
           <div className={style.adicionarUserFormField}>
-            <label htmlFor="dataFim">Data de início:</label>
+            <label htmlFor="dataFim">Data de fim:</label>
             <input
               id="dataFim"
               type="date"
@@ -247,18 +259,45 @@ export default function Editar() {
             />
           </div>
           <div className={style.adicionarUserFormField}>
-            <label htmlFor="valorIPCT">Valor IPCT:</label>
+            <label htmlFor="dataLimitePrestacao">
+              Data de limite para prestação de contas:
+            </label>
             <input
-              id="valorIPCT"
-              type="number"
-              onBlur={() => setWasTouched({ ...wasTouched, valorIPCT: true })}
-              onChange={(e) =>
-                setEdital({ ...edital, valorIPCT: Number(e.target.value) })
+              id="dataLimitePrestacao"
+              type="date"
+              onBlur={() =>
+                setWasTouched({ ...wasTouched, dataLimitePrestacao: true })
               }
-              value={edital.valorIPCT || ""} //se for zero, mostrar placeholder
+              onChange={(e) =>
+                handleDataLimiteInputChange(
+                  e,
+                  errors,
+                  setErrors,
+                  edital,
+                  setEdital
+                )
+              }
+              value={edital.dataLimitePrestacao}
+              className={
+                errors.dataLimitePrestacao && wasTouched.dataLimitePrestacao
+                  ? `wrongInput ${style.normalInput}`
+                  : style.normalInput
+              }
+            />
+          </div>
+          <div className={style.adicionarUserFormField}>
+            <label htmlFor="valorAIPCTI">Valor AIPCTI:</label>
+            <input
+              id="valorAIPCTI"
+              type="number"
+              onBlur={() => setWasTouched({ ...wasTouched, valorAIPCTI: true })}
+              onChange={(e) =>
+                setEdital({ ...edital, valorAIPCTI: Number(e.target.value) })
+              }
+              value={edital.valorAIPCTI || ""} //se for zero, mostrar placeholder
               placeholder={0}
               className={
-                errors.valorIPCT && wasTouched.valorIPCT
+                errors.valorAIPCTI && wasTouched.valorAIPCTI
                   ? `wrongInput ${style.normalInput}`
                   : style.normalInput
               }

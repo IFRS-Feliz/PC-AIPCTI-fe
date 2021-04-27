@@ -99,6 +99,21 @@ export function handleDataFimInputChange(
   }
 }
 
+export function handleDataLimiteInputChange(
+  e,
+  errors,
+  setErrors,
+  edital,
+  setEdital
+) {
+  setEdital({ ...edital, dataLimitePrestacao: e.target.value });
+  if (e.target.value === "") {
+    setErrors({ ...errors, dataLimitePrestacao: true });
+  } else if (errors.dataLimitePrestacao) {
+    setErrors({ ...errors, dataLimitePrestacao: false });
+  }
+}
+
 //editar
 
 export function getProjectArrays(initialProjetos, newProjetos) {
