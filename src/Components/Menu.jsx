@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, NavLink } from "react-router-dom";
 
 import style from "../assets/css/components/menu.module.css";
 import AuthContext, { isAdmin } from "../Contexts/Auth";
@@ -7,6 +7,7 @@ import AuthContext, { isAdmin } from "../Contexts/Auth";
 export default function Menu() {
   const { user } = useContext(AuthContext);
   const location = useLocation();
+  const { Logout } = useContext(AuthContext);
 
   if (!user) return <div className={style.containerMenu}></div>;
 
@@ -47,31 +48,44 @@ export default function Menu() {
           </div>
           <div>
             {isAdmin() ? (
-              <Link to="/admin" className={style.linkMenu}>
+              <NavLink activeClassName={style.linkMenuFocus} exact to="/admin">
                 Home
-              </Link>
+              </NavLink>
             ) : (
-              <Link to="/projetos" className={style.linkMenu}>
+              <NavLink
+                activeClassName={style.linkMenuFocus}
+                exact
+                to="/projetos"
+              >
                 Home
-              </Link>
+              </NavLink>
             )}
           </div>
           {isAdmin() ? (
             <>
               <div>
-                <Link to="/admin/usuarios" className={style.linkMenu}>
+                <NavLink
+                  activeClassName={style.linkMenuFocus}
+                  to="/admin/usuarios"
+                >
                   Usuários
-                </Link>
+                </NavLink>
               </div>
               <div>
-                <Link to="/admin/editais" className={style.linkMenu}>
+                <NavLink
+                  activeClassName={style.linkMenuFocus}
+                  to="/admin/editais"
+                >
                   Editais
-                </Link>
+                </NavLink>
               </div>
               <div>
-                <Link to="/admin/projetos" className={style.linkMenu}>
+                <NavLink
+                  activeClassName={style.linkMenuFocus}
+                  to="/admin/projetos"
+                >
                   Projetos
-                </Link>
+                </NavLink>
               </div>
             </>
           ) : (
@@ -82,6 +96,12 @@ export default function Menu() {
           <div className={style.account}>
             <p>Seja bem vindo(a), {user.nome && user.nome.split(" ")[0]}</p>
           </div>
+
+          {user && (
+            <button onClick={Logout} className={style.logoutButton}>
+              <p>Logout</p>
+            </button>
+          )}
         </div>
       </div>
     </div>

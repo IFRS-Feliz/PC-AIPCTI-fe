@@ -3,10 +3,14 @@
   flex-direction: column;
   width: 100%;
   max-width: 500px;
-
+  min-width: 500px;
   padding: 0.5rem;
   background-color: #e2e2e2;
   border-radius: 0.7rem;
+}
+
+.novoProjetoForm + .novoProjetoForm {
+  margin-top: 2rem;
 }
 
 .novoProjetoNome {

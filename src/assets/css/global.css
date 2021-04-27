@@ -28,3 +28,7 @@ button:disabled {
 .wrongInput {
   border: 0.2rem solid #d95d39;
 }
+
+#teste:target {
+  color: blue;
+}

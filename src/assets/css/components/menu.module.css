@@ -30,8 +30,14 @@
   padding-right: 2.3rem;
 }
 
+.linkMenuFocus {
+  color: #084c61;
+  transition: 0.2s ease;
+}
+
 .linkMenu,
 .linkMenu svg {
+  color: black;
   transition: 0.2s ease;
 }
 
@@ -46,4 +52,18 @@
 .account {
   text-align: center;
   display: flex;
+}
+
+.logoutButton {
+  background-color: transparent;
+  border: none;
+}
+
+.logoutButton p {
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.logoutButton:hover p {
+  color: red;
 }

@@ -133,6 +133,7 @@ export default function Projetos() {
 
           <button
             className={style.addAdmin}
+            disabled={users.length === 0 || editais.length === 0}
             onClick={() => {
               setModal(false);
               setNovoProjeto([
