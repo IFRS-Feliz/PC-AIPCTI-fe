@@ -53,7 +53,6 @@ export default function Adicionar() {
 
   function handleCreateEdital() {
     const ano = edital.dataInicio.substring(0, 4);
-    console.log(ano);
     axios
       .post("/edital", {
         nome: edital.nome,
@@ -65,7 +64,7 @@ export default function Adicionar() {
       })
       .then((response) => {
         if (projetos.length > 0) {
-          const idEdital = response.data.results.insertId;
+          const idEdital = response.data.results.id;
           projetos.forEach((projeto) => (projeto.idEdital = idEdital));
           axios
             .post("/projeto", { projetos: projetos })

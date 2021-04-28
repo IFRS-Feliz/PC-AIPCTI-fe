@@ -66,7 +66,7 @@ export default function Projetos() {
         console.log(response);
         setProjetos([
           ...projetos,
-          { ...novoProjeto[0], id: response.data.results.insertId },
+          { ...novoProjeto[0], id: response.data.results.id },
         ]);
         setModal(true);
       })
