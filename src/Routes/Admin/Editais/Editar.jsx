@@ -123,9 +123,6 @@ export default function Editar() {
           ano: ano,
           dataLimitePrestacao: edital.dataLimitePrestacao,
         })
-        .then((response) => {
-          console.log(response.data.results);
-        })
         .catch(() => (failed.postEdital = true));
 
       if (addedProjects.length > 0) {

@@ -11,6 +11,7 @@ import Paginacao from "../../../Components/Paginacao";
 
 export default function Editais() {
   const [editais, setEditais] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const [searchResults, setSearchResults] = useState(editais);
   const limit = 20;
@@ -24,6 +25,14 @@ export default function Editais() {
       .get(`/edital`)
       .then((response) => {
         setEditais(response.data.results);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+    axios
+      .get("/usuario")
+      .then((response) => {
+        setUsers(response.data.results);
       })
       .catch((e) => {
         console.log(e);
@@ -74,7 +83,7 @@ export default function Editais() {
         <div className={style.filtrarContainer}>
           <input
             type="text"
-            placeholder="Filtrar por algo"
+            placeholder="Filtrar por nome"
             className={style.filtrar}
             onChange={(e) => handleFilterChange(e)}
             ref={filterRef}
@@ -103,6 +112,7 @@ export default function Editais() {
               editalInfo={edital}
               todosEditais={editais}
               setTodosEditais={setEditais}
+              users={users}
             />
           );
         })}

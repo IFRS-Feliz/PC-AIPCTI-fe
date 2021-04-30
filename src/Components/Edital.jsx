@@ -5,7 +5,12 @@ import { Link } from "react-router-dom";
 import style from "../assets/css/components/user.module.css";
 import Projeto from "./Projeto";
 
-export default function Edital({ editalInfo, todosEditais, setTodosEditais }) {
+export default function Edital({
+  editalInfo,
+  todosEditais,
+  setTodosEditais,
+  users,
+}) {
   const [projetos, setProjetos] = useState([]);
   const [arrowClass, setarrowClass] = useState(style.hidden);
   const [animation, setAnimation] = useState(style.projetosHidden);
@@ -131,7 +136,7 @@ export default function Edital({ editalInfo, todosEditais, setTodosEditais }) {
               <Projeto
                 key={projeto.id}
                 projetoInfo={projeto}
-                editais={todosEditais}
+                users={users}
                 projetos={projetos}
                 setProjetos={setProjetos}
               />

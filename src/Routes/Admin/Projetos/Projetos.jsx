@@ -28,7 +28,6 @@ export default function Projetos() {
     axios
       .get(`/projeto?limit=${limit}&page=${currentPage}`)
       .then((response) => {
-        console.log(response.data);
         setProjetos(response.data.results);
         SetNextPage(response.data.next);
       })
@@ -87,7 +86,7 @@ export default function Projetos() {
         console.log(response);
         setProjetos([
           ...projetos,
-          { ...novoProjeto[0], id: response.data.results.id },
+          { ...novoProjeto[0], id: response.data.results[0].id },
         ]);
         setModal(true);
       })
@@ -146,7 +145,7 @@ export default function Projetos() {
         <div className={style.filtrarContainer}>
           <input
             type="text"
-            placeholder="Filtrar por algo"
+            placeholder="Filtrar por nome"
             className={style.filtrar}
             onChange={(e) => handleFilterChange(e)}
             ref={filterRef}
@@ -193,6 +192,7 @@ export default function Projetos() {
                 projetos={projetos}
                 setProjetos={setProjetos}
                 isMain={true}
+                users={users}
               />
             </div>
           );
