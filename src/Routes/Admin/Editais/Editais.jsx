@@ -7,64 +7,65 @@ import Edital from "../../../Components/Edital";
 import style from "../../../assets/css/routes/usuarios.module.css";
 import { Link } from "react-router-dom";
 import { useRef } from "react";
+import Paginacao from "../../../Components/Paginacao";
 
 export default function Editais() {
   const [editais, setEditais] = useState([]);
-  const [projetos, setProjetos] = useState([]);
+
   const [searchResults, setSearchResults] = useState(editais);
+  const limit = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [nextPage, SetNextPage] = useState({});
 
   const filterRef = useRef(null);
 
   useEffect(() => {
     axios
-      .get("/edital")
+      .get(`/edital`)
       .then((response) => {
         setEditais(response.data.results);
-        setSearchResults(response.data.results);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    axios
-      .get("/projeto")
-      .then((response) => {
-        setProjetos(response.data.results);
       })
       .catch((e) => {
         console.log(e);
       });
   }, []);
 
-  function handleFilterChange(inputValue) {
-    //filtrar por edital ou projeto
-
-    setSearchResults(
-      editais.filter(
-        (edital) =>
-          edital.nome.includes(inputValue) ||
-          projetos.filter(
-            (projeto) =>
-              projeto.idEdital === edital.id &&
-              projeto.nome.includes(inputValue)
-          ).length > 0
-      )
-    );
-  }
-
   useEffect(() => {
-    //sempre manter os search results atualizados quando um edital for apagado
     setSearchResults(
-      editais.filter(
-        (edital) =>
-          edital.nome.includes(filterRef.current.value) ||
-          projetos.filter(
-            (projeto) =>
-              projeto.idEdital === edital.id &&
-              projeto.nome.includes(filterRef.current.value)
-          ).length > 0
-      )
+      editais.slice((currentPage - 1) * limit, limit * currentPage)
     );
-  }, [editais, projetos]);
+
+    if (currentPage * limit < editais.length) {
+      SetNextPage({
+        page: currentPage + 1,
+        limit: limit,
+        nextPagesCount: Math.ceil(editais.length / limit - currentPage),
+      });
+    } else {
+      SetNextPage();
+    }
+    filterRef.current.value = "";
+  }, [currentPage, editais]);
+
+  let typingTimer;
+  function handleFilterChange(e) {
+    function finishedTyping() {
+      axios
+        .get(`/search/edital?q=${e.target.value}`)
+        .then((response) => {
+          setSearchResults(response.data.results);
+        })
+        .catch((e) => console.log(e));
+    }
+
+    clearTimeout(typingTimer);
+    if (e.target.value) {
+      typingTimer = setTimeout(finishedTyping, 1000);
+    } else
+      setSearchResults(
+        editais.slice((currentPage - 1) * limit, limit * currentPage)
+      );
+  }
 
   return (
     <>
@@ -75,7 +76,7 @@ export default function Editais() {
             type="text"
             placeholder="Filtrar por algo"
             className={style.filtrar}
-            onChange={(e) => handleFilterChange(e.target.value)}
+            onChange={(e) => handleFilterChange(e)}
             ref={filterRef}
           />
 
@@ -100,14 +101,23 @@ export default function Editais() {
             <Edital
               key={edital.id}
               editalInfo={edital}
-              todosProjetos={projetos}
-              setTodosProjetos={setProjetos}
               todosEditais={editais}
               setTodosEditais={setEditais}
             />
           );
         })}
       </div>
+
+      {/* paginacao */}
+      {searchResults[0] ===
+        editais.slice((currentPage - 1) * limit, limit * currentPage)[0] && (
+        //somente mostrar paginacao quando nao filtrando
+        <Paginacao
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          nextPage={nextPage}
+        />
+      )}
     </>
   );
 }

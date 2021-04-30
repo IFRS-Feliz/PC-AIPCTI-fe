@@ -5,25 +5,33 @@ import User from "../../../Components/User";
 import { Link } from "react-router-dom";
 
 import style from "../../../assets/css/routes/usuarios.module.css";
+import Paginacao from "../../../Components/Paginacao";
 
 export default function Admin() {
   const [users, setUsers] = useState([]);
   const [editais, setEditais] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
+  const limit = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [nextPage, SetNextPage] = useState({});
 
   const filterRef = useRef(null);
 
   useEffect(() => {
     axios
-      .get("/usuario")
+      .get(`/usuario?limit=${limit}&page=${currentPage}`)
       .then((response) => {
+        console.log(response.data);
         setUsers(response.data.results);
-        setSearchResults(response.data.results);
+        SetNextPage(response.data.next);
       })
       .catch((e) => {
         console.log(e);
       });
+  }, [currentPage]); //requisitar ao mudar de pagina e ao apagar users
+
+  useEffect(() => {
     axios
       .get("/edital")
       .then((response) => {
@@ -35,28 +43,26 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    setSearchResults(
-      users.filter(
-        (user) =>
-          user.nome
-            .toLowerCase()
-            .includes(filterRef.current.value.toLocaleLowerCase()) ||
-          String(user.cpf).includes(filterRef.current.value)
-      )
-    );
+    //manter search results sempre em sync
+    setSearchResults(users);
+    filterRef.current.value = "";
   }, [users]);
 
+  let typingTimer;
   function handleFilterChange(e) {
-    //filtrar por nome ou cpf
-    setSearchResults(
-      users.filter(
-        (user) =>
-          user.nome
-            .toLowerCase()
-            .includes(e.target.value.toLocaleLowerCase()) ||
-          String(user.cpf).includes(e.target.value)
-      )
-    );
+    function finishedTyping() {
+      axios
+        .get(`/search/usuario?q=${e.target.value}`)
+        .then((response) => {
+          setSearchResults(response.data.results);
+        })
+        .catch((e) => console.log(e));
+    }
+
+    clearTimeout(typingTimer);
+    if (e.target.value) {
+      typingTimer = setTimeout(finishedTyping, 1000);
+    } else setSearchResults(users);
   }
 
   return (
@@ -88,7 +94,7 @@ export default function Admin() {
       </div>
 
       <div className="users">
-        {searchResults.map((user, i) => {
+        {searchResults.map((user) => {
           return (
             <User
               key={user.cpf}
@@ -100,6 +106,15 @@ export default function Admin() {
           );
         })}
       </div>
+
+      {/* paginacao */}
+      {users === searchResults && ( //somente mostrar paginacao quando nao filtrando
+        <Paginacao
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          nextPage={nextPage}
+        />
+      )}
     </>
   );
 }

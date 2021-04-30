@@ -7,16 +7,35 @@ import Projeto from "../../../Components/Projeto";
 import style from "../../../assets/css/routes/usuarios.module.css";
 import NovoProjeto from "../../../Components/NovoProjeto";
 import { useRef } from "react";
+import Paginacao from "../../../Components/Paginacao";
 
 export default function Projetos() {
+  const [projetos, setProjetos] = useState([]);
   const [users, setUsers] = useState([]);
   const [editais, setEditais] = useState([]);
-  const [projetos, setProjetos] = useState([]);
+
   const [searchResults, setSearchResults] = useState(projetos);
+  const limit = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [nextPage, SetNextPage] = useState({});
+
   const [novoProjeto, setNovoProjeto] = useState([{ nome: "" }]);
   const [modal, setModal] = useState(true);
 
   const filterRef = useRef(null);
+
+  useEffect(() => {
+    axios
+      .get(`/projeto?limit=${limit}&page=${currentPage}`)
+      .then((response) => {
+        console.log(response.data);
+        setProjetos(response.data.results);
+        SetNextPage(response.data.next);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }, [currentPage]);
 
   useEffect(() => {
     axios
@@ -35,28 +54,30 @@ export default function Projetos() {
       .catch((e) => {
         console.log(e);
       });
-    axios
-      .get("/projeto")
-      .then((response) => {
-        setProjetos(response.data.results);
-        setSearchResults(response.data.results);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
   }, []);
 
-  function handleFilterChange(inputValue) {
-    //filtrar por projeto
-    setSearchResults(
-      projetos.filter((projeto) => projeto.nome.includes(inputValue))
-    );
-  }
-
   useEffect(() => {
-    setSearchResults(projetos.filter((projeto) => projeto.nome.includes("")));
+    //manter search results sempre em sync
+    setSearchResults(projetos);
     filterRef.current.value = "";
   }, [projetos]);
+
+  let typingTimer;
+  function handleFilterChange(e) {
+    function finishedTyping() {
+      axios
+        .get(`/search/projeto?q=${e.target.value}`)
+        .then((response) => {
+          setSearchResults(response.data.results);
+        })
+        .catch((e) => console.log(e));
+    }
+
+    clearTimeout(typingTimer);
+    if (e.target.value) {
+      typingTimer = setTimeout(finishedTyping, 1000);
+    } else setSearchResults(projetos);
+  }
 
   function handleCreateProject() {
     console.log(novoProjeto);
@@ -127,7 +148,7 @@ export default function Projetos() {
             type="text"
             placeholder="Filtrar por algo"
             className={style.filtrar}
-            onChange={(e) => handleFilterChange(e.target.value)}
+            onChange={(e) => handleFilterChange(e)}
             ref={filterRef}
           />
 
@@ -177,6 +198,15 @@ export default function Projetos() {
           );
         })}
       </div>
+
+      {/* paginacao */}
+      {projetos === searchResults && ( //somente mostrar paginacao quando nao filtrando
+        <Paginacao
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          nextPage={nextPage}
+        />
+      )}
     </>
   );
 }

@@ -67,9 +67,9 @@ export default function Adicionar() {
                 history.push("/admin/usuarios");
               }
             });
-        } else {
-          history.push("/admin/usuarios");
-        }
+        } //else {
+        //   history.push("/admin/usuarios");
+        // }
       })
       .catch((e) => {
         if (e.response.status === 400) {

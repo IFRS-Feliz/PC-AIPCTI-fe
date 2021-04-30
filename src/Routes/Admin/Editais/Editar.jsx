@@ -48,7 +48,7 @@ export default function Editar() {
   useEffect(() => {
     //requisitar edital para editar
     axios
-      .get(`/edital?id=${id}`)
+      .get(`/edital/${id}`)
       .then((response) => {
         if (response.data.results.length === 1) {
           //formatar datas
