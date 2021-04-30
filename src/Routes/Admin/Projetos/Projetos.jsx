@@ -182,22 +182,26 @@ export default function Projetos() {
         </div>
       </div>
 
-      <div className={style.containerProjetos}>
-        {searchResults.map((projeto) => {
-          return (
-            <div className={style.centralizarProjetos} key={projeto.id}>
-              <Projeto
-                projetoInfo={projeto}
-                editais={editais}
-                projetos={projetos}
-                setProjetos={setProjetos}
-                isMain={true}
-                users={users}
-              />
-            </div>
-          );
-        })}
-      </div>
+      {/*verificacao para prevenir bug nas listas de editais e usuarios. 
+      nao muda nada ja que nunca haverao projetos sem editais ou usuarios.*/}
+      {users.length > 0 && editais.length > 0 && (
+        <div className={style.containerProjetos}>
+          {searchResults.map((projeto) => {
+            return (
+              <div className={style.centralizarProjetos} key={projeto.id}>
+                <Projeto
+                  projetoInfo={projeto}
+                  editais={editais}
+                  projetos={projetos}
+                  setProjetos={setProjetos}
+                  isMain={true}
+                  users={users}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* paginacao */}
       {projetos === searchResults && ( //somente mostrar paginacao quando nao filtrando

@@ -1,5 +1,5 @@
 import axios from "../axios";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 
 import style from "../assets/css/components/projeto.module.css";
 
@@ -16,15 +16,13 @@ export default function Projeto({
   const [projetoNewInfo, setProjetoNewInfo] = useState(projetoInfo);
 
   const [listas, setListas] = useState({
-    usuario: [],
-    edital: [],
+    usuario: users,
+    edital: editais,
   });
 
-  useEffect(() => {
-    setListas({ usuario: users, edital: editais });
-  }, [editais, users]);
-
   const [teste, setTeste] = useState(style.teste);
+
+  const listasRefs = { usuario: useRef(), edital: useRef() };
 
   function animacao() {
     if (teste === style.teste2) {
@@ -77,12 +75,15 @@ export default function Projeto({
       axios
         .get(`/search/${model}?q=${e.target.value}`)
         .then((response) => {
-          console.log("filtered!");
           //setar listas na posicao do model com a lista filtrada
           let newListas = { ...listas };
           newListas[model] = response.data.results;
-          console.log(newListas);
           setListas(newListas);
+
+          //disparar onChange no select para mudar seu value caso o option atual mude
+          listasRefs[model].current.dispatchEvent(
+            new Event("change", { bubbles: true })
+          );
         })
         .catch((e) => {
           console.log(e);
@@ -227,6 +228,7 @@ export default function Projeto({
                       className={style.inputProjeto}
                       value={projetoNewInfo.idEdital}
                       id="edital"
+                      ref={listasRefs.edital}
                       onChange={(e) => {
                         setProjetoNewInfo({
                           ...projetoNewInfo,
@@ -259,6 +261,7 @@ export default function Projeto({
                       Usuário:
                     </label>
                     <select
+                      ref={listasRefs.usuario}
                       className={style.inputProjeto}
                       value={projetoNewInfo.cpfUsuario}
                       id="usuario"
