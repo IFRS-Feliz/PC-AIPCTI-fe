@@ -1,0 +1,21 @@
+.containerPaginacao {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.containerPaginacao > p {
+  margin: 0 1rem;
+}
+
+.containerPaginacao > button {
+  display: flex;
+  align-items: center;
+
+  margin: 0 0.1rem;
+  padding: 0.1rem 0.35rem;
+}

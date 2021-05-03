@@ -1,11 +1,12 @@
 import axios from "../axios";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import style from "../assets/css/components/projeto.module.css";
 
 export default function Projeto({
   projetoInfo,
-  editais,
+  editais = [],
+  users = [],
   projetos,
   setProjetos,
   isMain = false,
@@ -14,7 +15,14 @@ export default function Projeto({
   const [initialProjetoInfo, setInitialProjetoInfo] = useState(projetoInfo);
   const [projetoNewInfo, setProjetoNewInfo] = useState(projetoInfo);
 
+  const [listas, setListas] = useState({
+    usuario: users,
+    edital: editais,
+  });
+
   const [teste, setTeste] = useState(style.teste);
+
+  const listasRefs = { usuario: useRef(), edital: useRef() };
 
   function animacao() {
     if (teste === style.teste2) {
@@ -59,6 +67,40 @@ export default function Projeto({
       .catch((e) => {
         alert("Nao foi possivel remover o projeto. Tente novamente.");
       });
+  }
+
+  let typingTimer;
+  function handleFilterChange(e, model) {
+    function finishedTyping() {
+      axios
+        .get(`/search/${model}?q=${e.target.value}`)
+        .then((response) => {
+          //setar listas na posicao do model com a lista filtrada
+          let newListas = { ...listas };
+          newListas[model] = response.data.results;
+          setListas(newListas);
+
+          //disparar onChange no select para mudar seu value caso o option atual mude
+          listasRefs[model].current.dispatchEvent(
+            new Event("change", { bubbles: true })
+          );
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+
+    clearTimeout(typingTimer);
+    if (e.target.value) {
+      typingTimer = setTimeout(finishedTyping, 1000);
+    } //resetar
+    else {
+      //resetar
+      let newListas = { ...listas };
+      if (model === "edital") newListas[model] = editais;
+      else if (model === "usuario") newListas[model] = users;
+      setListas(newListas);
+    }
   }
 
   return (
@@ -174,30 +216,79 @@ export default function Projeto({
                     placeholder={0}
                   />
                 </div>
-                <div className={style.row}>
-                  <label htmlFor="edital" className={style.labelProjeto}>
-                    Edital:
-                  </label>
-                  <select
-                    className={style.inputProjeto}
-                    value={projetoNewInfo.idEdital}
-                    id="edital"
-                    onChange={(e) => {
-                      setProjetoNewInfo({
-                        ...projetoNewInfo,
-                        idEdital: e.target.value,
-                      });
-                    }}
-                  >
-                    {editais.map((edital) => {
-                      return (
-                        <option key={edital.id} value={edital.id}>
-                          {edital.nome}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
+
+                {/*caso seja um projeto esteja sendo mostrado dentro de um usuario
+                ou na pagina de projetos*/}
+                {editais.length > 0 && (
+                  <div className={`${style.row} ${style.rowComFilter}`}>
+                    <label htmlFor="edital" className={style.labelProjeto}>
+                      Edital:
+                    </label>
+                    <select
+                      className={style.inputProjeto}
+                      value={projetoNewInfo.idEdital}
+                      id="edital"
+                      ref={listasRefs.edital}
+                      onChange={(e) => {
+                        setProjetoNewInfo({
+                          ...projetoNewInfo,
+                          idEdital: e.target.value,
+                        });
+                      }}
+                    >
+                      {listas.edital.map((edital) => {
+                        return (
+                          <option key={edital.id} value={edital.id}>
+                            {edital.nome}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <input
+                      onChange={(e) => handleFilterChange(e, "edital")}
+                      type="text"
+                      className={style.inputProjeto}
+                      placeholder="Filtrar editais"
+                    />
+                  </div>
+                )}
+
+                {/*caso seja um projeto esteja sendo mostrado dentro de um edital
+                ou na pagina de projetos*/}
+                {users.length > 0 && (
+                  <div className={`${style.row} ${style.rowComFilter}`}>
+                    <label htmlFor="usuario" className={style.labelProjeto}>
+                      Usuário:
+                    </label>
+                    <select
+                      ref={listasRefs.usuario}
+                      className={style.inputProjeto}
+                      value={projetoNewInfo.cpfUsuario}
+                      id="usuario"
+                      onChange={(e) => {
+                        setProjetoNewInfo({
+                          ...projetoNewInfo,
+                          cpfUsuario: e.target.value,
+                        });
+                      }}
+                    >
+                      {listas.usuario.map((user) => {
+                        return (
+                          <option key={user.cpf} value={user.cpf}>
+                            {user.nome}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <input
+                      onChange={(e) => handleFilterChange(e, "usuario")}
+                      type="text"
+                      className={style.inputProjeto}
+                      placeholder="Filtrar usuários"
+                    />
+                  </div>
+                )}
+
                 <span className={style.espacamento}></span>
                 <button
                   className={style.botaoProjeto}

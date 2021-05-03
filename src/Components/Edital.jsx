@@ -1,5 +1,5 @@
 import axios from "../axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import style from "../assets/css/components/user.module.css";
@@ -7,10 +7,9 @@ import Projeto from "./Projeto";
 
 export default function Edital({
   editalInfo,
-  todosProjetos,
-  setTodosProjetos,
   todosEditais,
   setTodosEditais,
+  users,
 }) {
   const [projetos, setProjetos] = useState([]);
   const [arrowClass, setarrowClass] = useState(style.hidden);
@@ -35,43 +34,35 @@ export default function Edital({
   }
 
   function handleShowProjects() {
-    //sempre atualizar a lista de todos os projetos ao visualizar
-    //talvez seja muito pesado, pq todos os editais atualizam seus proprios projetos
-    //quando isso acontece
-    axios
-      .get(`projeto`)
-      .then((response) => setTodosProjetos(response.data.results))
-      .catch((e) => {
-        if (e.response.status === 400) {
-          alert("algo de errado");
-        }
-      });
-  }
-
-  function handleDelete() {
-    if (projetos.length === 0) {
+    if (projetos.length > 0) {
+      setProjetos([]);
+    } else {
       axios
-        .delete("/edital", {
-          data: { id: editalInfo.id },
-        })
-        .then(() => {
-          let newTodosEditais = todosEditais.filter(
-            (edital) => edital.id !== editalInfo.id
-          );
-          setTodosEditais(newTodosEditais);
-        })
+        .get(`projeto?idEdital=${editalInfo.id}`)
+        .then((response) => setProjetos(response.data.results))
         .catch((e) => {
-          alert("Não foi possível deleter esse edital. Tente novamente.");
+          if (e.response.status === 400) {
+            alert("verifique o cpf no cadastro desse usuario");
+          }
         });
     }
   }
 
-  //setar projetos do edital
-  useEffect(() => {
-    setProjetos(
-      todosProjetos.filter((projeto) => projeto.idEdital === editalInfo.id)
-    );
-  }, [todosProjetos, editalInfo.id]);
+  function handleDelete() {
+    axios
+      .delete(`/edital`, {
+        data: { id: editalInfo.id },
+      })
+      .then(() => {
+        let newEditais = todosEditais.filter(
+          (edital) => edital.id !== editalInfo.id
+        );
+        setTodosEditais(newEditais);
+      })
+      .catch((e) => {
+        alert("Não foi possível deleter esse edital. Tente novamente.");
+      });
+  }
 
   const dataInicio = editalInfo.dataInicio.substring(0, 10).split("-");
   const dataFim = editalInfo.dataFim.substring(0, 10).split("-");
@@ -98,16 +89,7 @@ export default function Edital({
               <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
             </svg>
           </Link>
-          <button
-            disabled={projetos.length > 0}
-            title={
-              projetos.length > 0
-                ? "Não é possível apagar editais que possuem projetos."
-                : ""
-            }
-            onClick={handleDelete}
-            className={style.botaoUser}
-          >
+          <button onClick={handleDelete} className={style.botaoUser}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="24"
@@ -121,8 +103,6 @@ export default function Edital({
           </button>
           <p className={style.linhaVertical}>|</p>
           <button
-            disabled={projetos.length === 0}
-            title={projetos.length === 0 ? "Não possui projetos." : ""}
             onClick={() => {
               mostrar();
               rotacionar();
@@ -156,9 +136,9 @@ export default function Edital({
               <Projeto
                 key={projeto.id}
                 projetoInfo={projeto}
-                editais={todosEditais}
-                projetos={todosProjetos}
-                setProjetos={setTodosProjetos}
+                users={users}
+                projetos={projetos}
+                setProjetos={setProjetos}
               />
             );
           })}

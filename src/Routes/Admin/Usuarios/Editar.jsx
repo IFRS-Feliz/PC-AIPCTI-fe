@@ -46,7 +46,7 @@ export default function Editar() {
     if (cpf.length === 11 && !isNaN(cpf)) {
       //requisitar informacoes do usuario para edita-lo
       axios
-        .get(`/usuario?cpf=${cpf}`)
+        .get(`/usuario/${cpf}`)
         .then((response) => {
           if (response.data.results.length === 1) {
             if (response.data.results[0].isAdmin === 1) {

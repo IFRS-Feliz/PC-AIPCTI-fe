@@ -79,3 +79,8 @@
   margin-top: 3rem;
   margin-bottom: 0.3rem;
 }
+
+#botaoLogin > p {
+  padding-bottom: 0.1rem;
+  color: red;
+}

@@ -48,7 +48,7 @@ export default function Editar() {
   useEffect(() => {
     //requisitar edital para editar
     axios
-      .get(`/edital?id=${id}`)
+      .get(`/edital/${id}`)
       .then((response) => {
         if (response.data.results.length === 1) {
           //formatar datas
@@ -122,9 +122,6 @@ export default function Editar() {
           valorAIPCTI: edital.valorAIPCTI,
           ano: ano,
           dataLimitePrestacao: edital.dataLimitePrestacao,
-        })
-        .then((response) => {
-          console.log(response.data.results);
         })
         .catch(() => (failed.postEdital = true));
 
