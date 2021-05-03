@@ -19,7 +19,6 @@ export default function Relatorio() {
   return (
     <>
       <h1 className={style.tituloRelatorio}>Gerar relatório</h1>
-
       <NotaFiscal />
     </>
   );
