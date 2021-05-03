@@ -16,6 +16,7 @@ export function AuthContextProvider({ children }) {
     setUser({
       nome: decodedToken.name,
       email: decodedToken.email,
+      cpf: decodedToken.cpf,
     });
 
     if (decodedToken.isAdmin === 1) {
@@ -41,6 +42,7 @@ export function AuthContextProvider({ children }) {
       setUser({
         nome: decodedToken.name,
         email: decodedToken.email,
+        cpf: decodedToken.cpf,
       });
     }
   }, []);

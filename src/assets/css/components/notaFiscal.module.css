@@ -1,0 +1,271 @@
+.tituloRelatorio {
+  text-align: center;
+}
+
+.containerNotaFiscal {
+  position: relative;
+  margin: 2rem auto;
+  padding: 2rem 0 0 0;
+
+  background-color: #ededed;
+  border: 0.2rem solid #ca302d;
+  border-radius: 0.5rem;
+
+  max-width: 50rem;
+  width: 100%;
+
+  transform: translateX(-15rem);
+  opacity: 0;
+
+  animation: slide 0.3s forwards;
+}
+
+@keyframes slide {
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.containerNotaFiscal span {
+  position: absolute;
+  top: 15px;
+  left: -30px;
+
+  /* border-bottom-right-radius: 0.5rem; */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: #ca302d;
+
+  width: 20rem;
+  height: 3rem;
+}
+
+.containerNotaFiscal span::after {
+  position: absolute;
+  content: "";
+  bottom: -16px;
+  left: 0;
+  border-style: solid;
+  border-top-width: 8px;
+  border-left-width: 15px;
+  border-right-width: 15px;
+  border-bottom-width: 8px;
+
+  border-top-color: #a41726;
+  border-left-color: transparent;
+  border-right-color: #a41726;
+  border-bottom-color: transparent;
+  z-index: -1;
+}
+
+.containerNotaFiscal span p {
+  color: white;
+}
+
+.flexBox {
+  display: flex;
+
+  margin-top: 1rem;
+}
+
+.containerInputs {
+  display: flex;
+  flex-direction: column;
+
+  position: relative;
+
+  width: 50%;
+
+  padding: 2rem 1rem;
+}
+
+.containerInputs + .containerInputs {
+  border-left: solid 0.1rem rgba(0, 0, 0, 0.2);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+.row + .row {
+  margin-top: 1rem;
+}
+
+.row label {
+  text-align: left;
+  width: 35%;
+  font-size: 0.8rem;
+}
+.row input {
+  width: 60%;
+  font-size: 0.8rem;
+}
+.row select {
+  width: 63%;
+}
+
+.inputRelatorio {
+  padding: 0.5rem 0.5rem;
+  background-color: white;
+  margin-left: 1rem;
+
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.detalhamentoRelatorio {
+  text-align: center;
+  margin: 1rem 0;
+  padding-top: 0.5rem;
+  border-top: rgba(0, 0, 0, 0.2) solid 0.1rem;
+}
+
+.anexarNotaFiscal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  cursor: pointer;
+
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+
+  width: 55%;
+  height: 2.5rem;
+
+  background-color: #ca302d;
+
+  transition: height 0.2s ease;
+}
+
+.anexarNotaFiscal::before {
+  content: "";
+  background-image: url(../../icon/expand_more_black_24dp.svg);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  position: absolute;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+
+  background-color: white;
+  border: 1px solid black;
+
+  transform: translate(0%, -50%);
+
+  transition: transform 0.5s ease;
+}
+
+.anexarNotaFiscalExpandir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  cursor: pointer;
+
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+
+  width: 55%;
+  height: 15rem;
+
+  background-color: #ca302d;
+
+  transition: height 0.2s ease;
+}
+
+.anexarNotaFiscalExpandir::before {
+  content: "";
+  background-image: url(../../icon/expand_more_black_24dp.svg);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  position: absolute;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+
+  background-color: white;
+  border: 1px solid black;
+
+  transform: translate(0%, -50%) rotate(180deg);
+
+  transition: transform 0.5s ease;
+}
+
+.anexarNotaFiscal:hover::before {
+  transform: rotate(180deg) translate(0%, 50%);
+}
+
+.pAnexarNotaFiscal {
+  color: white;
+  text-align: center;
+  padding: 0.8rem 0 0.5rem 0;
+}
+
+.notaFiscal {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  background-color: #fafafa;
+
+  border: solid 0.2rem #ca302d;
+  border-bottom: none;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+
+  width: 150%;
+  height: 100%;
+
+  overflow: hidden;
+
+  cursor: initial;
+}
+
+.inputFile {
+  padding-top: 1rem;
+  display: none;
+}
+
+.notaFiscal p {
+  margin-top: 1rem;
+}
+
+.labelInputFile {
+  width: 20%;
+
+  text-align: center;
+  font-size: 0.5rem;
+
+  padding: 0.5rem;
+  margin-top: 1rem;
+
+  background-color: #ca302d;
+  color: white;
+
+  border-radius: 0.5rem;
+}

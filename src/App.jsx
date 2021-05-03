@@ -13,6 +13,8 @@ import AdicionarEditais from "./Routes/Admin/Editais/Adicionar";
 import EditarEditais from "./Routes/Admin/Editais/Editar";
 import NotFound404 from "./Routes/NotFound404";
 
+import Relatorio from "./Routes/Relatorio";
+
 import Header from "./Components/Header";
 import Menu from "./Components/Menu";
 
@@ -78,6 +80,11 @@ export default function App() {
             <Route exact path="/projetos">
               <WithAuth>
                 <Projetos />
+              </WithAuth>
+            </Route>
+            <Route exact path="/projetos/:id">
+              <WithAuth>
+                <Relatorio />
               </WithAuth>
             </Route>
             <Route>
