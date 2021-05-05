@@ -14,7 +14,11 @@ export default function NotaFiscal({ itemInfo }) {
 
   const [containerContent, setContainerContent] = useState(null); //nota, orcamento ou null
 
-  const [orcamentos, setOrcamentos] = useState([{}, {}, {}]);
+  const [orcamentos, setOrcamentos] = useState([
+    defaultOrcamento,
+    defaultOrcamento,
+    defaultOrcamento,
+  ]);
 
   const [currentOrcamentoForm, setCurrentOrcamentoForm] = useState(0);
 
@@ -38,7 +42,7 @@ export default function NotaFiscal({ itemInfo }) {
               else setContainerContent("nota");
             }}
           >
-            Visualizar
+            Dados
           </button>
           <button
             onClick={() => {
@@ -59,33 +63,22 @@ export default function NotaFiscal({ itemInfo }) {
           >
             <div className={style.containerInputs}>
               <div className={style.row}>
-                <label htmlFor="nome">Nome do item:</label>
+                <label htmlFor="nome">Descrição:</label>
                 <input
                   type="text"
                   name="nome"
                   id="nome"
                   className={style.inputRelatorio}
+                  value={itemInfo.descricao}
                 />
               </div>
-              {/* <div className={style.row}>
-              <label htmlFor="tipoDespesa">Despesa de: </label>
-              <select
-                name="tipoDespesa"
-                id="tipoDespesa"
-                className={style.inputRelatorio}
-              >
-                <option value="custeio">Custeio</option>
-                <option value="capital">Capital</option>
-              </select>
-            </div> */}
               <div className={style.row}>
                 <label htmlFor="tipoProduto">Tipo: </label>
                 <select
                   name="tipoProduto"
                   id="tipoProduto"
                   className={style.inputRelatorio}
-                  // value={itemInfo.tipo}
-                  // onChange={(e) => setTipo(e.target.value)}
+                  value={itemInfo.tipo}
                 >
                   <option value="material de consumo">
                     Material de consumo
@@ -116,15 +109,7 @@ export default function NotaFiscal({ itemInfo }) {
                   name="nomeMaterial"
                   id="nomeMaterial"
                   className={style.inputRelatorio}
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="caracteristicas">Características:</label>
-                <input
-                  type="text"
-                  name="caracteristicas"
-                  id="caracteristicas"
-                  className={style.inputRelatorio}
+                  value={itemInfo.nome}
                 />
               </div>
               <div className={style.row}>
@@ -134,6 +119,7 @@ export default function NotaFiscal({ itemInfo }) {
                   name="marca"
                   id="marca"
                   className={style.inputRelatorio}
+                  value={itemInfo.marca}
                 />
               </div>
               <div className={style.row}>
@@ -143,19 +129,11 @@ export default function NotaFiscal({ itemInfo }) {
                   name="modelo"
                   id="modelo"
                   className={style.inputRelatorio}
+                  value={itemInfo.modelo}
                 />
               </div>
             </div>
             <div className={style.containerInputs}>
-              <div className={style.row}>
-                <label htmlFor="frete">Frete:</label>
-                <input
-                  type="number"
-                  name="frete"
-                  id="frete"
-                  className={style.inputRelatorio}
-                />
-              </div>
               <div className={style.row}>
                 <label htmlFor="dataCompra">
                   Data da compra / contratação:
@@ -165,6 +143,7 @@ export default function NotaFiscal({ itemInfo }) {
                   name="dataCompra"
                   id="dataCompra"
                   className={style.inputRelatorio}
+                  value={itemInfo.data}
                 />
               </div>
               <div className={style.row}>
@@ -174,6 +153,47 @@ export default function NotaFiscal({ itemInfo }) {
                   name="favorecido"
                   id="favorecido"
                   className={style.inputRelatorio}
+                  value={itemInfo.favorecido}
+                />
+              </div>
+              <div className={style.row}>
+                <label htmlFor="quantidade">Quantidade:</label>
+                <input
+                  type="number"
+                  name="quantidade"
+                  id="quantidade"
+                  className={style.inputRelatorio}
+                  value={itemInfo.quantidade}
+                />
+              </div>
+              <div className={style.row}>
+                <label htmlFor="valorUnitario">Valor unitário:</label>
+                <input
+                  type="number"
+                  name="valorUnitario"
+                  id="valorUnitario"
+                  className={style.inputRelatorio}
+                  value={itemInfo.valorUnitario}
+                />
+              </div>
+              <div className={style.row}>
+                <label htmlFor="frete">Valor do frete:</label>
+                <input
+                  type="number"
+                  name="frete"
+                  id="frete"
+                  className={style.inputRelatorio}
+                  value={itemInfo.frete}
+                />
+              </div>
+              <div className={style.row}>
+                <label htmlFor="valorTotal">Valor total:</label>
+                <input
+                  type="number"
+                  name="valorTotal"
+                  id="valorTotal"
+                  className={style.inputRelatorio}
+                  value={itemInfo.valorTotal}
                 />
               </div>
               <div className={style.row}>
@@ -185,33 +205,7 @@ export default function NotaFiscal({ itemInfo }) {
                   name="numDocumentoFiscal"
                   id="numDocumentoFiscal"
                   className={style.inputRelatorio}
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="quantidade">Quantidade:</label>
-                <input
-                  type="number"
-                  name="quantidade"
-                  id="quantidade"
-                  className={style.inputRelatorio}
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="valorUnitario">Valor unitário:</label>
-                <input
-                  type="number"
-                  name="valorUnitario"
-                  id="valorUnitario"
-                  className={style.inputRelatorio}
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="valorTotal">Valor total:</label>
-                <input
-                  type="number"
-                  name="valorTotal"
-                  id="valorTotal"
-                  className={style.inputRelatorio}
+                  value={itemInfo.numeroDocumentoFiscal}
                 />
               </div>
               <div className={style.containerAnexarNotaFiscal}>
@@ -286,7 +280,7 @@ export default function NotaFiscal({ itemInfo }) {
                 </button>
               ))}
               <button
-                onClick={() => setOrcamentos([...orcamentos, { nome: "" }])}
+                onClick={() => setOrcamentos([...orcamentos, defaultOrcamento])}
               >
                 +
               </button>
@@ -296,6 +290,9 @@ export default function NotaFiscal({ itemInfo }) {
                 expandir={expandir}
                 setarClasse={setarClasse}
                 setContainerContent={setContainerContent}
+                orcamentos={orcamentos}
+                setOrcamentos={setOrcamentos}
+                currentOrcamentoForm={currentOrcamentoForm}
               />
             )}
           </>
@@ -307,7 +304,27 @@ export default function NotaFiscal({ itemInfo }) {
   );
 }
 
-function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
+const defaultOrcamento = {
+  nomeMaterialServico: "",
+  marca: "",
+  modelo: "",
+  dataOrcamento: "",
+  CnpjFavorecido: "",
+  quantidade: 0,
+  valorUnitario: 0,
+  valorTotal: 0,
+  frete: 0,
+  anexo: "",
+};
+
+function FormOrcamento({
+  expandir,
+  setarClasse,
+  setContainerContent,
+  orcamentos,
+  setOrcamentos,
+  currentOrcamentoForm,
+}) {
   return (
     <form
       className={style.flexBox}
@@ -323,15 +340,13 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="nomeMaterial"
             id="nomeMaterial"
             className={style.inputRelatorio}
-          />
-        </div>
-        <div className={style.row}>
-          <label htmlFor="caracteristicas">Características:</label>
-          <input
-            type="text"
-            name="caracteristicas"
-            id="caracteristicas"
-            className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].nomeMaterialServico}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].nomeMaterialServico =
+                e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
         <div className={style.row}>
@@ -341,6 +356,12 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="marca"
             id="marca"
             className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].marca}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].marca = e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
         <div className={style.row}>
@@ -350,20 +371,17 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="modelo"
             id="modelo"
             className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].modelo}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].modelo = e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
       </div>
 
       <div className={style.containerInputs}>
-        <div className={style.row}>
-          <label htmlFor="frete">Frete:</label>
-          <input
-            type="number"
-            name="frete"
-            id="frete"
-            className={style.inputRelatorio}
-          />
-        </div>
         <div className={style.row}>
           <label htmlFor="dataCompra">Data do orçamento:</label>
           <input
@@ -371,6 +389,13 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="dataOrcamento"
             id="dataOrcamento"
             className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].dataOrcamento}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].dataOrcamento =
+                e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
         <div className={style.row}>
@@ -380,6 +405,13 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="favorecido"
             id="favorecido"
             className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].CnpjFavorecido}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].CnpjFavorecido =
+                e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
 
@@ -390,6 +422,13 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="quantidade"
             id="quantidade"
             className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].quantidade}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].quantidade =
+                e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
         <div className={style.row}>
@@ -399,6 +438,28 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="valorUnitario"
             id="valorUnitario"
             className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].valorUnitario}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].valorUnitario =
+                e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
+          />
+        </div>
+        <div className={style.row}>
+          <label htmlFor="frete">Valor do frete:</label>
+          <input
+            type="number"
+            name="frete"
+            id="frete"
+            className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].frete}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].frete = e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
         <div className={style.row}>
@@ -408,6 +469,13 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
             name="valorTotal"
             id="valorTotal"
             className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].valorTotal}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].valorTotal =
+                e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
           />
         </div>
         <div className={style.containerAnexarNotaFiscal}>
@@ -433,6 +501,7 @@ function FormOrcamento({ expandir, setarClasse, setContainerContent }) {
                 name="anexarNota"
                 id="anexarNota"
                 className={style.inputFile}
+                // value={orcamentos[currentOrcamentoForm-1].anexo}
               />
               <p className={style.separarAnexarNota}>
                 ______________ OU ______________
