@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "../../../axios";
 
-import User from "../../../Components/User";
+import User from "../../../Components/Admin/User";
 import { Link } from "react-router-dom";
 
 import style from "../../../assets/css/routes/usuarios.module.css";

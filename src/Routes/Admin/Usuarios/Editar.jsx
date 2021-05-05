@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import style from "../../../assets/css/routes/adicionar.module.css";
-import NovoProjeto from "../../../Components/NovoProjeto";
+import NovoProjeto from "../../../Components/Admin/NovoProjeto";
 import {
   handleAddProject,
   handleNomeInputChange,

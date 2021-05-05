@@ -1,7 +1,7 @@
-import axios from "../axios";
+import axios from "../../axios";
 import { useRef, useState } from "react";
 
-import style from "../assets/css/components/projeto.module.css";
+import style from "../../assets/css/components/projeto.module.css";
 
 export default function Projeto({
   projetoInfo,

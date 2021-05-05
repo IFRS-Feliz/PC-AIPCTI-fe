@@ -2,10 +2,10 @@ import axios from "../../../axios";
 import { useEffect } from "react";
 import { useState } from "react";
 
-import Projeto from "../../../Components/Projeto";
+import Projeto from "../../../Components/Admin/Projeto";
 
 import style from "../../../assets/css/routes/usuarios.module.css";
-import NovoProjeto from "../../../Components/NovoProjeto";
+import NovoProjeto from "../../../Components/Admin/NovoProjeto";
 import { useRef } from "react";
 import Paginacao from "../../../Components/Paginacao";
 

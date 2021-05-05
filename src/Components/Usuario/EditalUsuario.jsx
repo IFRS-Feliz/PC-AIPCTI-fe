@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import style from "../assets/css/components/user.module.css";
+import style from "../../assets/css/components/user.module.css";
 import ProjetoUsuario from "./ProjetoUsuario";
 
 export default function EditalUsuario({

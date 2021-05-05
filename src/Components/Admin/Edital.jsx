@@ -1,8 +1,8 @@
-import axios from "../axios";
+import axios from "../../axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import style from "../assets/css/components/user.module.css";
+import style from "../../assets/css/components/user.module.css";
 import Projeto from "./Projeto";
 
 export default function Edital({

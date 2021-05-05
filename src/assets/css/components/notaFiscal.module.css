@@ -320,3 +320,37 @@
   justify-content: center;
   width: 50%;
 }
+
+/* orcamentos */
+
+.agruparBotoesOrcamento {
+  display: flex;
+  align-items: center;
+  justify-content: safe center;
+
+  padding-top: 4rem;
+  overflow: auto;
+}
+
+.agruparBotoesOrcamento > button {
+  margin: 1rem;
+  padding: 0.5rem;
+  white-space: nowrap;
+}
+
+.agruparBotoesOrcamento > button:last-child {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  right: 0;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: white 0 0 3px;
+  border: none;
+  background-color: #ca302d;
+}

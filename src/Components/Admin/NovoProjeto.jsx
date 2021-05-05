@@ -1,6 +1,6 @@
 // import { useState } from "react";
 import { useState } from "react";
-import style from "../assets/css/components/novoProjeto.module.css";
+import style from "../../assets/css/components/novoProjeto.module.css";
 
 export default function NovoProjeto({
   projetos,

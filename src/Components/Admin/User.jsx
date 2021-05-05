@@ -1,8 +1,8 @@
 import { useState } from "react";
-import axios from "../axios";
+import axios from "../../axios";
 
 import Projeto from "./Projeto";
-import style from "../assets/css/components/user.module.css";
+import style from "../../assets/css/components/user.module.css";
 import { Link } from "react-router-dom";
 
 export default function User({ userInfo, editais, users, setUsers }) {

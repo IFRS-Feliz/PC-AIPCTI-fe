@@ -2,7 +2,7 @@ import axios from "../../../axios";
 import { useEffect } from "react";
 import { useState } from "react";
 
-import Edital from "../../../Components/Edital";
+import Edital from "../../../Components/Admin/Edital";
 
 import style from "../../../assets/css/routes/usuarios.module.css";
 import { Link } from "react-router-dom";

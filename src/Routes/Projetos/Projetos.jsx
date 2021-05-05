@@ -1,18 +1,14 @@
-// export default function Projetos() {
-//   return <div>Projetos</div>;
-// }
-
-import axios from "../axios";
+import axios from "../../axios";
 import { useEffect, useContext } from "react";
 import { useState } from "react";
 
-import EditalUsuario from "../Components/EditalUsuario";
+import EditalUsuario from "../../Components/Usuario/EditalUsuario";
 
-import style from "../assets/css/routes/usuarios.module.css";
+import style from "../../assets/css/routes/usuarios.module.css";
 import { Link } from "react-router-dom";
 import { useRef } from "react";
 
-import AuthContext from "../Contexts/Auth";
+import AuthContext from "../../Contexts/Auth";
 
 export default function Projetos() {
   const { user } = useContext(AuthContext);
@@ -97,7 +93,7 @@ export default function Projetos() {
 
   return (
     <>
-      <h1 className={style.h1}>Editais</h1>
+      <h1 className={style.h1}>Meus projetos</h1>
       <div className={style.container}>
         <div className={style.filtrarContainer}>
           <input

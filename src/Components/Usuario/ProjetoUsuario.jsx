@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import style from "../assets/css/components/projeto.module.css";
+import style from "../../assets/css/components/projeto.module.css";
 
 export default function Projeto({ projetoInfo, isMain = false }) {
   const [initialProjetoInfo] = useState(projetoInfo);
@@ -80,7 +80,7 @@ export default function Projeto({ projetoInfo, isMain = false }) {
                 to={`/projetos/${initialProjetoInfo.id}`}
                 className={style.gerarRelatorio}
               >
-                <p>Gerar relatório</p>
+                <p>Prestar contas</p>
               </Link>
             </div>
           </form>

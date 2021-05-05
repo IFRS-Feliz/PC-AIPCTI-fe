@@ -7,7 +7,7 @@ import {
   handleDataInicioInputChange,
   handleDataLimiteInputChange,
 } from "../../../Helpers/EditarAdicionarUsuario";
-import NovoProjeto from "../../../Components/NovoProjeto";
+import NovoProjeto from "../../../Components/Admin/NovoProjeto";
 import { useState, useEffect } from "react";
 
 import style from "../../../assets/css/routes/adicionar.module.css";

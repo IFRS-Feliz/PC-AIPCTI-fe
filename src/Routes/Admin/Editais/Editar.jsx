@@ -10,7 +10,7 @@ import {
   getProjectArrays,
   handleDataLimiteInputChange,
 } from "../../../Helpers/EditarAdicionarUsuario";
-import NovoProjeto from "../../../Components/NovoProjeto";
+import NovoProjeto from "../../../Components/Admin/NovoProjeto";
 
 import style from "../../../assets/css/routes/adicionar.module.css";
 

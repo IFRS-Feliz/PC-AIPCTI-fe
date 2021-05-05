@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Login from "./Routes/Login";
 import Home from "./Routes/Home";
-import Projetos from "./Routes/Projetos";
+import NotFound404 from "./Routes/NotFound404";
+
 import Admin from "./Routes/Admin/Admin";
 import Usuarios from "./Routes/Admin/Usuarios/Usuarios";
 import Adicionar from "./Routes/Admin/Usuarios/Adicionar";
@@ -11,9 +12,9 @@ import Editais from "./Routes/Admin/Editais/Editais";
 import ProjetosMenu from "./Routes/Admin/Projetos/Projetos";
 import AdicionarEditais from "./Routes/Admin/Editais/Adicionar";
 import EditarEditais from "./Routes/Admin/Editais/Editar";
-import NotFound404 from "./Routes/NotFound404";
 
-import Relatorio from "./Routes/Relatorio";
+import Projetos from "./Routes/Projetos/Projetos";
+import Relatorio from "./Routes/Projetos/Relatorio";
 
 import Header from "./Components/Header";
 import Menu from "./Components/Menu";

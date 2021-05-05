@@ -1,7 +1,7 @@
 import axios from "../../../axios";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import NovoProjeto from "../../../Components/NovoProjeto";
+import NovoProjeto from "../../../Components/Admin/NovoProjeto";
 
 import style from "../../../assets/css/routes/adicionar.module.css";
 import {
