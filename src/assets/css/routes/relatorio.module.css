@@ -1,3 +1,17 @@
 .tituloRelatorio {
   text-align: center;
 }
+
+.buttonAdicionar {
+  margin-left: 50%;
+  margin-bottom: 2rem;
+  transform: translateX(-50%);
+
+  padding: 0.5rem 1rem;
+
+  border: none;
+  border-radius: 0.5rem;
+
+  background-color: #ca302d;
+  color: white;
+}

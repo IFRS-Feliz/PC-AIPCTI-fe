@@ -33,14 +33,17 @@ export default function NotaFiscal({ itemInfo }) {
 
         <div className={style.containerBotao}>
           <button
+            className={style.buttonDocumentoFiscal}
             onClick={() => {
               if (containerContent === "nota") setContainerContent(null);
               else setContainerContent("nota");
             }}
           >
-            Visualizar
+            Dados
           </button>
+
           <button
+            className={style.buttonOrcamento}
             onClick={() => {
               if (containerContent === "orcamento") setContainerContent(null);
               else setContainerContent("orcamento");
@@ -226,7 +229,9 @@ export default function NotaFiscal({ itemInfo }) {
                     }
                   }}
                 >
-                  <p className={style.pAnexarNotaFiscal}>Anexar nota fiscal</p>
+                  <p className={style.pAnexarNotaFiscal}>
+                    Anexar documento fiscal
+                  </p>
                   <div className={style.notaFiscal}>
                     <p>Selecione uma nota fiscal</p>
                     <label
@@ -281,12 +286,21 @@ export default function NotaFiscal({ itemInfo }) {
                       setCurrentOrcamentoForm(0);
                     else setCurrentOrcamentoForm(index + 1);
                   }}
+                  style={
+                    currentOrcamentoForm === index + 1
+                      ? {
+                          backgroundColor: "#000000",
+                        }
+                      : {}
+                  }
                 >
                   {`Orçamento ${index + 1}`}
                 </button>
               ))}
               <button
-                onClick={() => setOrcamentos([...orcamentos, { nome: "" }])}
+                onClick={() => {
+                  setOrcamentos([...orcamentos, { nome: "" }]);
+                }}
               >
                 +
               </button>

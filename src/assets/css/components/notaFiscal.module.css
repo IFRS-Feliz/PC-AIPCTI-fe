@@ -5,7 +5,7 @@
 .containerNotaFiscalInicial {
   position: relative;
   margin: 2rem auto;
-  padding: 2rem 0 2rem 0;
+  padding: 0 0 2rem 0;
 
   background-color: #ededed;
   border: 0.2rem solid #ca302d;
@@ -23,7 +23,7 @@
 .containerNotaFiscalFinal {
   position: relative;
   margin: 2rem auto;
-  padding: 2rem 0 2rem 0;
+  padding: 0 0 4rem 0;
 
   background-color: #ededed;
   border: 0.2rem solid #ca302d;
@@ -165,7 +165,7 @@
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
 
-  width: 55%;
+  width: 70%;
   height: 2.5rem;
 
   background-color: #ca302d;
@@ -209,7 +209,7 @@
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
 
-  width: 55%;
+  width: 70%;
   height: 15rem;
 
   background-color: #ca302d;
@@ -315,10 +315,39 @@
 
 .containerBotao {
   display: flex;
-  margin: auto 0 auto auto;
+  margin: auto 1rem auto auto;
 
-  justify-content: center;
+  border-radius: 0.5rem;
+
+  justify-content: space-between;
+
+  background-color: rgb(91, 91, 247);
+  height: 3rem;
+  width: 30%;
+
+  transform: translateY(1rem);
+}
+
+.containerBotao button {
   width: 50%;
+
+  color: white;
+  border: none;
+  background-color: transparent;
+}
+
+.buttonOrcamento:hover {
+  background-color: rgb(50, 50, 255);
+
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.buttonDocumentoFiscal:hover {
+  background-color: rgb(50, 50, 255);
+
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
 }
 
 /* orcamentos */
@@ -326,16 +355,25 @@
 .agruparBotoesOrcamento {
   display: flex;
   align-items: center;
-  justify-content: safe center;
 
-  padding-top: 4rem;
   overflow: auto;
+
+  width: 85%;
+  margin: auto auto auto 1rem;
+
+  padding-top: 3rem;
 }
 
 .agruparBotoesOrcamento > button {
   margin: 1rem;
-  padding: 0.5rem;
+  padding: 1rem;
   white-space: nowrap;
+
+  border: none;
+  border-radius: 0.5rem;
+
+  background-color: teal;
+  color: white;
 }
 
 .agruparBotoesOrcamento > button:last-child {
@@ -343,7 +381,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  right: 0;
+  right: 1rem;
   border-radius: 50%;
   width: 2rem;
   height: 2rem;

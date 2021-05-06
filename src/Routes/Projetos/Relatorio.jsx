@@ -22,11 +22,16 @@ export default function Relatorio() {
       <h1 className={style.tituloRelatorio}>
         Relatório <br /> Projeto - {projeto.nome}
       </h1>
-      {itens.map((item) => (
-        <Item itemInfo={item} />
+      {itens.map((item, index) => (
+        <Item itemInfo={item} key={index} />
       ))}
 
-      <button onClick={() => setItens([...itens, {}])}>Adicionar</button>
+      <button
+        className={style.buttonAdicionar}
+        onClick={() => setItens([...itens, {}])}
+      >
+        Adicionar
+      </button>
     </>
   );
 }
