@@ -2,10 +2,13 @@
   text-align: center;
 }
 
+.divTopo {
+  margin-bottom: 3rem;
+}
+
 .containerNotaFiscalInicial {
   position: relative;
   margin: 2rem auto;
-  padding: 0 0 2rem 0;
 
   background-color: #ededed;
   border: 0.2rem solid #ca302d;
@@ -18,6 +21,8 @@
   opacity: 0;
 
   animation: slide 0.3s forwards;
+
+  box-shadow: 3px 3px 5px rgba(46, 0, 0, 0.3);
 }
 
 .containerNotaFiscalFinal {
@@ -38,6 +43,7 @@
   animation: slide 0.3s forwards;
 
   height: 1rem;
+  box-shadow: 3px 3px 5px rgba(46, 0, 0, 0.3);
 }
 
 @keyframes slide {
@@ -92,7 +98,8 @@
 .flexBox {
   display: flex;
 
-  margin-top: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
 }
 
 .containerInputs {
@@ -103,7 +110,7 @@
 
   width: 50%;
 
-  padding: 2rem 1rem;
+  padding: 0 2rem 0 2rem;
 }
 
 .containerInputs + .containerInputs {
@@ -156,7 +163,7 @@
   align-items: center;
 
   position: absolute;
-  bottom: -2rem;
+  bottom: -4rem;
   left: 0;
   transform: translateX(-50%);
 
@@ -200,7 +207,7 @@
   align-items: center;
 
   position: absolute;
-  bottom: -2rem;
+  bottom: -4rem;
   left: 0;
   transform: translateX(-50%);
 
@@ -296,7 +303,7 @@
 .botaoSalvarNotaFiscal {
   position: absolute;
   right: -0.2rem;
-  bottom: -2.2rem;
+  bottom: -4.2rem;
 
   border: none;
   border-top-left-radius: 100%;
@@ -355,17 +362,23 @@
 .agruparBotoesOrcamento {
   display: flex;
   align-items: center;
+  position: relative;
 
-  overflow: auto;
+  overflow: hidden;
 
-  width: 85%;
-  margin: auto auto auto 1rem;
+  width: 70%;
+  height: 5rem;
+  margin: auto;
 
-  padding-top: 3rem;
+  background-color: whitesmoke;
+
+  border-radius: 0.5rem;
+
+  scroll-behavior: smooth;
 }
 
 .agruparBotoesOrcamento > button {
-  margin: 1rem;
+  margin: 1rem 1rem 1rem 0;
   padding: 1rem;
   white-space: nowrap;
 
@@ -376,19 +389,76 @@
   color: white;
 }
 
-.agruparBotoesOrcamento > button:last-child {
+.adicionarOrcamento {
   position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
-  right: 1rem;
-  border-radius: 50%;
+  right: 1.3rem;
   width: 2rem;
   height: 2rem;
+  border-radius: 50% !important;
 
   color: white;
   font-size: 1.5rem;
   box-shadow: white 0 0 3px;
   border: none;
-  background-color: #ca302d;
+  background-color: #ca302d !important;
+}
+
+.rightArrow {
+  position: fixed !important;
+  right: 4rem;
+
+  padding: 0;
+  margin: 0 !important;
+
+  background-color: transparent !important;
+  color: black !important;
+
+  height: 5rem !important;
+
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.leftArrow {
+  position: fixed !important;
+  left: 4rem;
+
+  padding: 0;
+  margin: 0 !important;
+
+  background-color: transparent !important;
+  color: black !important;
+
+  height: 5rem !important;
+
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.leftArrow svg {
+  transform: rotate(180deg);
+}
+
+.botaoOrcamento {
+  background-color: blue !important;
+  position: relative !important;
+}
+
+.botaoOrcamento::after {
+  content: "";
+  position: absolute;
+  bottom: -2.4rem;
+  left: 2.7rem;
+
+  width: 2rem;
+  height: 2rem;
+
+  background-color: #639163;
+
+  border-top-left-radius: 100%;
+
+  transform: rotate(225deg);
 }

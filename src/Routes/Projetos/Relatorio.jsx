@@ -9,12 +9,38 @@ import style from "../../assets/css/routes/relatorio.module.css";
 export default function Relatorio() {
   const { id } = useParams();
   const [projeto, setProjeto] = useState([]);
-  const [itens, setItens] = useState([{}]);
+  const [itens, setItens] = useState([
+    {
+      descricao: "",
+      tipo: "",
+
+      nome: "",
+      marca: "",
+      modelo: "",
+
+      data: "",
+      favorecido: "",
+      quantidade: 0,
+      valorUnitario: 0,
+      valorTotal: 0,
+      frete: 0,
+      numeroDocumentoFiscal: "",
+    },
+  ]);
 
   useEffect(() => {
-    axios.get(`/projeto/${id}`).then((response) => {
-      setProjeto(response.data.results[0]);
-    });
+    axios
+      .get(`/projeto/${id}`)
+      .then((response) => {
+        setProjeto(response.data.results[0]);
+      })
+      .catch((e) => console.log(e));
+    // axios
+    //   .get(`/projeto/${id}/item`)
+    //   .then((response) => {
+    //     setItens(response.data.results);
+    //   })
+    //   .catch((e) => console.log(e));
   }, [id]);
 
   return (
