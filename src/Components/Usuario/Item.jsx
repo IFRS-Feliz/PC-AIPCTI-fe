@@ -1,7 +1,8 @@
-import { useState } from "react";
+import axios from "../../axios";
+import { useEffect, useState } from "react";
 import style from "../../assets/css/components/notaFiscal.module.css";
 
-export default function NotaFiscal({ itemInfo }) {
+export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
   const [expandir, setExpandir] = useState(style.anexarNotaFiscal);
 
   function setarClasse() {
@@ -14,13 +15,44 @@ export default function NotaFiscal({ itemInfo }) {
 
   const [containerContent, setContainerContent] = useState(null); //nota, orcamento ou null
 
-  const [orcamentos, setOrcamentos] = useState([
-    defaultOrcamento,
-    defaultOrcamento,
-    defaultOrcamento,
-  ]);
+  //estados dos dados
+  const [itemNewInfo, setItemNewInfo] = useState(itemInfo);
+
+  //estados dos orcamentos
+  const [orcamentos, setOrcamentos] = useState([]);
 
   const [currentOrcamentoForm, setCurrentOrcamentoForm] = useState(0);
+
+  useEffect(() => {
+    if (itemInfo.id) {
+      axios
+        .get(`/orcamento?idItem=${itemInfo.id}`)
+        .then((response) => {
+          setOrcamentos(response.data.results);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+  }, [itemInfo.id]);
+
+  function handleDeleteItem() {
+    //make axios request here and then do the following
+
+    const newItens = [...itens];
+    newItens.splice(index, 1);
+    setItens(newItens);
+  }
+
+  function handleDeleteOrcamento(index) {
+    //make axios request here and then do the following
+    const newOrcamentos = [...orcamentos];
+    newOrcamentos.splice(index, 1);
+
+    if (newOrcamentos.length < 1 || index === currentOrcamentoForm)
+      setCurrentOrcamentoForm(0);
+    setOrcamentos(newOrcamentos);
+  }
 
   return (
     <>
@@ -52,6 +84,7 @@ export default function NotaFiscal({ itemInfo }) {
           >
             Orcamentos
           </button>
+          <button onClick={handleDeleteItem}>Deletar</button>
         </div>
 
         {containerContent === "nota" ? (
@@ -69,7 +102,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="nome"
                   id="nome"
                   className={style.inputRelatorio}
-                  value={itemInfo.descricao}
+                  value={itemNewInfo.descricao}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      descricao: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -78,7 +117,10 @@ export default function NotaFiscal({ itemInfo }) {
                   name="tipoProduto"
                   id="tipoProduto"
                   className={style.inputRelatorio}
-                  value={itemInfo.tipo}
+                  value={itemNewInfo.tipo}
+                  onChange={(e) =>
+                    setItemNewInfo({ ...itemNewInfo, tipo: e.target.value })
+                  }
                 >
                   <option value="material de consumo">
                     Material de consumo
@@ -86,16 +128,16 @@ export default function NotaFiscal({ itemInfo }) {
                   <option value="material permanente">
                     Material permanente
                   </option>
-                  <option value="serviços de terceiro (pessoa fisica)">
-                    Serviços de terceiro (pessoa física)
+                  <option value="serviço de terceiros (pessoa fisica)">
+                    Serviço de terceiros (pessoa física)
                   </option>
-                  <option value="serviços de terceiro (pessoa juridica)">
-                    Serviços de terceiro (pessoa jurídica)
+                  <option value="serviço de terceiros (pessoa juridica)">
+                    Serviço de terceiros (pessoa jurídica)
                   </option>
                   <option value="hospedagem">Hospedagem</option>
-                  <option value="passagens">Passagens</option>
+                  <option value="passagem">Passagem</option>
                   <option value="alimentacao de estudantes">
-                    Alimentacao de estudantes
+                    Alimentação de estudantes
                   </option>
                 </select>
               </div>
@@ -109,7 +151,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="nomeMaterial"
                   id="nomeMaterial"
                   className={style.inputRelatorio}
-                  value={itemInfo.nome}
+                  value={itemNewInfo.nomeMaterialServico}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      nomeMaterialServico: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -119,7 +167,10 @@ export default function NotaFiscal({ itemInfo }) {
                   name="marca"
                   id="marca"
                   className={style.inputRelatorio}
-                  value={itemInfo.marca}
+                  value={itemNewInfo.marca}
+                  onChange={(e) =>
+                    setItemNewInfo({ ...itemNewInfo, marca: e.target.value })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -129,7 +180,10 @@ export default function NotaFiscal({ itemInfo }) {
                   name="modelo"
                   id="modelo"
                   className={style.inputRelatorio}
-                  value={itemInfo.modelo}
+                  value={itemNewInfo.modelo}
+                  onChange={(e) =>
+                    setItemNewInfo({ ...itemNewInfo, modelo: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -143,7 +197,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="dataCompra"
                   id="dataCompra"
                   className={style.inputRelatorio}
-                  value={itemInfo.data}
+                  value={itemNewInfo.dataCompraContratacao}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      dataCompraContratacao: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -153,7 +213,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="favorecido"
                   id="favorecido"
                   className={style.inputRelatorio}
-                  value={itemInfo.favorecido}
+                  value={itemNewInfo.cnpjFavorecido}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      cnpjFavorecido: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -163,7 +229,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="quantidade"
                   id="quantidade"
                   className={style.inputRelatorio}
-                  value={itemInfo.quantidade}
+                  value={itemNewInfo.quantidade}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      quantidade: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -173,7 +245,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="valorUnitario"
                   id="valorUnitario"
                   className={style.inputRelatorio}
-                  value={itemInfo.valorUnitario}
+                  value={itemNewInfo.valorUnitario}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      valorUnitario: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -183,7 +261,10 @@ export default function NotaFiscal({ itemInfo }) {
                   name="frete"
                   id="frete"
                   className={style.inputRelatorio}
-                  value={itemInfo.frete}
+                  value={itemNewInfo.frete}
+                  onChange={(e) =>
+                    setItemNewInfo({ ...itemNewInfo, frete: e.target.value })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -193,7 +274,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="valorTotal"
                   id="valorTotal"
                   className={style.inputRelatorio}
-                  value={itemInfo.valorTotal}
+                  value={itemNewInfo.valorTotal}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      valorTotal: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.row}>
@@ -205,7 +292,13 @@ export default function NotaFiscal({ itemInfo }) {
                   name="numDocumentoFiscal"
                   id="numDocumentoFiscal"
                   className={style.inputRelatorio}
-                  value={itemInfo.numeroDocumentoFiscal}
+                  value={itemNewInfo.numeroDocumentoFiscal}
+                  onChange={(e) =>
+                    setItemNewInfo({
+                      ...itemNewInfo,
+                      numeroDocumentoFiscal: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className={style.containerAnexarNotaFiscal}>
@@ -268,16 +361,18 @@ export default function NotaFiscal({ itemInfo }) {
           <>
             <div className={style.agruparBotoesOrcamento}>
               {orcamentos.map((orcamento, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    if (currentOrcamentoForm === index + 1)
-                      setCurrentOrcamentoForm(0);
-                    else setCurrentOrcamentoForm(index + 1);
-                  }}
-                >
-                  {`Orçamento ${index + 1}`}
-                </button>
+                <div key={index}>
+                  <button
+                    onClick={() => {
+                      if (currentOrcamentoForm === index + 1)
+                        setCurrentOrcamentoForm(0);
+                      else setCurrentOrcamentoForm(index + 1);
+                    }}
+                  >
+                    {`Orçamento ${index + 1}`}
+                  </button>
+                  <div onClick={(e) => handleDeleteOrcamento(index)}>Del</div>
+                </div>
               ))}
               <button
                 onClick={() => setOrcamentos([...orcamentos, defaultOrcamento])}
@@ -293,6 +388,7 @@ export default function NotaFiscal({ itemInfo }) {
                 orcamentos={orcamentos}
                 setOrcamentos={setOrcamentos}
                 currentOrcamentoForm={currentOrcamentoForm}
+                handleDeleteOrcamento={handleDeleteOrcamento}
               />
             )}
           </>
@@ -309,7 +405,7 @@ const defaultOrcamento = {
   marca: "",
   modelo: "",
   dataOrcamento: "",
-  CnpjFavorecido: "",
+  cnpjFavorecido: "",
   quantidade: 0,
   valorUnitario: 0,
   valorTotal: 0,
@@ -324,6 +420,7 @@ function FormOrcamento({
   orcamentos,
   setOrcamentos,
   currentOrcamentoForm,
+  handleDeleteOrcamento,
 }) {
   return (
     <form
@@ -405,10 +502,10 @@ function FormOrcamento({
             name="favorecido"
             id="favorecido"
             className={style.inputRelatorio}
-            value={orcamentos[currentOrcamentoForm - 1].CnpjFavorecido}
+            value={orcamentos[currentOrcamentoForm - 1].cnpjFavorecido}
             onChange={(e) => {
               let newOrcamentos = [...orcamentos];
-              newOrcamentos[currentOrcamentoForm - 1].CnpjFavorecido =
+              newOrcamentos[currentOrcamentoForm - 1].cnpjFavorecido =
                 e.target.value;
               setOrcamentos(newOrcamentos);
             }}
