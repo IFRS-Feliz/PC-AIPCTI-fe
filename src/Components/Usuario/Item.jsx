@@ -1,5 +1,5 @@
 import axios from "../../axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import style from "../../assets/css/components/notaFiscal.module.css";
 
 export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
@@ -22,6 +22,8 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
   const [orcamentos, setOrcamentos] = useState([]);
 
   const [currentOrcamentoForm, setCurrentOrcamentoForm] = useState(0);
+
+  const divOrcamento = useRef();
 
   useEffect(() => {
     if (itemInfo.id) {
@@ -63,30 +65,32 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
             : style.containerNotaFiscalFinal
         }
       >
-        <span>
-          <p>Nome do item</p>
-        </span>
-
-        <div className={style.containerBotao}>
-          <button
-            onClick={() => {
-              if (containerContent === "nota") setContainerContent(null);
-              else setContainerContent("nota");
-            }}
-          >
-            Dados
-          </button>
-          <button
-            onClick={() => {
-              if (containerContent === "orcamento") setContainerContent(null);
-              else setContainerContent("orcamento");
-            }}
-          >
-            Orcamentos
-          </button>
-          <button onClick={handleDeleteItem}>Deletar</button>
+        <div className={style.divTopo}>
+          <span>
+            <p>Novo item</p>
+          </span>
+          <div className={style.containerBotao}>
+            <button
+              className={style.buttonDocumentoFiscal}
+              onClick={() => {
+                if (containerContent === "nota") setContainerContent(null);
+                else setContainerContent("nota");
+              }}
+            >
+              Dados
+            </button>
+            <button
+              className={style.buttonOrcamento}
+              onClick={() => {
+                if (containerContent === "orcamento") setContainerContent(null);
+                else setContainerContent("orcamento");
+              }}
+            >
+              Orçamentos
+            </button>
+            <button onClick={handleDeleteItem}>Deletar</button>
+          </div>
         </div>
-
         {containerContent === "nota" ? (
           <form
             className={style.flexBox}
@@ -313,7 +317,9 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
                     }
                   }}
                 >
-                  <p className={style.pAnexarNotaFiscal}>Anexar nota fiscal</p>
+                  <p className={style.pAnexarNotaFiscal}>
+                    Anexar documento fiscal
+                  </p>
                   <div className={style.notaFiscal}>
                     <p>Selecione uma nota fiscal</p>
                     <label
@@ -359,7 +365,11 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
 
         {containerContent === "orcamento" ? (
           <>
-            <div className={style.agruparBotoesOrcamento}>
+            <div
+              className={style.agruparBotoesOrcamento}
+              ref={divOrcamento}
+              style={currentOrcamentoForm === 0 ? { marginBottom: "2rem" } : {}}
+            >
               {orcamentos.map((orcamento, index) => (
                 <div key={index}>
                   <button
@@ -368,14 +378,71 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
                         setCurrentOrcamentoForm(0);
                       else setCurrentOrcamentoForm(index + 1);
                     }}
+                    className={
+                      currentOrcamentoForm === index + 1
+                        ? style.botaoOrcamentoTarget
+                        : style.botaoOrcamneto
+                    }
                   >
                     {`Orçamento ${index + 1}`}
                   </button>
-                  <div onClick={(e) => handleDeleteOrcamento(index)}>Del</div>
+                  <button
+                    className={style.apagarOrcamento}
+                    onClick={(e) => handleDeleteOrcamento(index)}
+                  >
+                    Del
+                  </button>
                 </div>
               ))}
               <button
-                onClick={() => setOrcamentos([...orcamentos, defaultOrcamento])}
+                className={style.rightArrow}
+                onClick={() => {
+                  divOrcamento.current.scrollBy(300, 0);
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  enable-background="new 0 0 24 24"
+                  height="24px"
+                  viewBox="0 0 24 24"
+                  width="24px"
+                  fill="#000000"
+                >
+                  <g>
+                    <path d="M0,0h24v24H0V0z" fill="none" />
+                  </g>
+                  <g>
+                    <polygon points="6.23,20.23 8,22 18,12 8,2 6.23,3.77 14.46,12" />
+                  </g>
+                </svg>
+              </button>
+              <button
+                className={style.leftArrow}
+                onClick={() => {
+                  divOrcamento.current.scrollBy(-300, 0);
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  enable-background="new 0 0 24 24"
+                  height="24px"
+                  viewBox="0 0 24 24"
+                  width="24px"
+                  fill="#000000"
+                >
+                  <g>
+                    <path d="M0,0h24v24H0V0z" fill="none" />
+                  </g>
+                  <g>
+                    <polygon points="6.23,20.23 8,22 18,12 8,2 6.23,3.77 14.46,12" />
+                  </g>
+                </svg>
+              </button>
+              <button
+                className={style.adicionarOrcamento}
+                onClick={() => {
+                  setOrcamentos([...orcamentos, defaultOrcamento]);
+                }}
               >
                 +
               </button>
@@ -425,11 +492,29 @@ function FormOrcamento({
   return (
     <form
       className={style.flexBox}
+      style={{ backgroundColor: "#639163" }}
       onSubmit={(e) => {
         e.preventDefault();
       }}
     >
       <div className={style.containerInputs}>
+        <div className={style.row}>
+          <label htmlFor="dataCompra">Data do orçamento:</label>
+          <input
+            type="date"
+            name="dataOrcamento"
+            id="dataOrcamento"
+            className={style.inputRelatorio}
+            value={orcamentos[currentOrcamentoForm - 1].dataOrcamento}
+            onChange={(e) => {
+              let newOrcamentos = [...orcamentos];
+              newOrcamentos[currentOrcamentoForm - 1].dataOrcamento =
+                e.target.value;
+              setOrcamentos(newOrcamentos);
+            }}
+          />
+        </div>
+        <p className={style.detalhamentoRelatorio}>Detalhamento</p>
         <div className={style.row}>
           <label htmlFor="nomeMaterial">Nome do material / serviço:</label>
           <input
@@ -479,22 +564,6 @@ function FormOrcamento({
       </div>
 
       <div className={style.containerInputs}>
-        <div className={style.row}>
-          <label htmlFor="dataCompra">Data do orçamento:</label>
-          <input
-            type="date"
-            name="dataOrcamento"
-            id="dataOrcamento"
-            className={style.inputRelatorio}
-            value={orcamentos[currentOrcamentoForm - 1].dataOrcamento}
-            onChange={(e) => {
-              let newOrcamentos = [...orcamentos];
-              newOrcamentos[currentOrcamentoForm - 1].dataOrcamento =
-                e.target.value;
-              setOrcamentos(newOrcamentos);
-            }}
-          />
-        </div>
         <div className={style.row}>
           <label htmlFor="favorecido">Favorecido:</label>
           <input

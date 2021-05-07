@@ -63,6 +63,7 @@ export default function Relatorio() {
             },
           ])
         }
+        className={style.buttonAdicionar}
       >
         Adicionar
       </button>
