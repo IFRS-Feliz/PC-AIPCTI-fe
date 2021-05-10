@@ -8,7 +8,7 @@
 
 .containerNotaFiscalInicial {
   position: relative;
-  margin: 2rem auto;
+  /* margin: 2rem auto; */
 
   background-color: #ededed;
   border: 0.2rem solid #ca302d;
@@ -23,11 +23,13 @@
   animation: slide 0.3s forwards;
 
   box-shadow: 3px 3px 5px rgba(46, 0, 0, 0.3);
+
+  transition: 0.3s ease;
 }
 
 .containerNotaFiscalFinal {
   position: relative;
-  margin: 2rem auto;
+  /* margin: 2rem auto; */
   padding: 0 0 4rem 0;
 
   background-color: #ededed;
@@ -44,6 +46,8 @@
 
   height: 1rem;
   box-shadow: 3px 3px 5px rgba(46, 0, 0, 0.3);
+
+  transition: 0.3s ease;
 }
 
 @keyframes slide {
@@ -97,6 +101,7 @@
 
 .flexBox {
   display: flex;
+  position: relative;
 
   padding-top: 2rem;
   padding-bottom: 4rem;
@@ -163,8 +168,8 @@
   align-items: center;
 
   position: absolute;
-  bottom: -4rem;
-  left: 0;
+  bottom: 0;
+  left: 50%;
   transform: translateX(-50%);
 
   cursor: pointer;
@@ -172,7 +177,7 @@
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
 
-  width: 70%;
+  width: 40%;
   height: 2.5rem;
 
   background-color: #ca302d;
@@ -207,8 +212,8 @@
   align-items: center;
 
   position: absolute;
-  bottom: -4rem;
-  left: 0;
+  bottom: 0;
+  left: 50%;
   transform: translateX(-50%);
 
   cursor: pointer;
@@ -216,7 +221,7 @@
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
 
-  width: 70%;
+  width: 40%;
   height: 15rem;
 
   background-color: #ca302d;
@@ -300,26 +305,6 @@
   border-radius: 0.5rem;
 }
 
-.botaoSalvarNotaFiscal {
-  position: absolute;
-  right: -0.2rem;
-  bottom: -4.2rem;
-
-  border: none;
-  border-top-left-radius: 100%;
-  border-top-left-radius: 100%;
-
-  background-color: #ca302d;
-
-  width: 3rem;
-  height: 3rem;
-}
-
-.botaoSalvarNotaFiscal svg {
-  transform: translate(0.3rem, 0.3rem);
-  fill: white;
-}
-
 .containerBotao {
   display: flex;
   margin: auto 1rem auto auto;
@@ -363,11 +348,10 @@
   display: flex;
   align-items: center;
   position: relative;
-
   overflow: hidden;
 
   width: 70%;
-  height: 5rem;
+  height: 6rem;
   margin: auto;
 
   background-color: whitesmoke;
@@ -386,8 +370,12 @@
   border: none;
   border-radius: 0.5rem;
 
-  background-color: teal;
-  color: white;
+  background-color: #00bcf7;
+}
+
+.botaoOrcamneto p {
+  margin: auto;
+  color: black;
 }
 
 .botaoOrcamneto > div {
@@ -395,16 +383,59 @@
 }
 
 .botaoOrcamneto {
-  padding-right: 3rem;
   white-space: nowrap;
 }
 
+@keyframes hoverDelete {
+  to {
+    transform: translate(-3rem, -1rem);
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+@keyframes opacity {
+  to {
+    opacity: 1;
+  }
+}
+
 .apagarOrcamento {
+  /* transform: translate(-3rem, -1rem);
+  width: 2rem;
+  height: 2rem; */
+
+  transform: translate(-2rem, -1rem);
+  width: 1rem;
+  height: 1rem;
+
   position: absolute;
   bottom: 0;
-  transform: translate(-3.4rem, -1.6rem);
+
+  border: none;
+  border-top-left-radius: 100%;
+
+  background-color: #f7d500;
+  transition: linear 0.1s;
+}
+
+.apagarOrcamento:hover {
+  transform: translate(-3rem, -1rem);
   width: 2rem;
-  height: 1.7rem;
+  height: 2rem;
+}
+
+.apagarOrcamento svg {
+  height: 1rem;
+  width: 1rem;
+  transform: translate(0.3rem, 0.3rem);
+  fill: #ca302d;
+  opacity: 0;
+  transition: linear 0.1s;
+}
+
+.apagarOrcamento:hover svg {
+  opacity: 1;
 }
 
 .adicionarOrcamento {
@@ -462,22 +493,37 @@
 }
 
 .botaoOrcamentoTarget {
-  background-color: blue !important;
+  background-color: #007af7 !important;
   position: relative !important;
+}
+
+.botaoOrcamentoTarget p {
+  color: white;
 }
 
 .botaoOrcamentoTarget::after {
   content: "";
   position: absolute;
   bottom: -2.4rem;
-  left: 2.7rem;
+  left: 2.4rem;
 
   width: 2rem;
   height: 2rem;
 
-  background-color: #639163;
+  background-color: #e5e9ec;
 
   border-top-left-radius: 100%;
 
   transform: rotate(225deg);
+
+  cursor: initial;
+}
+
+.containerTeste {
+  overflow: hidden;
+
+  margin: 2rem 0;
+
+  display: flex;
+  justify-content: center;
 }

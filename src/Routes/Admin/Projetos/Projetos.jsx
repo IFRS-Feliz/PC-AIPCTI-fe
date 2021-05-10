@@ -15,7 +15,7 @@ export default function Projetos() {
   const [editais, setEditais] = useState([]);
 
   const [searchResults, setSearchResults] = useState(projetos);
-  const limit = 20;
+  const limit = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [nextPage, SetNextPage] = useState({});
 

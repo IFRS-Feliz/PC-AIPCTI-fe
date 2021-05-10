@@ -51,19 +51,29 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
     const newOrcamentos = [...orcamentos];
     newOrcamentos.splice(index, 1);
 
-    if (newOrcamentos.length < 1 || index === currentOrcamentoForm)
+    if (newOrcamentos.length < 1 || index === currentOrcamentoForm - 1)
       setCurrentOrcamentoForm(0);
     setOrcamentos(newOrcamentos);
   }
 
+  function animacao() {
+    if (containerContent === "nota") {
+      return "37.1875rem";
+    } else if (containerContent === "orcamento" && currentOrcamentoForm === 0) {
+      return "18.1875rem";
+    } else if (containerContent === "orcamento" && currentOrcamentoForm > 0) {
+      return "36.1875rem";
+    }
+  }
   return (
-    <>
+    <div className={style.containerTeste}>
       <div
         className={
           containerContent
             ? style.containerNotaFiscalInicial
             : style.containerNotaFiscalFinal
         }
+        style={{ height: animacao() }}
       >
         <div className={style.divTopo}>
           <span>
@@ -88,7 +98,6 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
             >
               Orçamentos
             </button>
-            <button onClick={handleDeleteItem}>Deletar</button>
           </div>
         </div>
         {containerContent === "nota" ? (
@@ -305,58 +314,38 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
                   }
                 />
               </div>
-              <div className={style.containerAnexarNotaFiscal}>
-                <div
-                  className={expandir}
-                  onClick={(e) => {
-                    if (
-                      expandir === e.target.className ||
-                      e.target.className === style.pAnexarNotaFiscal
-                    ) {
-                      setarClasse();
-                    }
-                  }}
-                >
-                  <p className={style.pAnexarNotaFiscal}>
-                    Anexar documento fiscal
-                  </p>
-                  <div className={style.notaFiscal}>
-                    <p>Selecione uma nota fiscal</p>
-                    <label
-                      htmlFor="anexarNota"
-                      className={style.labelInputFile}
-                    >
-                      Clique aqui
-                    </label>
-                    <input
-                      type="file"
-                      name="anexarNota"
-                      id="anexarNota"
-                      className={style.inputFile}
-                    />
-                    <p className={style.separarAnexarNota}>
-                      ______________ OU ______________
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                className={style.botaoSalvarNotaFiscal}
-                onClick={() => {
-                  setContainerContent(null);
+            </div>
+            <div className={style.containerAnexarNotaFiscal}>
+              <div
+                className={expandir}
+                onClick={(e) => {
+                  if (
+                    expandir === e.target.className ||
+                    e.target.className === style.pAnexarNotaFiscal
+                  ) {
+                    setarClasse();
+                  }
                 }}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                  width="24px"
-                >
-                  <path d="M0 0h24v24H0V0z" fill="none" />
-                  <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z" />
-                </svg>
-              </button>
+                <p className={style.pAnexarNotaFiscal}>
+                  Anexar documento fiscal
+                </p>
+                <div className={style.notaFiscal}>
+                  <p>Selecione uma nota fiscal</p>
+                  <label htmlFor="anexarNota" className={style.labelInputFile}>
+                    Clique aqui
+                  </label>
+                  <input
+                    type="file"
+                    name="anexarNota"
+                    id="anexarNota"
+                    className={style.inputFile}
+                  />
+                  <p className={style.separarAnexarNota}>
+                    ______________ OU ______________
+                  </p>
+                </div>
+              </div>
             </div>
           </form>
         ) : (
@@ -380,17 +369,27 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
                     }}
                     className={
                       currentOrcamentoForm === index + 1
-                        ? style.botaoOrcamentoTarget
+                        ? `${style.botaoOrcamentoTarget} ${style.botaoOrcamneto}`
                         : style.botaoOrcamneto
                     }
                   >
-                    {`Orçamento ${index + 1}`}
+                    <p>
+                      Orçamento <br /> {index + 1}
+                    </p>
                   </button>
                   <button
                     className={style.apagarOrcamento}
                     onClick={(e) => handleDeleteOrcamento(index)}
                   >
-                    Del
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      width="24"
+                    >
+                      <path d="M0 0h24v24H0z" fill="none" />
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg>
                   </button>
                 </div>
               ))}
@@ -402,7 +401,6 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  enable-background="new 0 0 24 24"
                   height="24px"
                   viewBox="0 0 24 24"
                   width="24px"
@@ -424,7 +422,6 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  enable-background="new 0 0 24 24"
                   height="24px"
                   viewBox="0 0 24 24"
                   width="24px"
@@ -463,7 +460,7 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
           ""
         )}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -492,7 +489,13 @@ function FormOrcamento({
   return (
     <form
       className={style.flexBox}
-      style={{ backgroundColor: "#639163" }}
+      style={{
+        backgroundColor: "#E5E9EC",
+        borderTopLeftRadius: "3rem",
+        borderTopRightRadius: "3rem",
+        borderBottomLeftRadius: "0.5rem",
+        borderBottomRightRadius: "0.5rem",
+      }}
       onSubmit={(e) => {
         e.preventDefault();
       }}
@@ -644,54 +647,37 @@ function FormOrcamento({
             }}
           />
         </div>
-        <div className={style.containerAnexarNotaFiscal}>
-          <div
-            className={expandir}
-            onClick={(e) => {
-              if (
-                expandir === e.target.className ||
-                e.target.className === style.pAnexarNotaFiscal
-              ) {
-                setarClasse();
-              }
-            }}
-          >
-            <p className={style.pAnexarNotaFiscal}>Anexar Orçamento</p>
-            <div className={style.notaFiscal}>
-              <p>Selecione um orçamento</p>
-              <label htmlFor="anexarNota" className={style.labelInputFile}>
-                Clique aqui
-              </label>
-              <input
-                type="file"
-                name="anexarNota"
-                id="anexarNota"
-                className={style.inputFile}
-                // value={orcamentos[currentOrcamentoForm-1].anexo}
-              />
-              <p className={style.separarAnexarNota}>
-                ______________ OU ______________
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <button
-          className={style.botaoSalvarNotaFiscal}
-          onClick={() => {
-            setContainerContent(null);
+      </div>
+      <div className={style.containerAnexarNotaFiscal}>
+        <div
+          className={expandir}
+          onClick={(e) => {
+            if (
+              expandir === e.target.className ||
+              e.target.className === style.pAnexarNotaFiscal
+            ) {
+              setarClasse();
+            }
           }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 0 24 24"
-            width="24px"
-          >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z" />
-          </svg>
-        </button>
+          <p className={style.pAnexarNotaFiscal}>Anexar Orçamento</p>
+          <div className={style.notaFiscal}>
+            <p>Selecione um orçamento</p>
+            <label htmlFor="anexarNota" className={style.labelInputFile}>
+              Clique aqui
+            </label>
+            <input
+              type="file"
+              name="anexarNota"
+              id="anexarNota"
+              className={style.inputFile}
+              // value={orcamentos[currentOrcamentoForm-1].anexo}
+            />
+            <p className={style.separarAnexarNota}>
+              ______________ OU ______________
+            </p>
+          </div>
+        </div>
       </div>
     </form>
   );
