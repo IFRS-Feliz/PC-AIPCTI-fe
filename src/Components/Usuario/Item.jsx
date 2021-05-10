@@ -1,5 +1,6 @@
 import axios from "../../axios";
 import { useEffect, useState, useRef } from "react";
+import { getProjectArrays } from "../../Helpers/EditarAdicionarUsuario";
 import style from "../../assets/css/components/notaFiscal.module.css";
 
 export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
@@ -19,6 +20,7 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
   const [itemNewInfo, setItemNewInfo] = useState(itemInfo);
 
   //estados dos orcamentos
+  const [initialOrcamentos, setInitialOrcamentos] = useState([]);
   const [orcamentos, setOrcamentos] = useState([]);
 
   const [currentOrcamentoForm, setCurrentOrcamentoForm] = useState(0);
@@ -31,6 +33,7 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
         .get(`/orcamento?idItem=${itemInfo.id}`)
         .then((response) => {
           setOrcamentos(response.data.results);
+          setInitialOrcamentos(response.data.results);
         })
         .catch((e) => {
           console.log(e);
@@ -39,25 +42,88 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
   }, [itemInfo.id]);
 
   function handleDeleteItem() {
-    //make axios request here and then do the following
+    //somento caso seja um item ja registrado no banco
+    if (itemInfo.id) {
+      axios
+        .delete("/item", { data: { itens: [itemInfo] } })
+        .then(() => {
+          updateItens();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    } else {
+      updateItens();
+    }
 
-    const newItens = [...itens];
-    newItens.splice(index, 1);
-    setItens(newItens);
+    function updateItens() {
+      const newItens = [...itens];
+      newItens.splice(index, 1);
+      setItens(newItens);
+    }
   }
 
   function handleDeleteOrcamento(index) {
-    //make axios request here and then do the following
     const newOrcamentos = [...orcamentos];
     newOrcamentos.splice(index, 1);
 
-    if (newOrcamentos.length < 1 || index === currentOrcamentoForm)
+    if (newOrcamentos.length < 1 || index === currentOrcamentoForm - 1) {
       setCurrentOrcamentoForm(0);
+    }
+
     setOrcamentos(newOrcamentos);
   }
 
+  async function handleSaveItem() {
+    itemNewInfo.despesa =
+      itemNewInfo.tipo === "materialPermanente" ? "capital" : "custeio";
+
+    const idItem = await handleItem();
+    handleOrcamentos(idItem || itemNewInfo.id);
+
+    async function handleOrcamentos(idItem) {
+      //pegar listas de orcamentos
+      const { addedProjects, updatedProjects, deletedProjects } =
+        getProjectArrays(initialOrcamentos, orcamentos);
+
+      try {
+        if (deletedProjects.length > 0) {
+          console.log("estou querendo deletar");
+          await axios.delete("/orcamento", {
+            data: { orcamentos: deletedProjects },
+          });
+        }
+
+        if (addedProjects.length > 0) {
+          addedProjects.forEach((orcamento) => (orcamento.idItem = idItem));
+          await axios.post("/orcamento", { orcamentos: addedProjects });
+        }
+
+        if (updatedProjects.length > 0) {
+          await axios.put("/orcamento", { orcamentos: updatedProjects });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    async function handleItem() {
+      try {
+        if (itemNewInfo.id) {
+          axios.put("/item", { itens: [itemNewInfo] });
+          return itemNewInfo.id;
+        }
+        const response = await axios.post("/item", { itens: [itemNewInfo] });
+        setItemNewInfo({ ...itemNewInfo, id: response.data.results[0].id });
+        return response.data.results[0].id;
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
   return (
-    <>
+    <div className={style.container}>
       <div
         className={
           containerContent
@@ -67,11 +133,15 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
       >
         <div className={style.divTopo}>
           <span>
-            <p>Novo item</p>
+            <p>{itemNewInfo.nomeMaterialServico || "Novo item"}</p>
           </span>
           <div className={style.containerBotao}>
             <button
-              className={style.buttonDocumentoFiscal}
+              className={
+                containerContent === "nota"
+                  ? style.buttonDocumentoFiscalTarget
+                  : style.buttonDocumentoFiscal
+              }
               onClick={() => {
                 if (containerContent === "nota") setContainerContent(null);
                 else setContainerContent("nota");
@@ -80,7 +150,11 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
               Dados
             </button>
             <button
-              className={style.buttonOrcamento}
+              className={
+                containerContent === "orcamento"
+                  ? style.buttonOrcamentoTarget
+                  : style.buttonOrcamento
+              }
               onClick={() => {
                 if (containerContent === "orcamento") setContainerContent(null);
                 else setContainerContent("orcamento");
@@ -88,283 +162,283 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
             >
               Orçamentos
             </button>
-            <button onClick={handleDeleteItem}>Deletar</button>
           </div>
         </div>
         {containerContent === "nota" ? (
-          <form
-            className={style.flexBox}
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <div className={style.containerInputs}>
-              <div className={style.row}>
-                <label htmlFor="nome">Descrição:</label>
-                <input
-                  type="text"
-                  name="nome"
-                  id="nome"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.descricao}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      descricao: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="tipoProduto">Tipo: </label>
-                <select
-                  name="tipoProduto"
-                  id="tipoProduto"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.tipo}
-                  onChange={(e) =>
-                    setItemNewInfo({ ...itemNewInfo, tipo: e.target.value })
-                  }
-                >
-                  <option value="material de consumo">
-                    Material de consumo
-                  </option>
-                  <option value="material permanente">
-                    Material permanente
-                  </option>
-                  <option value="serviço de terceiros (pessoa fisica)">
-                    Serviço de terceiros (pessoa física)
-                  </option>
-                  <option value="serviço de terceiros (pessoa juridica)">
-                    Serviço de terceiros (pessoa jurídica)
-                  </option>
-                  <option value="hospedagem">Hospedagem</option>
-                  <option value="passagem">Passagem</option>
-                  <option value="alimentacao de estudantes">
-                    Alimentação de estudantes
-                  </option>
-                </select>
-              </div>
-              <p className={style.detalhamentoRelatorio}>Detalhamento</p>
-              <div className={style.row}>
-                <label htmlFor="nomeMaterial">
-                  Nome do material / serviço:
+          <>
+            <div className={style.containerContentHeader}>
+              <h1>Dados</h1>
+              <div>
+                <input type="checkbox" id="comCpfCoordenador" />
+                <label htmlFor="comCpfCoordenador">
+                  Esse item foi comprado com o CPF do coordenador do projeto.
                 </label>
-                <input
-                  type="text"
-                  name="nomeMaterial"
-                  id="nomeMaterial"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.nomeMaterialServico}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      nomeMaterialServico: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="marca">Marca:</label>
-                <input
-                  type="text"
-                  name="marca"
-                  id="marca"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.marca}
-                  onChange={(e) =>
-                    setItemNewInfo({ ...itemNewInfo, marca: e.target.value })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="modelo">Modelo:</label>
-                <input
-                  type="text"
-                  name="modelo"
-                  id="modelo"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.modelo}
-                  onChange={(e) =>
-                    setItemNewInfo({ ...itemNewInfo, modelo: e.target.value })
-                  }
-                />
               </div>
             </div>
-            <div className={style.containerInputs}>
-              <div className={style.row}>
-                <label htmlFor="dataCompra">
-                  Data da compra / contratação:
-                </label>
-                <input
-                  type="date"
-                  name="dataCompra"
-                  id="dataCompra"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.dataCompraContratacao}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      dataCompraContratacao: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="favorecido">Favorecido:</label>
-                <input
-                  type="text"
-                  name="favorecido"
-                  id="favorecido"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.cnpjFavorecido}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      cnpjFavorecido: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="quantidade">Quantidade:</label>
-                <input
-                  type="number"
-                  name="quantidade"
-                  id="quantidade"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.quantidade}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      quantidade: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="valorUnitario">Valor unitário:</label>
-                <input
-                  type="number"
-                  name="valorUnitario"
-                  id="valorUnitario"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.valorUnitario}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      valorUnitario: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="frete">Valor do frete:</label>
-                <input
-                  type="number"
-                  name="frete"
-                  id="frete"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.frete}
-                  onChange={(e) =>
-                    setItemNewInfo({ ...itemNewInfo, frete: e.target.value })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="valorTotal">Valor total:</label>
-                <input
-                  type="number"
-                  name="valorTotal"
-                  id="valorTotal"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.valorTotal}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      valorTotal: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.row}>
-                <label htmlFor="numDocumentoFiscal">
-                  Nº do documento fiscal:
-                </label>
-                <input
-                  type="number"
-                  name="numDocumentoFiscal"
-                  id="numDocumentoFiscal"
-                  className={style.inputRelatorio}
-                  value={itemNewInfo.numeroDocumentoFiscal}
-                  onChange={(e) =>
-                    setItemNewInfo({
-                      ...itemNewInfo,
-                      numeroDocumentoFiscal: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={style.containerAnexarNotaFiscal}>
-                <div
-                  className={expandir}
-                  onClick={(e) => {
-                    if (
-                      expandir === e.target.className ||
-                      e.target.className === style.pAnexarNotaFiscal
-                    ) {
-                      setarClasse();
+            <form
+              className={style.flexBox}
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <div className={style.containerInputs}>
+                <div className={style.row}>
+                  <label htmlFor="nome">Descrição:</label>
+                  <input
+                    type="text"
+                    name="nome"
+                    id="nome"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.descricao}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        descricao: e.target.value,
+                      })
                     }
-                  }}
-                >
-                  <p className={style.pAnexarNotaFiscal}>
-                    Anexar documento fiscal
-                  </p>
-                  <div className={style.notaFiscal}>
-                    <p>Selecione uma nota fiscal</p>
-                    <label
-                      htmlFor="anexarNota"
-                      className={style.labelInputFile}
-                    >
-                      Clique aqui
-                    </label>
-                    <input
-                      type="file"
-                      name="anexarNota"
-                      id="anexarNota"
-                      className={style.inputFile}
-                    />
-                    <p className={style.separarAnexarNota}>
-                      ______________ OU ______________
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="tipoProduto">Tipo: </label>
+                  <select
+                    name="tipoProduto"
+                    id="tipoProduto"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.tipo}
+                    onChange={(e) =>
+                      setItemNewInfo({ ...itemNewInfo, tipo: e.target.value })
+                    }
+                  >
+                    <option value="materialConsumo">Material de consumo</option>
+                    <option value="materialPermanente">
+                      Material permanente
+                    </option>
+                    <option value="servicoPessoaFisica">
+                      Serviço de terceiros (pessoa física)
+                    </option>
+                    <option value="servicoPessoaJuridica">
+                      Serviço de terceiros (pessoa jurídica)
+                    </option>
+                    <option value="hospedagem">Hospedagem</option>
+                    <option value="passagem">Passagem</option>
+                    <option value="alimentacao">
+                      Alimentação de estudantes
+                    </option>
+                  </select>
+                </div>
+                <p className={style.detalhamentoRelatorio}>Detalhamento</p>
+                <div className={style.row}>
+                  <label htmlFor="nomeMaterial">
+                    Nome do material / serviço:
+                  </label>
+                  <input
+                    type="text"
+                    name="nomeMaterial"
+                    id="nomeMaterial"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.nomeMaterialServico}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        nomeMaterialServico: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="marca">Marca:</label>
+                  <input
+                    type="text"
+                    name="marca"
+                    id="marca"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.marca}
+                    onChange={(e) =>
+                      setItemNewInfo({ ...itemNewInfo, marca: e.target.value })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="modelo">Modelo:</label>
+                  <input
+                    type="text"
+                    name="modelo"
+                    id="modelo"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.modelo}
+                    onChange={(e) =>
+                      setItemNewInfo({ ...itemNewInfo, modelo: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className={style.containerInputs}>
+                <div className={style.row}>
+                  <label htmlFor="dataCompra">
+                    Data da compra / contratação:
+                  </label>
+                  <input
+                    type="date"
+                    name="dataCompra"
+                    id="dataCompra"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.dataCompraContratacao}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        dataCompraContratacao: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="favorecido">Favorecido:</label>
+                  <input
+                    type="text"
+                    name="favorecido"
+                    id="favorecido"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.cnpjFavorecido}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        cnpjFavorecido: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="quantidade">Quantidade:</label>
+                  <input
+                    type="number"
+                    name="quantidade"
+                    id="quantidade"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.quantidade}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        quantidade: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="valorUnitario">Valor unitário:</label>
+                  <input
+                    type="number"
+                    name="valorUnitario"
+                    id="valorUnitario"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.valorUnitario}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        valorUnitario: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="frete">Valor do frete:</label>
+                  <input
+                    type="number"
+                    name="frete"
+                    id="frete"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.frete}
+                    onChange={(e) =>
+                      setItemNewInfo({ ...itemNewInfo, frete: e.target.value })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="valorTotal">Valor total:</label>
+                  <input
+                    type="number"
+                    name="valorTotal"
+                    id="valorTotal"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.valorTotal}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        valorTotal: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className={style.row}>
+                  <label htmlFor="numDocumentoFiscal">
+                    Nº do documento fiscal:
+                  </label>
+                  <input
+                    type="number"
+                    name="numDocumentoFiscal"
+                    id="numDocumentoFiscal"
+                    className={style.inputRelatorio}
+                    value={itemNewInfo.numeroDocumentoFiscal}
+                    onChange={(e) =>
+                      setItemNewInfo({
+                        ...itemNewInfo,
+                        numeroDocumentoFiscal: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className={style.containerAnexarNotaFiscal}>
+                  <div
+                    className={expandir}
+                    onClick={(e) => {
+                      if (
+                        expandir === e.target.className ||
+                        e.target.className === style.pAnexarNotaFiscal
+                      ) {
+                        setarClasse();
+                      }
+                    }}
+                  >
+                    <p className={style.pAnexarNotaFiscal}>
+                      Anexar documento fiscal
                     </p>
+                    <div className={style.notaFiscal}>
+                      <p>Selecione uma nota fiscal</p>
+                      <label
+                        htmlFor="anexarNota"
+                        className={style.labelInputFile}
+                      >
+                        Clique aqui
+                      </label>
+                      <input
+                        type="file"
+                        name="anexarNota"
+                        id="anexarNota"
+                        className={style.inputFile}
+                      />
+                      <p className={style.separarAnexarNota}>
+                        ______________ OU ______________
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <button
-                className={style.botaoSalvarNotaFiscal}
-                onClick={() => {
-                  setContainerContent(null);
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                  width="24px"
-                >
-                  <path d="M0 0h24v24H0V0z" fill="none" />
-                  <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z" />
-                </svg>
-              </button>
-            </div>
-          </form>
+            </form>
+          </>
         ) : (
           ""
         )}
 
         {containerContent === "orcamento" ? (
           <>
+            <div className={style.containerContentHeader}>
+              <h1>
+                {currentOrcamentoForm > 0
+                  ? `Orçamento ${currentOrcamentoForm}`
+                  : "Orçamentos"}
+              </h1>
+              <p>Utilizar uma justificativa</p>
+            </div>
+
             <div
               className={style.agruparBotoesOrcamento}
               ref={divOrcamento}
@@ -380,7 +454,9 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
                     }}
                     className={
                       currentOrcamentoForm === index + 1
-                        ? style.botaoOrcamentoTarget
+                        ? style.botaoOrcamentoTarget +
+                          " " +
+                          style.botaoOrcamneto
                         : style.botaoOrcamneto
                     }
                   >
@@ -402,7 +478,7 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  enable-background="new 0 0 24 24"
+                  enableBackground="new 0 0 24 24"
                   height="24px"
                   viewBox="0 0 24 24"
                   width="24px"
@@ -424,7 +500,7 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  enable-background="new 0 0 24 24"
+                  enableBackground="new 0 0 24 24"
                   height="24px"
                   viewBox="0 0 24 24"
                   width="24px"
@@ -463,7 +539,11 @@ export default function NotaFiscal({ itemInfo, itens, setItens, index }) {
           ""
         )}
       </div>
-    </>
+      <div className={style.utils}>
+        <button onClick={handleSaveItem}>Salvar</button>
+        <button onClick={handleDeleteItem}>Deletar</button>
+      </div>
+    </div>
   );
 }
 
@@ -675,23 +755,6 @@ function FormOrcamento({
             </div>
           </div>
         </div>
-
-        <button
-          className={style.botaoSalvarNotaFiscal}
-          onClick={() => {
-            setContainerContent(null);
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 0 24 24"
-            width="24px"
-          >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z" />
-          </svg>
-        </button>
       </div>
     </form>
   );

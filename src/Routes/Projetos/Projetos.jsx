@@ -5,7 +5,6 @@ import { useState } from "react";
 import EditalUsuario from "../../Components/Usuario/EditalUsuario";
 
 import style from "../../assets/css/routes/usuarios.module.css";
-import { Link } from "react-router-dom";
 import { useRef } from "react";
 
 import AuthContext from "../../Contexts/Auth";

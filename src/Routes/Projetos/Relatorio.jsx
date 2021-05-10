@@ -46,8 +46,10 @@ export default function Relatorio() {
           setItens([
             ...itens,
             {
+              idProjeto: id,
               descricao: "",
-              tipo: "material de consumo",
+              tipo: "materialConsumo",
+              despesa: "capital",
 
               nomeMaterialServico: "",
               marca: "",
