@@ -21,6 +21,7 @@ export default function Relatorio() {
     axios
       .get(`/item?idProjeto=${id}`)
       .then((response) => {
+        // console.log(response.data.results);
         setItens(response.data.results);
       })
       .catch((e) => console.log(e));
@@ -28,17 +29,12 @@ export default function Relatorio() {
 
   return (
     <>
-      <h1 className={style.tituloRelatorio}>
-        Relatório <br /> Projeto - {projeto.nome}
-      </h1>
+      <div className={style.tituloRelatorio}>
+        <h1>Prestação de contas - {projeto.nome}</h1>
+        <h3>Cadastre os itens referentes ao projeto abaixo:</h3>
+      </div>
       {itens.map((item, index) => (
-        <Item
-          itemInfo={item}
-          key={index}
-          itens={itens}
-          setItens={setItens}
-          index={index}
-        />
+        <Item key={index} itens={itens} index={index} setItens={setItens} />
       ))}
 
       <button
@@ -62,6 +58,11 @@ export default function Relatorio() {
               valorTotal: 0,
               frete: 0,
               numeroDocumentoFiscal: "",
+              tipoDocumentoFiscal: "nfe",
+              isCompradoComCpfCoordenador: false,
+              isNaturezaSingular: false,
+
+              anexo: "",
             },
           ])
         }
