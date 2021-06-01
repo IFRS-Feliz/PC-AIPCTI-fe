@@ -37,6 +37,20 @@
   flex-direction: column;
 }
 
+.mainContentJustificativaForm {
+  background-color: lightcoral;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  height: 15rem;
+  position: relative;
+}
+
+.mainContentJustificativaForm .anexoRiseUpMenuContent {
+  width: 30rem;
+  background-color: lightgray;
+}
+
 .mainContentFormFields {
   display: grid;
   grid-template-columns: 1fr 6px 1fr;
