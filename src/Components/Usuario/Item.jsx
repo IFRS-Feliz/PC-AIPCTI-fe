@@ -187,6 +187,9 @@ export default function Item({ itens, index, setItens }) {
             }
             if (response.value.config.url === "/orcamento") {
               response.value.data.results.forEach((orcamentoAtualizado, i) => {
+                if (updated.length <= i) {
+                  return;
+                }
                 if (updated[i].actionAnexo === "post")
                   orcamentoAtualizado.pathAnexo = true;
               });
@@ -266,20 +269,32 @@ export default function Item({ itens, index, setItens }) {
     <div className={style.container}>
       <div className={style.main}>
         <div className={style.mainHeader}>
-          <p>nome</p>
+          <p>{item.nomeMaterialServico || "Novo item"}</p>
           <div>
-            <button onClick={() => handleChangeContent("informacoes")}>
-              informações
-            </button>
-            <button onClick={() => handleChangeContent("orcamentos")}>
-              orçamentos
-            </button>
-            <button
-              onClick={() => handleChangeContent("justificativa")}
-              disabled={!item.isNaturezaSingular}
+            <span className={content === "informacoes" ? style.ticoAppear : ""}>
+              <button onClick={() => handleChangeContent("informacoes")}>
+                informações
+              </button>
+            </span>
+
+            <span
+              className={content === "orcamentos" ? style.ticoAppearWhite : ""}
             >
-              justificativas
-            </button>
+              <button onClick={() => handleChangeContent("orcamentos")}>
+                orçamentos
+              </button>
+            </span>
+
+            <span
+              className={content === "justificativa" ? style.ticoAppear : ""}
+            >
+              <button
+                onClick={() => handleChangeContent("justificativa")}
+                disabled={!item.isNaturezaSingular}
+              >
+                justificativa
+              </button>
+            </span>
           </div>
         </div>
         {content && (
@@ -539,14 +554,7 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            paddingBottom: "4rem",
-            backgroundColor: "lightcoral",
-          }}
-        >
+        <div className={style.cpfPesquisadorCheckbox}>
           <CheckBoxInput
             name="isCompradoComCpfCoordenador"
             object={item}
@@ -644,11 +652,12 @@ function ContentOrcamentos({
                 className={
                   current === i + 1
                     ? style.mainContentFormOrcamentoSelectorTarget
-                    : ""
+                    : style.mainContentFormOrcamentoSelectorUntarget
                 }
               >
                 <div onClick={() => handleChangeOrcamento(i + 1)}>
-                  <p>Orçamento {i + 1}</p>
+                  <p>Orçamento</p>
+                  <p>{i + 1}</p>
                 </div>
                 <button onClick={() => handleDeleteOrcamento(i)}>
                   <svg height="24" viewBox="0 0 24 24" width="24">
@@ -782,14 +791,7 @@ function ContentOrcamentos({
                 />
               </div>
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                paddingBottom: "4rem",
-                backgroundColor: "lightcoral",
-              }}
-            >
+            <div className={style.cpfPesquisadorCheckbox}>
               <CheckBoxInput
                 name="isOrcadoComCpfCoordenador"
                 object={orcamentos}
