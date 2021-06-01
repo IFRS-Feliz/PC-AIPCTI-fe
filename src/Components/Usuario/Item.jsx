@@ -309,7 +309,10 @@ export default function Item({ itens, index, setItens }) {
   ]);
 
   return (
-    <div className={style.container}>
+    <div
+      className={style.container}
+      style={content ? {} : { marginBottom: "2rem" }}
+    >
       <div className={style.main}>
         <div className={style.mainHeader}>
           <p>{item.nomeMaterialServico || "Novo item"}</p>
@@ -444,9 +447,7 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
 
   return (
     <>
-      <div className={style.mainContentHeader}>
-        <h1>Informações</h1>
-      </div>
+      <div className={style.mainContentHeader}></div>
       <div className={style.mainContentForm}>
         <div style={{ position: "relative" }}>
           <div className={style.mainContentFormTico}></div>
@@ -682,15 +683,14 @@ function ContentOrcamentos({
 
   return (
     <>
-      <div className={style.mainContentHeader}>
-        <h1>{current ? `Orçamento ${current}` : "Orçamentos"}</h1>
-      </div>
+      <div className={style.mainContentHeader}></div>
       <div className={style.mainContentForm}>
         <div
           className={style.mainContentFormOrcamentoSelector}
           style={!current ? { marginBottom: "2rem" } : {}}
         >
           <div></div>
+
           <div className={style.mainContentFormOrcamentoSelectorArrow}>
             <button onClick={() => scrollBotoesBy(-300, 0)}>&#11164;</button>
           </div>
@@ -898,9 +898,7 @@ function ContentJustificativa({
   }, [justificativa, setJustificativa, idItem]);
   return (
     <>
-      <div className={style.mainContentHeader}>
-        <h1>Justificativa</h1>
-      </div>
+      <div className={style.mainContentHeader}></div>
       <div className={style.mainContentForm}>
         <div style={{ position: "relative" }}>
           <div className={style.mainContentFormTico}></div>

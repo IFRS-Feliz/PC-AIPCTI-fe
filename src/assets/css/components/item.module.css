@@ -1,5 +1,5 @@
 .container {
-  margin-top: 2rem;
+  /* margin-top: 2rem; */
   display: grid;
   grid-template-columns: 1fr minmax(0, 60rem) 1fr;
   grid-template-rows: 1fr;
@@ -101,7 +101,7 @@
   background-color: #eeeeee;
   position: relative;
 
-  transform: translateY(-4.25rem);
+  top: -4.25rem;
 
   border-radius: 0.5rem;
 
@@ -128,7 +128,7 @@
 }
 
 .mainContentJustificativaForm {
-  background-color: lightcoral;
+  background-color: #dadada;
   padding: 2rem;
   display: flex;
   justify-content: center;
@@ -138,7 +138,8 @@
 
 .mainContentJustificativaForm .anexoRiseUpMenuContent {
   width: 30rem;
-  background-color: lightgray;
+  background-color: #fff;
+  border-radius: 0.5rem;
 }
 
 .mainContentFormFields {
@@ -183,7 +184,7 @@
   margin-top: 2rem;
   width: 25rem;
 
-  background-color: whitesmoke;
+  background-color: #fff;
   border-radius: 0.5rem 0.5rem 0 0;
   transition: height 0.2s ease;
   overflow: hidden;
@@ -309,22 +310,6 @@
   transform: rotate(225deg);
 
   cursor: initial;
-}
-
-.mainContentFormTico::after {
-  content: "";
-  position: absolute;
-  top: -1.7rem;
-  left: 49.35%;
-
-  width: 2rem;
-  height: 3rem;
-
-  background-color: #dadada;
-
-  border-top-left-radius: 100%;
-
-  transform: rotate(225deg) translateY(-50%);
 }
 
 .mainContentFormOrcamentoSelectorBotoes > span > div {
