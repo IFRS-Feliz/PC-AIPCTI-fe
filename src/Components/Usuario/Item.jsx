@@ -17,7 +17,8 @@ export default function Item({ itens, index, setItens }) {
   const [orcamentos, setOrcamentos] = useState([]);
   const [anexosOrcamentos, setAnexosOrcamentos] = useState([]);
 
-  const [justificativa, setJustificativa] = useState({ nome: "show" });
+  const [justificativa, setJustificativa] = useState({});
+  const [anexoJustificativa, setAnexoJustificativa] = useState();
 
   const [isDirty, setIsDirty] = useState(false);
 
@@ -50,6 +51,38 @@ export default function Item({ itens, index, setItens }) {
 
     //inferir tipo de despesa do item
     const despesa = item.tipo === "materialPermanente" ? "capital" : "custeio";
+
+    //cuidar das justificativas
+    if (justificativa.actionAnexo === "post") {
+      const formData = new FormData();
+      formData.append("file", anexoJustificativa);
+      axios
+        .post(`/justificativa/${justificativa.id}/file`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then(() =>
+          setJustificativa({
+            ...justificativa,
+            actionAnexo: undefined,
+            pathAnexo: true,
+          })
+        );
+    } else if (justificativa.actionAnexo === "delete") {
+      axios.delete(`/justificativa/${justificativa.id}/file`).then(() =>
+        setJustificativa({
+          ...justificativa,
+          actionAnexo: undefined,
+          pathAnexo: false,
+        })
+      );
+    }
+
+    if (!item.isNaturezaSingular && justificativa.id) {
+      axios.delete(`/justificativa/${justificativa.id}`).then(() => {
+        setAnexoJustificativa();
+        setJustificativa({});
+      });
+    }
 
     //separar listas dos orcamentos para enviar
     //*mudar nome da funcao helper e seus retornos no futuro
@@ -223,7 +256,7 @@ export default function Item({ itens, index, setItens }) {
     } else setIsSaving(false);
   }
 
-  //fetch orcamentos
+  //fetch orcamentos e justificativas
   useEffect(() => {
     //somente pegar orcamentos se o item estiver no banco
     if (item.id) {
@@ -237,12 +270,16 @@ export default function Item({ itens, index, setItens }) {
         .catch((e) => {
           console.log(e);
         });
+      axios.get(`/justificativa?idItem=${item.id}`).then((response) => {
+        setJustificativa(response.data.results[0] || {});
+      });
     }
   }, [item.id]);
 
   //verificar se form sofreu mudanças
   useEffect(() => {
     function checkDirty() {
+      if (justificativa.actionAnexo) return true;
       const isItemDirty = !compareObjects(item, initialItem);
       let isOrcamentosDirty =
         orcamentos.length !== initialOrcamentos.length ? true : false;
@@ -263,7 +300,13 @@ export default function Item({ itens, index, setItens }) {
       return isItemDirty || isOrcamentosDirty;
     }
     setIsDirty(checkDirty);
-  }, [item, orcamentos, initialOrcamentos, initialItem]);
+  }, [
+    item,
+    orcamentos,
+    initialOrcamentos,
+    initialItem,
+    justificativa.actionAnexo,
+  ]);
 
   return (
     <div className={style.container}>
@@ -312,6 +355,9 @@ export default function Item({ itens, index, setItens }) {
               setAnexosOrcamentos={setAnexosOrcamentos}
               justificativa={justificativa}
               setJustificativa={setJustificativa}
+              anexoJustificativa={anexoJustificativa}
+              setAnexoJustificativa={setAnexoJustificativa}
+              idItem={item.id}
             />
           </div>
         )}
@@ -343,6 +389,9 @@ function MainContent({
   setAnexosOrcamentos,
   justificativa,
   setJustificativa,
+  anexoJustificativa,
+  setAnexoJustificativa,
+  idItem,
 }) {
   if (content === "informacoes")
     return (
@@ -367,6 +416,9 @@ function MainContent({
       <ContentJustificativa
         justificativa={justificativa}
         setJustificativa={setJustificativa}
+        anexoJustificativa={anexoJustificativa}
+        setAnexoJustificativa={setAnexoJustificativa}
+        idItem={idItem}
       />
     );
   }
@@ -820,7 +872,30 @@ function ContentOrcamentos({
   );
 }
 
-function ContentJustificativa({ justificativa, setJustificativa }) {
+function ContentJustificativa({
+  justificativa,
+  setJustificativa,
+  anexoJustificativa,
+  setAnexoJustificativa,
+  idItem,
+}) {
+  const [isPosting, setIsPosting] = useState(false);
+  //criar uma justificativa para o item caso ele nao tenha
+  useEffect(() => {
+    console.log("in useEffect");
+    if (
+      !justificativa.hasOwnProperty("id") &&
+      idItem !== null &&
+      idItem !== undefined
+    ) {
+      console.log("posting");
+      setIsPosting(true);
+      axios.post(`/justificativa`, { idItem: idItem }).then((response) => {
+        setJustificativa(response.data.results[0]);
+        setIsPosting(false);
+      });
+    }
+  }, [justificativa, setJustificativa, idItem]);
   return (
     <>
       <div className={style.mainContentHeader}>
@@ -831,20 +906,67 @@ function ContentJustificativa({ justificativa, setJustificativa }) {
           <div className={style.mainContentFormTico}></div>
         </div>
 
-        <div className={style.mainContentFormFields}></div>
+        <div className={style.mainContentJustificativaForm}>
+          {isPosting && <Loading />}
+
+          {idItem === null || idItem === undefined ? (
+            <h3>Salve o item antes de adicionar uma justificativa</h3>
+          ) : (
+            justificativa.id && (
+              <AnexoContent
+                item={justificativa}
+                setItem={setJustificativa}
+                anexos={anexoJustificativa}
+                setAnexos={setAnexoJustificativa}
+                isJustificativa={true}
+              />
+            )
+          )}
+        </div>
       </div>
     </>
   );
 }
 
 function AnexoRiseUpMenu({ item, setItem, index = null, anexos, setAnexos }) {
-  const [blob, setBlob] = useState();
   const [isAnexoOpen, setIsAnexoOpen] = useState(false);
+  return (
+    <div
+      className={style.anexoRiseUpMenu}
+      style={isAnexoOpen ? { height: "15rem" } : { height: "2rem" }}
+    >
+      <button onClick={() => setIsAnexoOpen(!isAnexoOpen)}>
+        Anexar documento fiscal
+      </button>
+      <AnexoContent
+        item={item}
+        setItem={setItem}
+        index={index}
+        anexos={anexos}
+        setAnexos={setAnexos}
+        isAnexoOpen={isAnexoOpen}
+        setIsAnexoOpen={setIsAnexoOpen}
+      />
+    </div>
+  );
+}
+
+function AnexoContent({
+  item,
+  setItem,
+  index = null,
+  anexos,
+  setAnexos,
+  isAnexoOpen = true,
+  setIsAnexoOpen = () => {},
+  isJustificativa = false,
+}) {
+  const [blob, setBlob] = useState();
   const [isFetching, setIsFetching] = useState(false);
 
   function handleFileChange(e) {
     let file = e.target.files[0];
-
+    console.log(file);
     if (!file) {
       desanexar();
       return;
@@ -853,6 +975,7 @@ function AnexoRiseUpMenu({ item, setItem, index = null, anexos, setAnexos }) {
     file.ext = getFileExtension(file.type);
 
     if (index === null) {
+      console.log("index is null");
       setAnexos(file);
       setItem((oldItem) => {
         return { ...oldItem, actionAnexo: "post" };
@@ -923,7 +1046,10 @@ function AnexoRiseUpMenu({ item, setItem, index = null, anexos, setAnexos }) {
           setIsFetching(false);
         });
       } else {
-        axios.get(`/item/${item.id}/file`).then((response) => {
+        const url = isJustificativa
+          ? `/justificativa/${item.id}/file`
+          : `/item/${item.id}/file`;
+        axios.get(url).then((response) => {
           const mime = response.data.fileMime;
           const array = [new Uint8Array(response.data.file.data)];
           const blob = new Blob(array, { type: mime });
@@ -946,12 +1072,23 @@ function AnexoRiseUpMenu({ item, setItem, index = null, anexos, setAnexos }) {
         else if (item.pathAnexo && item.actionAnexo !== "delete") fetchFiles();
       }
     }
-  }, [isAnexoOpen, blob, index, item, setItem, anexos, setAnexos]);
+  }, [
+    isAnexoOpen,
+    blob,
+    index,
+    item,
+    setItem,
+    anexos,
+    setAnexos,
+    isJustificativa,
+  ]);
 
   useEffect(() => {
+    if (isJustificativa === true) return;
+
     setBlob();
     setIsAnexoOpen(false);
-  }, [index]);
+  }, [index, setIsAnexoOpen, isJustificativa]);
 
   let hasId = true;
   if (index !== null) hasId = item[index].hasOwnProperty("id");
@@ -960,66 +1097,58 @@ function AnexoRiseUpMenu({ item, setItem, index = null, anexos, setAnexos }) {
 
   return (
     <div
-      className={style.anexoRiseUpMenu}
-      style={isAnexoOpen ? { height: "15rem" } : { height: "2rem" }}
+      className={style.anexoRiseUpMenuContent}
+      style={!isAnexoOpen ? { display: "none" } : {}}
     >
-      <button onClick={() => setIsAnexoOpen(!isAnexoOpen)}>
-        Anexar documento fiscal
-      </button>
-      <div
-        className={style.anexoRiseUpMenuContent}
-        style={!isAnexoOpen ? { display: "none" } : {}}
-      >
-        {hasId ? (
-          <>
-            {isFetching && <Loading />}
-            <div>
-              <label
-                className={style.anexoRiseUpMenuContentSelecionar}
-                htmlFor="a"
-              >
-                {!blob ? "Selecionar arquivo" : "Alterar arquivo"}
-              </label>
-              <input
-                id="a"
-                type="file"
-                onClick={(e) => (e.target.value = null)}
-                onChange={handleFileChange}
-                hidden
-                accept=".pdf,.jpeg,.jpg,.png"
-                disabled={isFetching}
-              />
-            </div>
-            {!blob ? (
-              "não anexado"
-            ) : (
-              <a href={blobURL} target="_blank" rel="noreferrer">
-                {"visualizar"}
-              </a>
-            )}
-            <div>
-              <a
-                className={style.anexoRiseUpMenuContentDownload}
-                download={blob ? "anexo." + blob.ext : "anexo"}
-                href={blobURL}
-                style={!blob ? { pointerEvents: "none", opacity: "50%" } : {}}
-              >
-                Download
-              </a>
-              ou
-              <button
-                className={style.anexoRiseUpMenuContentRemove}
-                onClick={desanexar}
-                disabled={!blob}
-              >
-                Desanexar
-              </button>
-            </div>
-          </>
-        ) : (
-          "Salve o orçamento antes de anexar"
-        )}
-      </div>
+      {hasId ? (
+        <>
+          {isFetching && <Loading />}
+          <div>
+            <label
+              className={style.anexoRiseUpMenuContentSelecionar}
+              htmlFor="a"
+            >
+              {!blob ? "Selecionar arquivo" : "Alterar arquivo"}
+            </label>
+            <input
+              id="a"
+              type="file"
+              onClick={(e) => (e.target.value = null)}
+              onChange={handleFileChange}
+              hidden
+              accept=".pdf,.jpeg,.jpg,.png"
+              disabled={isFetching}
+            />
+          </div>
+          {!blob ? (
+            "não anexado"
+          ) : (
+            <a href={blobURL} target="_blank" rel="noreferrer">
+              {"visualizar"}
+            </a>
+          )}
+          <div>
+            <a
+              className={style.anexoRiseUpMenuContentDownload}
+              download={blob ? "anexo." + blob.ext : "anexo"}
+              href={blobURL}
+              style={!blob ? { pointerEvents: "none", opacity: "50%" } : {}}
+            >
+              Download
+            </a>
+            ou
+            <button
+              className={style.anexoRiseUpMenuContentRemove}
+              onClick={desanexar}
+              disabled={!blob}
+            >
+              Desanexar
+            </button>
+          </div>
+        </>
+      ) : (
+        "Salve o orçamento antes de anexar"
+      )}
     </div>
   );
 }
