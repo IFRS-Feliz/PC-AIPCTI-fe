@@ -46,7 +46,9 @@ export default function Item({ itens, index, setItens }) {
     }
   }
 
-  function handleSave(item, orcamentos) {
+  function handleSave(itemToCopy, orcamentosToCopy) {
+    let item = { ...itemToCopy };
+    let orcamentos = JSON.parse(JSON.stringify(orcamentosToCopy));
     setIsSaving(true);
 
     //inferir tipo de despesa do item
@@ -76,7 +78,7 @@ export default function Item({ itens, index, setItens }) {
         })
       );
     }
-
+    //apaga-la caso o item nao seja mais de natureza singular
     if (!item.isNaturezaSingular && justificativa.id) {
       axios.delete(`/justificativa/${justificativa.id}`).then(() => {
         setAnexoJustificativa();
@@ -86,11 +88,10 @@ export default function Item({ itens, index, setItens }) {
 
     //separar listas dos orcamentos para enviar
     //*mudar nome da funcao helper e seus retornos no futuro
-    const { addedProjects: added, updatedProjects: updated } = getProjectArrays(
+    let { addedProjects: added, updatedProjects: updated } = getProjectArrays(
       initialOrcamentos,
       orcamentos
     );
-
     let deleted = [];
     initialOrcamentos.forEach((o) => {
       const wasDeleted = !Boolean(
@@ -99,34 +100,20 @@ export default function Item({ itens, index, setItens }) {
       if (wasDeleted) deleted.push(o);
     });
 
-    //separar listas dos arquivos dos orcamentos para enviar
-    let addedOrcamentoFilesToDo = [];
-    let deletedOrcamentoFiles = [];
-    for (const [i, orcamento] of orcamentos.entries()) {
-      if (orcamento.actionAnexo === "post" && orcamento.hasOwnProperty("id")) {
-        addedOrcamentoFilesToDo.push({
-          ...orcamento,
-          file: anexosOrcamentos[i],
-        });
-      } else if (orcamento.actionAnexo === "delete")
-        deletedOrcamentoFiles.push(orcamento);
-    }
-
     //definir se os orcamentos e justificativas tem que esperar pela criacao do ID do item
     const isItemInDB = item.id !== undefined;
-
-    //enviar
-    const actions = (isItemInDB ? update : create)();
 
     async function create() {
       const res = await axios.post("/item", {
         itens: [{ ...item, despesa: despesa }],
       });
 
-      const idItem = res.data.results[0].id;
-
+      //setando aqui, antes do promise.all para caso o actions tenha tamenho zero
       setItem(res.data.results[0]);
       setInitialItem(res.data.results[0]);
+
+      const idItem = res.data.results[0].id;
+
       added.forEach((orcamento) => (orcamento.idItem = idItem));
 
       //separar requisicoes
@@ -134,21 +121,28 @@ export default function Item({ itens, index, setItens }) {
 
       //orcamentos
       if (added.length > 0)
-        actions.push(axios.post("/orcamento", { orcamentos: added }));
+        actions.push(
+          axios.post("/orcamento", { orcamentos: added }).then((response) => {
+            added = response.data.results;
+          })
+        );
 
       //anexo do item
       if (item.actionAnexo === "post") {
         let formData = new FormData();
         formData.append("file", anexoItem);
         actions.push(
-          axios.post(`/item/${idItem}/file`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
+          axios
+            .post(`/item/${idItem}/file`, formData, {
+              headers: { "Content-Type": "multipart/form-data" },
+            })
+            .then(() => {
+              item = res.data.results[0];
+              item.pathAnexo = true;
+              delete item.actionAnexo;
+            })
         );
       }
-
-      //adicionar jsutificativa nas actions
-
       return actions;
     }
 
@@ -162,7 +156,11 @@ export default function Item({ itens, index, setItens }) {
 
       //orcamentos
       if (added.length > 0)
-        actions.push(axios.post("/orcamento", { orcamentos: added }));
+        actions.push(
+          axios.post("/orcamento", { orcamentos: added }).then((response) => {
+            added = response.data.results;
+          })
+        );
       if (updated.length > 0)
         actions.push(axios.put("/orcamento", { orcamentos: updated }));
       if (deleted.length > 0)
@@ -172,88 +170,85 @@ export default function Item({ itens, index, setItens }) {
 
       //anexo do item
       if (item.actionAnexo === "delete")
-        actions.push(axios.delete(`/item/${item.id}/file`));
+        actions.push(
+          axios.delete(`/item/${item.id}/file`).then(() => {
+            item.pathAnexo = false;
+            delete item.actionAnexo;
+          })
+        );
       else if (item.actionAnexo === "post") {
         let formData = new FormData();
         formData.append("file", anexoItem);
         actions.push(
-          axios.post(`/item/${item.id}/file`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
+          axios
+            .post(`/item/${item.id}/file`, formData, {
+              headers: { "Content-Type": "multipart/form-data" },
+            })
+            .then(() => {
+              item.pathAnexo = true;
+              delete item.actionAnexo;
+            })
         );
       }
 
       //anexos dos orcamentos
-      deletedOrcamentoFiles.forEach((o) => {
-        actions.push(axios.delete(`/orcamento/${o.id}/file`));
-      });
-      addedOrcamentoFilesToDo.forEach((o) => {
-        let formData = new FormData();
-        formData.append("file", o.file);
-        actions.push(
-          axios.post(`/orcamento/${o.id}/file`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
-        );
-      });
-
-      //adicionar jsutificativa nas actions
-
+      for (const [i, orcamento] of orcamentos.entries()) {
+        if (
+          orcamento.actionAnexo === "post" &&
+          orcamento.hasOwnProperty("id")
+        ) {
+          let formData = new FormData();
+          formData.append("file", anexosOrcamentos[i]);
+          actions.push(
+            axios
+              .post(`/orcamento/${orcamento.id}/file`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              })
+              .then(() => {
+                orcamento.pathAnexo = true;
+                delete orcamento.actionAnexo;
+              })
+          );
+        } else if (orcamento.actionAnexo === "delete") {
+          actions.push(
+            axios.delete(`/orcamento/${orcamento.id}/file`).then(() => {
+              delete orcamento.pathAnexo;
+              delete orcamento.actionAnexo;
+            })
+          );
+        }
+      }
       return actions;
     }
 
-    if (actions.length > 0) {
-      Promise.allSettled(actions)
-        .then((responses) => {
-          let newOrcamentos = [];
-          responses.forEach((response) => {
-            if (response.value.config.url === "/item") {
-              if (item.actionAnexo === "post") {
-                response.value.data.results[0].pathAnexo = true;
-              }
-              if (response.value.config.method === "put") {
-                if (item.actionAnexo === "delete")
-                  delete response.value.data.results[0].pathAnexo;
-                setItem(response.value.data.results[0]);
-                setInitialItem(response.value.data.results[0]);
-              }
-            }
-            if (response.value.config.url === "/orcamento") {
-              response.value.data.results.forEach((orcamentoAtualizado, i) => {
-                if (updated.length <= i) {
-                  return;
-                }
-                if (updated[i].actionAnexo === "post")
-                  orcamentoAtualizado.pathAnexo = true;
-              });
+    //setar os estados do item e orcamentos
+    setThings();
 
-              if (response.value.config.method === "post") {
-                newOrcamentos = newOrcamentos.concat(
-                  response.value.data.results
-                );
-              }
+    async function setThings() {
+      let actions;
+      if (isItemInDB) {
+        actions = update();
+      } else {
+        actions = await create();
+      }
 
-              if (response.value.config.method === "put") {
-                deletedOrcamentoFiles.forEach((orcamentoComFileDeletado) => {
-                  response.value.data.results.forEach((orcamentoAtualizado) => {
-                    if (orcamentoAtualizado.id === orcamentoComFileDeletado.id)
-                      delete orcamentoAtualizado.pathAnexo;
-                  });
-                });
+      if (actions.length > 0) {
+        Promise.allSettled(actions)
+          .then(() => {
+            setItem(item);
+            setInitialItem(item);
 
-                newOrcamentos =
-                  response.value.data.results.concat(newOrcamentos);
-              }
-            }
-          });
-          setOrcamentos(newOrcamentos);
-          setInitialOrcamentos(newOrcamentos);
-        })
-        .catch((e) => {
-          console.log(e);
-        })
-        .finally(() => setIsSaving(false));
-    } else setIsSaving(false);
+            const orcs = updated.concat(added);
+            setOrcamentos(orcs);
+            setInitialOrcamentos(orcs);
+          })
+          .catch((e) => {
+            console.log(e);
+            console.log("in catch all");
+          })
+          .finally(() => setIsSaving(false));
+      } else setIsSaving(false);
+    }
   }
 
   //fetch orcamentos e justificativas
@@ -665,6 +660,9 @@ function ContentOrcamentos({
     setTimeout(() => {
       scrollBotoesBy(9999999, 0);
     }, 1);
+
+    //atualizar lista de anexos de acordo
+    setAnexosOrcamentos([...anexosOrcamentos, undefined]);
   }
 
   function handleDeleteOrcamento(index) {
@@ -674,6 +672,11 @@ function ContentOrcamentos({
     let newOrcamentos = [...orcamentos];
     newOrcamentos.splice(index, 1);
     setOrcamentos(newOrcamentos);
+
+    //atualizar lista de anexos de acordo
+    let newAnexosOrcamentos = [...anexosOrcamentos];
+    newAnexosOrcamentos.splice(index, 1);
+    setAnexosOrcamentos(newAnexosOrcamentos);
   }
 
   function scrollBotoesBy(x, y) {
@@ -727,7 +730,7 @@ function ContentOrcamentos({
           </div>
         </div>
 
-        {current ? (
+        {current && orcamentos[current - 1] ? (
           <>
             <div className={style.mainContentFormFields}>
               <div className={style.mainContentFormFieldsColumn}>
@@ -882,13 +885,11 @@ function ContentJustificativa({
   const [isPosting, setIsPosting] = useState(false);
   //criar uma justificativa para o item caso ele nao tenha
   useEffect(() => {
-    console.log("in useEffect");
     if (
       !justificativa.hasOwnProperty("id") &&
       idItem !== null &&
       idItem !== undefined
     ) {
-      console.log("posting");
       setIsPosting(true);
       axios.post(`/justificativa`, { idItem: idItem }).then((response) => {
         setJustificativa(response.data.results[0]);
@@ -975,12 +976,11 @@ function AnexoContent({
     file.ext = getFileExtension(file.type);
 
     if (index === null) {
-      console.log("index is null");
       setAnexos(file);
       setItem((oldItem) => {
         return { ...oldItem, actionAnexo: "post" };
       });
-      // setBlob(); //é setado no useEffect
+      if (blob) setBlob(); //é setado no useEffect caso nao haja outro blob ja setado
     } else {
       const newFiles = [...anexos];
       const newObject = JSON.parse(JSON.stringify(item));
@@ -990,7 +990,7 @@ function AnexoContent({
 
       setAnexos(newFiles);
       setItem(newObject);
-      // setBlob(); //é setado no useEffect
+      if (blob) setBlob(); //é setado no useEffect caso nao haja outro blob ja setado
     }
   }
 
