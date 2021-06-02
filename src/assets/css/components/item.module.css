@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: 1fr minmax(0, 60rem) 1fr;
   grid-template-rows: 1fr;
-  grid-template-areas: ". main tools";
+  grid-template-areas: "handle main tools";
   gap: 1rem;
 }
 
@@ -355,6 +355,19 @@
 
 .tools button {
   margin: 0.3rem 0;
+}
+
+.handle {
+  grid-area: handle;
+
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  width: 100%;
+}
+
+.handle div {
+  margin-right: 1.4rem;
 }
 
 /* separators */

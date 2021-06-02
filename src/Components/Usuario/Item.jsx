@@ -5,7 +5,7 @@ import { getProjectArrays } from "../../Helpers/EditarAdicionarUsuario";
 import style from "../../assets/css/components/item.module.css";
 import Loading from "../Loading";
 
-export default function Item({ itens, index, setItens }) {
+export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
   const [content, setContent] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -303,11 +303,38 @@ export default function Item({ itens, index, setItens }) {
     justificativa.actionAnexo,
   ]);
 
+  //verificar se posicao sofreu mudancas por drag and drop
+  const posicao = itens[index].posicao;
+  useEffect(() => {
+    setItem((oldItem) => {
+      return { ...oldItem, posicao: posicao };
+    });
+    setInitialItem((oldInitialItem) => {
+      return { ...oldInitialItem, posicao: posicao };
+    });
+  }, [posicao]);
+
   return (
     <div
       className={style.container}
       style={content ? {} : { marginBottom: "2rem" }}
     >
+      <div className={style.handle}>
+        <div {...dragHandleInnerProps} hidden={content}>
+          <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+            <g>
+              <rect fill="none" height="24" width="24" />
+            </g>
+            <g>
+              <g>
+                <g>
+                  <path d="M20,9H4v2h16V9z M4,15h16v-2H4V15z" />
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
       <div className={style.main}>
         <div className={style.mainHeader}>
           <p>{item.nomeMaterialServico || "Novo item"}</p>
