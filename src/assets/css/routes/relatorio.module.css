@@ -4,6 +4,9 @@
 }
 
 .buttonAdicionar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-left: 50%;
   margin-bottom: 2rem;
   margin-top: 2rem;
@@ -16,4 +19,29 @@
 
   background-color: #ca302d;
   color: white;
+}
+
+.buttonAdicionar svg {
+  margin-right: 0.5rem;
+}
+
+.section {
+  margin-top: 2rem;
+}
+
+.sectionHeader {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 60rem) 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: ". main .";
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.sectionHeader > div {
+  grid-area: main;
+}
+
+.sectionHeader > div p {
+  font-size: 0.9rem;
 }

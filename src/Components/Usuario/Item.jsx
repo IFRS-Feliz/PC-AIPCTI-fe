@@ -341,7 +341,7 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
           <div>
             <span className={content === "informacoes" ? style.ticoAppear : ""}>
               <button onClick={() => handleChangeContent("informacoes")}>
-                informações
+                Informações
               </button>
             </span>
 
@@ -349,7 +349,7 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
               className={content === "orcamentos" ? style.ticoAppearWhite : ""}
             >
               <button onClick={() => handleChangeContent("orcamentos")}>
-                orçamentos
+                Orçamentos
               </button>
             </span>
 
@@ -360,7 +360,7 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
                 onClick={() => handleChangeContent("justificativa")}
                 disabled={!item.isNaturezaSingular}
               >
-                justificativa
+                Justificativa
               </button>
             </span>
           </div>
@@ -567,7 +567,7 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               name="quantidade"
               object={item}
               setObject={setItem}
-              label={"quantidade"}
+              label={"Quantidade"}
               isNumber={true}
               onChange={(e) => {
                 setItem({
@@ -707,6 +707,13 @@ function ContentOrcamentos({
     setAnexosOrcamentos(newAnexosOrcamentos);
   }
 
+  function handleSetOrcamentoCompra(index) {
+    let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
+    newOrcamentos.forEach((orcamento) => (orcamento.isOrcamentoCompra = false));
+    newOrcamentos[index].isOrcamentoCompra = true;
+    setOrcamentos(newOrcamentos);
+  }
+
   function scrollBotoesBy(x, y) {
     botoesRef.current.scrollBy(x, y);
   }
@@ -726,9 +733,17 @@ function ContentOrcamentos({
           </div>
           <div
             className={style.mainContentFormOrcamentoSelectorBotoes}
+            style={
+              orcamentos.length === 0
+                ? { justifyContent: "center", alignItems: "center" }
+                : {}
+            }
             ref={botoesRef}
           >
-            {orcamentos.map((_, i) => (
+            {orcamentos.length === 0 && (
+              <span>Orçamentos adicionados aparecerão aqui...</span>
+            )}
+            {orcamentos.map((orcamento, i) => (
               <span
                 key={i}
                 className={
@@ -741,11 +756,36 @@ function ContentOrcamentos({
                   <p>Orçamento</p>
                   <p>{i + 1}</p>
                 </div>
-                <button onClick={() => handleDeleteOrcamento(i)}>
-                  <svg height="24" viewBox="0 0 24 24" width="24">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                  </svg>
-                </button>
+                <span>
+                  <button
+                    onClick={() => handleSetOrcamentoCompra(i)}
+                    style={
+                      orcamento.isOrcamentoCompra
+                        ? { backgroundColor: "darkblue" }
+                        : {}
+                    }
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 0 24 24"
+                      width="24px"
+                      fill={orcamento.isOrcamentoCompra ? "#ffffff" : "#000000"}
+                    >
+                      <g>
+                        <rect fill="none" height="24" width="24" />
+                      </g>
+                      <g>
+                        <path d="M16,9V4l1,0c0.55,0,1-0.45,1-1v0c0-0.55-0.45-1-1-1H7C6.45,2,6,2.45,6,3v0 c0,0.55,0.45,1,1,1l1,0v5c0,1.66-1.34,3-3,3h0v2h5.97v7l1,1l1-1v-7H19v-2h0C17.34,12,16,10.66,16,9z" />
+                      </g>
+                    </svg>
+                  </button>
+                  <button onClick={() => handleDeleteOrcamento(i)}>
+                    <svg height="24" viewBox="0 0 24 24" width="24">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg>
+                  </button>
+                </span>
               </span>
             ))}
           </div>
@@ -812,13 +852,12 @@ function ContentOrcamentos({
                   object={orcamentos}
                   setObject={setOrcamentos}
                   index={current - 1}
-                  label={"quantidade"}
+                  label={"Quantidade"}
                   isNumber={true}
                   onChange={(e) => {
                     let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].quantidade = Number(
-                      e.target.value
-                    );
+                    newOrcamentos[current - 1].quantidade = e.target.value;
+
                     newOrcamentos[current - 1].valorTotal =
                       Number(e.target.value) *
                         Number(newOrcamentos[current - 1].valorUnitario) +
@@ -835,9 +874,8 @@ function ContentOrcamentos({
                   isNumber={true}
                   onChange={(e) => {
                     let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].valorUnitario = Number(
-                      e.target.value
-                    );
+                    newOrcamentos[current - 1].valorUnitario = e.target.value;
+
                     newOrcamentos[current - 1].valorTotal =
                       Number(e.target.value) *
                         Number(newOrcamentos[current - 1].quantidade) +
@@ -854,7 +892,7 @@ function ContentOrcamentos({
                   isNumber={true}
                   onChange={(e) => {
                     let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].frete = Number(e.target.value);
+                    newOrcamentos[current - 1].frete = e.target.value;
                     newOrcamentos[current - 1].valorTotal =
                       Number(newOrcamentos[current - 1].quantidade) *
                         Number(newOrcamentos[current - 1].valorUnitario) +

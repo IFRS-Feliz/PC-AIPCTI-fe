@@ -265,6 +265,7 @@
   overflow: hidden;
   padding: 1rem;
   border-radius: 0.5rem;
+  height: 4.2rem;
 }
 
 .mainContentFormOrcamentoSelectorBotoes > span {
@@ -297,7 +298,7 @@
 .mainContentFormOrcamentoSelectorTarget::after {
   content: "";
   position: absolute;
-  bottom: -2.4rem;
+  bottom: -2.5rem;
   left: 3.2rem;
 
   width: 2rem;
@@ -313,25 +314,43 @@
 }
 
 .mainContentFormOrcamentoSelectorBotoes > span > div {
-  padding: 0.9rem 1rem;
+  padding: 0.9rem 2.2rem 0.9rem 0.9rem;
   cursor: pointer;
   background-color: white;
   white-space: nowrap;
 }
 
-.mainContentFormOrcamentoSelectorBotoes > span > button {
+.mainContentFormOrcamentoSelectorBotoes > span > span {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   right: 0;
-  bottom: 0;
-  border-top-left-radius: 100%;
-  height: 1.5rem;
+  top: 0;
   width: 1.5rem;
-  border: none;
-  background-color: lightblue;
+  height: 100%;
+  gap: 0.1rem;
+  border: 1px solid darkblue;
+  border-radius: 0 0.5rem 0.5rem 0;
+  box-sizing: border-box;
+  background-color: darkblue;
 }
 
-.mainContentFormOrcamentoSelectorBotoes button svg {
-  transform: scale(0.7) translate(0.3rem, 0.25rem);
+.mainContentFormOrcamentoSelectorBotoes > span > span > button:nth-child(1) {
+  height: 50%;
+  border-top-right-radius: 0.5rem;
+}
+
+.mainContentFormOrcamentoSelectorBotoes > span > span > button:nth-child(2) {
+  height: 50%;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.mainContentFormOrcamentoSelectorBotoes > span > span button {
+  border: none;
+}
+
+.mainContentFormOrcamentoSelectorBotoes > span > span button svg {
+  transform: scale(0.7) translate(-0.1rem, 0.25rem);
 }
 
 .mainContentFormOrcamentoSelectorAdd button {

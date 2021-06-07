@@ -40,117 +40,154 @@ export default function Relatorio() {
     <>
       <div className={style.tituloRelatorio}>
         <h1>Prestação de contas - {projeto.nome}</h1>
-        <h3>Cadastre os itens referentes ao projeto abaixo:</h3>
       </div>
 
-      <DragDropContext
-        onDragEnd={(result) => {
-          //caso tenha sido droppado fora da area droppable
-          if (!result.source || !result.destination) return;
-          //caso tenha sido droppado no mesmo lugar onde ja estava
-          if (result.source.index === result.destination.index) return;
+      <div className={style.section}>
+        <div className={style.sectionHeader}>
+          <div>
+            <h1>Despesas</h1>
 
-          //criar lista com itens reordanados
-          const itensCopy = JSON.parse(JSON.stringify(itens));
-          const [deleted] = itensCopy.splice(result.source.index, 1);
-          itensCopy.splice(result.destination.index, 0, deleted);
+            <h3>Cadastre itens e serviços comprados abaixo: </h3>
+            <p>
+              *devem ser ordenados conforme o plano de aplicação de recursos
+            </p>
+          </div>
+        </div>
+        <DragDropContext
+          onDragEnd={(result) => {
+            //caso tenha sido droppado fora da area droppable
+            if (!result.source || !result.destination) return;
+            //caso tenha sido droppado no mesmo lugar onde ja estava
+            if (result.source.index === result.destination.index) return;
 
-          //atualizar posicoes no banco
-          let itensToSend = [];
-          itensCopy.forEach((itemCopy, index) => {
-            itemCopy.posicao = index;
-            itensToSend.push({ posicao: itemCopy.posicao, id: itemCopy.id });
-          });
+            //criar lista com itens reordanados
+            const itensCopy = JSON.parse(JSON.stringify(itens));
+            const [deleted] = itensCopy.splice(result.source.index, 1);
+            itensCopy.splice(result.destination.index, 0, deleted);
 
-          axios
-            .put("/item?posicoes=true", { itens: itensToSend })
-            .then(() => {
-              setItens(itensCopy);
-            })
-            .catch(() => {
-              alert("Não foi possível alterar a ordem dos itens");
+            //atualizar posicoes no banco
+            let itensToSend = [];
+            itensCopy.forEach((itemCopy, index) => {
+              itemCopy.posicao = index;
+              itensToSend.push({ posicao: itemCopy.posicao, id: itemCopy.id });
             });
-        }}
-      >
-        <Droppable droppableId="itens">
-          {(provided, snapshot) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              {itens.map((item, index) => (
-                <Draggable
-                  draggableId={String(item.id)}
-                  key={item.id}
-                  index={index}
-                >
-                  {(provided, snapshot) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps}>
-                      <Item
-                        itens={itens}
-                        index={index}
-                        setItens={setItens}
-                        dragHandleInnerProps={{ ...provided.dragHandleProps }}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              <div style={{ position: "relative" }}>
-                {isPostingItem && <Loading />}
+
+            axios
+              .put("/item?posicoes=true", { itens: itensToSend })
+              .then(() => {
+                setItens(itensCopy);
+              })
+              .catch(() => {
+                alert("Não foi possível alterar a ordem dos itens");
+              });
+          }}
+        >
+          <Droppable droppableId="itens">
+            {(provided, snapshot) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {itens.map((item, index) => (
+                  <Draggable
+                    draggableId={String(item.id)}
+                    key={item.id}
+                    index={index}
+                  >
+                    {(provided, snapshot) => (
+                      <div ref={provided.innerRef} {...provided.draggableProps}>
+                        <Item
+                          itens={itens}
+                          index={index}
+                          setItens={setItens}
+                          dragHandleInnerProps={{ ...provided.dragHandleProps }}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                <div style={{ position: "relative" }}>
+                  {isPostingItem && <Loading />}
+                </div>
+                {provided.placeholder}
               </div>
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+            )}
+          </Droppable>
+        </DragDropContext>
 
-      <button
-        onClick={() => {
-          setIsPostingItem(true);
-          axios
-            .post(`/item`, {
-              itens: [
-                {
-                  idProjeto: id,
-                  descricao: "",
-                  tipo: "materialConsumo",
-                  despesa: "capital",
+        <button
+          onClick={() => {
+            setIsPostingItem(true);
+            axios
+              .post(`/item`, {
+                itens: [
+                  {
+                    idProjeto: id,
+                    descricao: "",
+                    tipo: "materialConsumo",
+                    despesa: "capital",
 
-                  nomeMaterialServico: "",
-                  marca: "",
-                  modelo: "",
+                    nomeMaterialServico: "",
+                    marca: "",
+                    modelo: "",
 
-                  quantidade: 0,
-                  valorUnitario: 0,
-                  valorTotal: 0,
-                  frete: 0,
-                  tipoDocumentoFiscal: "nfe",
-                  isCompradoComCpfCoordenador: false,
-                  isNaturezaSingular: false,
-                  posicao: itens.length,
+                    quantidade: 0,
+                    valorUnitario: 0,
+                    valorTotal: 0,
+                    frete: 0,
+                    tipoDocumentoFiscal: "nfe",
+                    isCompradoComCpfCoordenador: false,
+                    isNaturezaSingular: false,
+                    posicao: itens.length,
 
-                  anexo: "",
-                },
-              ],
-            })
-            .then((response) => {
-              setItens([
-                ...itens,
-                {
-                  ...response.data.results[0],
-                  dataCompraContratacao: "",
-                  cnpjFavorecido: "",
-                  numeroDocumentoFiscal: "",
-                },
-              ]);
-            })
-            .catch(() => {
-              alert("Não foi possível criar o novo item.");
-            })
-            .finally(() => setIsPostingItem(false));
-        }}
-        className={style.buttonAdicionar}
-      >
-        Adicionar
-      </button>
+                    anexo: "",
+                  },
+                ],
+              })
+              .then((response) => {
+                setItens([
+                  ...itens,
+                  {
+                    ...response.data.results[0],
+                    dataCompraContratacao: "",
+                    cnpjFavorecido: "",
+                    numeroDocumentoFiscal: "",
+                  },
+                ]);
+              })
+              .catch(() => {
+                alert("Não foi possível criar o novo item.");
+              })
+              .finally(() => setIsPostingItem(false));
+          }}
+          className={style.buttonAdicionar}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 0 24 24"
+            width="24px"
+            fill="#ffffff"
+          >
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          Adicionar uma despesa
+        </button>
+      </div>
+
+      <div className={style.section}>
+        <div className={style.sectionHeader}>
+          <div>
+            <h1>GRU - Guia de Recolhimento da União</h1>
+          </div>
+        </div>
+      </div>
+
+      <div className={style.section}>
+        <div className={style.sectionHeader}>
+          <div>
+            <h1>Resumo</h1>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
