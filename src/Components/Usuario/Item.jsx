@@ -321,17 +321,15 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
     >
       <div className={style.handle}>
         <div {...dragHandleInnerProps} hidden={content}>
-          <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-            <g>
-              <rect fill="none" height="24" width="24" />
-            </g>
-            <g>
-              <g>
-                <g>
-                  <path d="M20,9H4v2h16V9z M4,15h16v-2H4V15z" />
-                </g>
-              </g>
-            </g>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 0 24 24"
+            width="24px"
+            fill="#000000"
+          >
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z" />
           </svg>
         </div>
       </div>
@@ -392,10 +390,27 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
           onClick={() => handleSave(item, orcamentos)}
           disabled={!isDirty || isSaving}
         >
-          save
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 0 24 24"
+            width="24px"
+            fill="#000000"
+          >
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+          </svg>
         </button>
         <button onClick={handleDelete} disabled={isSaving}>
-          delete
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+          >
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+          </svg>
         </button>
       </div>
     </div>
@@ -722,6 +737,29 @@ function ContentOrcamentos({
     <>
       <div className={style.mainContentHeader}></div>
       <div className={style.mainContentForm}>
+        <div className={style.helpPin}>
+          <div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 0 24 24"
+              width="24px"
+              fill="#000000"
+            >
+              <g>
+                <rect fill="none" height="24" width="24" />
+              </g>
+              <g>
+                <path
+                  d="M16,9V4l1,0c0.55,0,1-0.45,1-1v0c0-0.55-0.45-1-1-1H7C6.45,2,6,2.45,6,3v0 c0,0.55,0.45,1,1,1l1,0v5c0,1.66-1.34,3-3,3h0v2h5.97v7l1,1l1-1v-7H19v-2h0C17.34,12,16,10.66,16,9z"
+                  fill-rule="evenodd"
+                />
+              </g>
+            </svg>
+            <p> - marque o orçamente referente à compra!</p>
+          </div>
+        </div>
+
         <div
           className={style.mainContentFormOrcamentoSelector}
           style={!current ? { marginBottom: "2rem" } : {}}

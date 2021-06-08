@@ -36,6 +36,41 @@ export default function Relatorio() {
       .catch((e) => console.log(e));
   }, [id]);
 
+  function valorTotalItens(despesa) {
+    let valorTotalDespesa = 0;
+    let soma = 0;
+    let resto;
+
+    if (despesa === "custeio") {
+      valorTotalDespesa = Number(projeto.valorRecebidoCusteio);
+    } else {
+      valorTotalDespesa = Number(projeto.valorRecebidoCapital);
+    }
+
+    itens.forEach((value) => {
+      if (value.despesa === despesa) {
+        soma += Number(value.valorTotal);
+      }
+    });
+
+    resto = Number(valorTotalDespesa) - Number(soma);
+
+    return {
+      valorTotalDespesa,
+      soma,
+      resto,
+    };
+  }
+
+  function valorTotal() {
+    let soma = 0;
+    itens.forEach((value) => {
+      soma += Number(value.valorTotal);
+    });
+
+    return soma;
+  }
+
   return (
     <>
       <div className={style.tituloRelatorio}>
@@ -185,6 +220,55 @@ export default function Relatorio() {
         <div className={style.sectionHeader}>
           <div>
             <h1>Resumo</h1>
+            <div className={style.gridResumo}>
+              <div className={style.resumoCusteio}>
+                <p className={style.tituloResumo}>Custos custeio</p>
+                <div className={style.informacoesResumo}>
+                  <p>
+                    <strong>Valor total:</strong>
+                  </p>
+                  <p>
+                    R$ {valorTotalItens("custeio").valorTotalDespesa.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Valor gasto:</strong>
+                  </p>
+                  <p>R$ {valorTotalItens("custeio").soma.toFixed(2)}</p>
+                  <p>
+                    <strong>Valor restante:</strong>
+                  </p>
+                  <p>R$ {valorTotalItens("custeio").resto.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className={style.resumoCapital}>
+                <p className={style.tituloResumo}>Custos capital</p>
+                <div className={style.informacoesResumo}>
+                  <p>
+                    <strong>Valor total:</strong>
+                  </p>
+                  <p>
+                    R$ {valorTotalItens("capital").valorTotalDespesa.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Valor gasto:</strong>
+                  </p>
+                  <p>R$ {valorTotalItens("capital").soma.toFixed(2)}</p>
+                  <p>
+                    <strong>Valor restante:</strong>
+                  </p>
+                  <p>R$ {valorTotalItens("capital").resto.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className={style.resumoTotal}>
+                <p>Total gasto: R$ {valorTotal().toFixed(2)}</p>
+                <p>
+                  Total restante:{" R$ "}
+                  {(
+                    Number(projeto.valorRecebidoTotal) - Number(valorTotal())
+                  ).toFixed(2)}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
