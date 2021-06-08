@@ -668,21 +668,7 @@ function ContentOrcamentos({
   }
 
   function handleAddOrcamento() {
-    const defaultOrcamento = {
-      nomeMaterialServico: "",
-      marca: "",
-      modelo: "",
-      dataOrcamento: "",
-      cnpjFavorecido: "",
-      quantidade: 0,
-      valorUnitario: 0,
-      valorTotal: 0,
-      frete: 0,
-      anexo: "",
-      isOrcadoComCpfCoordenador: false,
-    };
-
-    setOrcamentos([...orcamentos, defaultOrcamento]);
+    setOrcamentos([...orcamentos, {}]);
     setCurrent(orcamentos.length + 1);
     //timeout porque isso so deve ocorrer somente depois das autalizacoes assima, que sao assincronas
     setTimeout(() => {
@@ -709,6 +695,13 @@ function ContentOrcamentos({
 
   function handleSetOrcamentoCompra(index) {
     let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
+    //caso o orcamento clicado seja o atual orcacmentoCompra
+    if (orcamentos[index].isOrcamentoCompra) {
+      newOrcamentos[index].isOrcamentoCompra = false;
+      setOrcamentos(newOrcamentos);
+      return;
+    }
+    //else
     newOrcamentos.forEach((orcamento) => (orcamento.isOrcamentoCompra = false));
     newOrcamentos[index].isOrcamentoCompra = true;
     setOrcamentos(newOrcamentos);
@@ -1225,13 +1218,16 @@ function TextInput({
   isNumber = false,
   ...rest
 }) {
+  let value = index === null ? object[name] : object[index][name];
+  value = !value && value !== 0 ? "" : value;
+
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
       <input
         id={name}
         type={isNumber ? "number" : "text"}
-        value={index === null ? object[name] : object[index][name]}
+        value={value}
         onChange={(e) =>
           handleChange(e, name, object, setObject, index, isNumber)
         }
@@ -1271,7 +1267,7 @@ function DateInput({ name, object, setObject, index = null, label }) {
       <input
         id={name}
         type="date"
-        value={index === null ? object[name] : object[index][name]}
+        value={index === null ? object[name] || "" : object[index][name] || ""}
         onChange={(e) => handleChange(e, name, object, setObject, index)}
       />
     </div>
@@ -1304,7 +1300,7 @@ function CheckBoxInput({
       <input
         id={name}
         type="checkbox"
-        checked={checked}
+        checked={checked || false}
         onChange={handleChange}
         {...rest}
       />

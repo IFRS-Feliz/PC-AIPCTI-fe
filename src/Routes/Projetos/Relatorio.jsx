@@ -36,6 +36,21 @@ export default function Relatorio() {
       .catch((e) => console.log(e));
   }, [id]);
 
+  function handleAddItem() {
+    setIsPostingItem(true);
+    axios
+      .post(`/item`, {
+        itens: [{ idProjeto: id, posicao: itens.length }],
+      })
+      .then((response) => {
+        setItens([...itens, response.data.results[0]]);
+      })
+      .catch(() => {
+        alert("Não foi possível criar o novo item.");
+      })
+      .finally(() => setIsPostingItem(false));
+  }
+
   return (
     <>
       <div className={style.tituloRelatorio}>
@@ -112,53 +127,7 @@ export default function Relatorio() {
           </Droppable>
         </DragDropContext>
 
-        <button
-          onClick={() => {
-            setIsPostingItem(true);
-            axios
-              .post(`/item`, {
-                itens: [
-                  {
-                    idProjeto: id,
-                    descricao: "",
-                    tipo: "materialConsumo",
-                    despesa: "capital",
-
-                    nomeMaterialServico: "",
-                    marca: "",
-                    modelo: "",
-
-                    quantidade: 0,
-                    valorUnitario: 0,
-                    valorTotal: 0,
-                    frete: 0,
-                    tipoDocumentoFiscal: "nfe",
-                    isCompradoComCpfCoordenador: false,
-                    isNaturezaSingular: false,
-                    posicao: itens.length,
-
-                    anexo: "",
-                  },
-                ],
-              })
-              .then((response) => {
-                setItens([
-                  ...itens,
-                  {
-                    ...response.data.results[0],
-                    dataCompraContratacao: "",
-                    cnpjFavorecido: "",
-                    numeroDocumentoFiscal: "",
-                  },
-                ]);
-              })
-              .catch(() => {
-                alert("Não foi possível criar o novo item.");
-              })
-              .finally(() => setIsPostingItem(false));
-          }}
-          className={style.buttonAdicionar}
-        >
+        <button onClick={handleAddItem} className={style.buttonAdicionar}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="24px"
