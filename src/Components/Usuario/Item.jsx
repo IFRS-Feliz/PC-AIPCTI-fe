@@ -683,21 +683,7 @@ function ContentOrcamentos({
   }
 
   function handleAddOrcamento() {
-    const defaultOrcamento = {
-      nomeMaterialServico: "",
-      marca: "",
-      modelo: "",
-      dataOrcamento: "",
-      cnpjFavorecido: "",
-      quantidade: 0,
-      valorUnitario: 0,
-      valorTotal: 0,
-      frete: 0,
-      anexo: "",
-      isOrcadoComCpfCoordenador: false,
-    };
-
-    setOrcamentos([...orcamentos, defaultOrcamento]);
+    setOrcamentos([...orcamentos, {}]);
     setCurrent(orcamentos.length + 1);
     //timeout porque isso so deve ocorrer somente depois das autalizacoes assima, que sao assincronas
     setTimeout(() => {
@@ -724,6 +710,13 @@ function ContentOrcamentos({
 
   function handleSetOrcamentoCompra(index) {
     let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
+    //caso o orcamento clicado seja o atual orcacmentoCompra
+    if (orcamentos[index].isOrcamentoCompra) {
+      newOrcamentos[index].isOrcamentoCompra = false;
+      setOrcamentos(newOrcamentos);
+      return;
+    }
+    //else
     newOrcamentos.forEach((orcamento) => (orcamento.isOrcamentoCompra = false));
     newOrcamentos[index].isOrcamentoCompra = true;
     setOrcamentos(newOrcamentos);
@@ -752,7 +745,7 @@ function ContentOrcamentos({
               <g>
                 <path
                   d="M16,9V4l1,0c0.55,0,1-0.45,1-1v0c0-0.55-0.45-1-1-1H7C6.45,2,6,2.45,6,3v0 c0,0.55,0.45,1,1,1l1,0v5c0,1.66-1.34,3-3,3h0v2h5.97v7l1,1l1-1v-7H19v-2h0C17.34,12,16,10.66,16,9z"
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                 />
               </g>
             </svg>
@@ -1263,13 +1256,16 @@ function TextInput({
   isNumber = false,
   ...rest
 }) {
+  let value = index === null ? object[name] : object[index][name];
+  value = !value && value !== 0 ? "" : value;
+
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
       <input
         id={name}
         type={isNumber ? "number" : "text"}
-        value={index === null ? object[name] : object[index][name]}
+        value={value}
         onChange={(e) =>
           handleChange(e, name, object, setObject, index, isNumber)
         }
@@ -1309,7 +1305,7 @@ function DateInput({ name, object, setObject, index = null, label }) {
       <input
         id={name}
         type="date"
-        value={index === null ? object[name] : object[index][name]}
+        value={index === null ? object[name] || "" : object[index][name] || ""}
         onChange={(e) => handleChange(e, name, object, setObject, index)}
       />
     </div>
@@ -1342,7 +1338,7 @@ function CheckBoxInput({
       <input
         id={name}
         type="checkbox"
-        checked={checked}
+        checked={checked || false}
         onChange={handleChange}
         {...rest}
       />
