@@ -23,6 +23,10 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
 
   const [isDirty, setIsDirty] = useState(false);
 
+  const [dirtyItemFields, setDirtyItemFields] = useState({});
+
+  const [dirtyOrcamentoFields, setDirtyOrcamentoFields] = useState([]);
+
   function handleChangeContent(newContent) {
     if (content === newContent) setContent(null);
     else setContent(newContent);
@@ -238,14 +242,15 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
           .then(() => {
             setItem(item);
             setInitialItem(item);
+            setDirtyItemFields({});
 
             const orcs = updated.concat(added);
             setOrcamentos(orcs);
             setInitialOrcamentos(orcs);
+            setDirtyOrcamentoFields([Array(orcs.length)]);
           })
           .catch((e) => {
             console.log(e);
-            console.log("in catch all");
           })
           .finally(() => setIsSaving(false));
       } else setIsSaving(false);
@@ -262,6 +267,7 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
           setOrcamentos(response.data.results);
           setInitialOrcamentos(response.data.results);
           setAnexosOrcamentos(Array(response.data.results.length));
+          setDirtyOrcamentoFields(Array(response.data.results.length));
         })
         .catch((e) => {
           console.log(e);
@@ -274,34 +280,32 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
 
   //verificar se form sofreu mudanças
   useEffect(() => {
-    function checkDirty() {
-      if (justificativa.actionAnexo) return true;
-      const isItemDirty = !compareObjects(item, initialItem);
-      let isOrcamentosDirty =
-        orcamentos.length !== initialOrcamentos.length ? true : false;
+    const isJustificativaDirty = Boolean(justificativa.actionAnexo);
+    const isAnexoItemDirty = Boolean(item.actionAnexo);
+    const isAnexoOrcamentoDirty = Boolean(
+      orcamentos.filter((orcamento) => orcamento.actionAnexo).length
+    );
+    const isItemDirty = Object.keys(dirtyItemFields).length > 0;
+    const isOrcamentosDirty =
+      initialOrcamentos.length !== orcamentos.length ||
+      dirtyOrcamentoFields.filter(
+        (orcamento) => orcamento && Object.keys(orcamento).length > 0
+      ).length > 0;
 
-      if (
-        orcamentos.length > 0 &&
-        initialOrcamentos.length > 0 &&
-        !isOrcamentosDirty
-      ) {
-        for (const [i] of orcamentos.entries()) {
-          if (!compareObjects(orcamentos[i], initialOrcamentos[i])) {
-            isOrcamentosDirty = true;
-            break;
-          }
-        }
-      }
-
-      return isItemDirty || isOrcamentosDirty;
-    }
-    setIsDirty(checkDirty);
+    const value =
+      isAnexoItemDirty ||
+      isAnexoOrcamentoDirty ||
+      isJustificativaDirty ||
+      isItemDirty ||
+      isOrcamentosDirty;
+    setIsDirty(value);
   }, [
-    item,
+    dirtyOrcamentoFields,
+    dirtyItemFields,
+    justificativa.actionAnexo,
+    item.actionAnexo,
     orcamentos,
     initialOrcamentos,
-    initialItem,
-    justificativa.actionAnexo,
   ]);
 
   //verificar se posicao sofreu mudancas por drag and drop
@@ -382,6 +386,11 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
               anexoJustificativa={anexoJustificativa}
               setAnexoJustificativa={setAnexoJustificativa}
               idItem={item.id}
+              //dirty
+              setDirtyItemFields={setDirtyItemFields}
+              setDirtyOrcamentoFields={setDirtyOrcamentoFields}
+              initialItem={initialItem}
+              initialOrcamentos={initialOrcamentos}
             />
           </div>
         )}
@@ -416,24 +425,4 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
       </div>
     </div>
   );
-}
-
-function compareObjects(object1, object2) {
-  const keys1 = Object.keys(object1);
-  const keys2 = Object.keys(object2);
-
-  if (keys1.length !== keys2.length) {
-    return false;
-  }
-
-  for (let key of keys1) {
-    if (key === "anexo") {
-    }
-    // eslint-disable-next-line
-    if (object1[key] != object2[key]) {
-      return false;
-    }
-  }
-
-  return true;
 }

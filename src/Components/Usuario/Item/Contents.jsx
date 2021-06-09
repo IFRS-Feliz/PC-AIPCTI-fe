@@ -24,6 +24,11 @@ function MainContent({
   anexoJustificativa,
   setAnexoJustificativa,
   idItem,
+  //dirty
+  setDirtyItemFields,
+  setDirtyOrcamentoFields,
+  initialItem,
+  initialOrcamentos,
 }) {
   if (content === "informacoes")
     return (
@@ -32,6 +37,8 @@ function MainContent({
         setItem={setItem}
         anexoItem={anexoItem}
         setAnexoItem={setAnexoItem}
+        setDirtyItemFields={setDirtyItemFields}
+        initialItem={initialItem}
       />
     );
   else if (content === "orcamentos")
@@ -41,6 +48,8 @@ function MainContent({
         setOrcamentos={setOrcamentos}
         anexosOrcamentos={anexosOrcamentos}
         setAnexosOrcamentos={setAnexosOrcamentos}
+        setDirtyOrcamentoFields={setDirtyOrcamentoFields}
+        initialOrcamentos={initialOrcamentos}
       />
     );
   else if (content === "justificativa") {
@@ -56,7 +65,14 @@ function MainContent({
   }
 }
 
-function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
+function ContentInformacoes({
+  item,
+  setItem,
+  anexoItem,
+  setAnexoItem,
+  setDirtyItemFields,
+  initialItem,
+}) {
   useEffect(() => {
     if (!canBeNaturezaSingular(item.tipo)) {
       setItem((item) => {
@@ -89,12 +105,16 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Descrição"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <SelectInput
               name="tipo"
               object={item}
               setObject={setItem}
               label={"Tipo"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             >
               <option value="materialConsumo">Material de consumo</option>
               <option value="materialPermanente">Material permanente</option>
@@ -113,6 +133,8 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Possui natureza singular ou fornecimento exclusivo"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
               disabled={!canBeNaturezaSingular(item.tipo)}
             />
 
@@ -126,24 +148,32 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Nome do material / serviço"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="marca"
               object={item}
               setObject={setItem}
               label={"Marca"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="modelo"
               object={item}
               setObject={setItem}
               label={"Modelo"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <SelectInput
               name="tipoDocumentoFiscal"
               object={item}
               setObject={setItem}
               label={"Tipo do documento fiscal"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             >
               <option value="nf">Nota fiscal</option>
               <option value="cf">Cupom fiscal</option>
@@ -163,12 +193,16 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Data da compra"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="cnpjFavorecido"
               object={item}
               setObject={setItem}
               label={"Favorecido (CNPJ)"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="quantidade"
@@ -176,14 +210,13 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"Quantidade"}
               isNumber={true}
-              onChange={(e) => {
-                setItem({
-                  ...item,
-                  quantidade: e.target.value,
-                  valorTotal:
-                    Number(item.valorUnitario) * Number(e.target.value) +
-                    Number(item.frete),
-                });
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
+              onChangeExtra={(newItem, _, value) => {
+                newItem.valorTotal =
+                  Number(value) * Number(newItem.valorUnitario) +
+                  Number(newItem.frete);
+                return newItem;
               }}
             />
             <TextInput
@@ -192,14 +225,13 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"Valor unitário"}
               isNumber={true}
-              onChange={(e) => {
-                setItem({
-                  ...item,
-                  valorUnitario: e.target.value,
-                  valorTotal:
-                    Number(e.target.value) * Number(item.quantidade) +
-                    Number(item.frete),
-                });
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
+              onChangeExtra={(newItem, _, value) => {
+                newItem.valorTotal =
+                  Number(value) * Number(newItem.quantidade) +
+                  Number(newItem.frete);
+                return newItem;
               }}
             />
             <TextInput
@@ -208,14 +240,13 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"Valor do frete"}
               isNumber={true}
-              onChange={(e) => {
-                setItem({
-                  ...item,
-                  frete: e.target.value,
-                  valorTotal:
-                    Number(item.valorUnitario) * Number(item.quantidade) +
-                    Number(e.target.value),
-                });
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
+              onChangeExtra={(newItem, _, value) => {
+                newItem.valorTotal =
+                  Number(newItem.quantidade) * Number(newItem.valorUnitario) +
+                  Number(value);
+                return newItem;
               }}
             />
             <TextInput
@@ -232,6 +263,8 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"N° do documento fiscal"}
               isNumber={true}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
           </div>
         </div>
@@ -242,6 +275,8 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
             object={item}
             setObject={setItem}
             label={"Comprado com o CPF do coordenador"}
+            objectToCompare={initialItem}
+            setDirtyFields={setDirtyItemFields}
           />
         </div>
 
@@ -265,6 +300,8 @@ function ContentOrcamentos({
   setOrcamentos,
   anexosOrcamentos,
   setAnexosOrcamentos,
+  setDirtyOrcamentoFields,
+  initialOrcamentos,
 }) {
   const [current, setCurrent] = useState(0);
   const botoesRef = useRef();
@@ -284,6 +321,9 @@ function ContentOrcamentos({
 
     //atualizar lista de anexos de acordo
     setAnexosOrcamentos([...anexosOrcamentos, undefined]);
+
+    //atualizar lista de alteracoes dos campos de acordo
+    setDirtyOrcamentoFields((oldDirty) => [...oldDirty, {}]);
   }
 
   function handleDeleteOrcamento(index) {
@@ -298,6 +338,13 @@ function ContentOrcamentos({
     let newAnexosOrcamentos = [...anexosOrcamentos];
     newAnexosOrcamentos.splice(index, 1);
     setAnexosOrcamentos(newAnexosOrcamentos);
+
+    //atualizar lista de alteracoes dos campos de acordo
+    setDirtyOrcamentoFields((oldDirty) => {
+      const newDirty = [...oldDirty];
+      newDirty.splice(index, 1);
+      return newDirty;
+    });
   }
 
   function handleSetOrcamentoCompra(index) {
@@ -306,11 +353,61 @@ function ContentOrcamentos({
     if (orcamentos[index].isOrcamentoCompra) {
       newOrcamentos[index].isOrcamentoCompra = false;
       setOrcamentos(newOrcamentos);
+
+      setDirtyOrcamentoFields((oldDirty) => {
+        const newDirty = [...oldDirty];
+        if (!newDirty[index]) newDirty[index] = {};
+
+        if (
+          initialOrcamentos[index].isOrcamentoCompra !==
+          newOrcamentos[index].isOrcamentoCompra
+        )
+          newDirty[index].isOrcamentoCompra = true;
+        else delete newDirty[index].posicao;
+        return newDirty;
+      });
       return;
     }
     //else
-    newOrcamentos.forEach((orcamento) => (orcamento.isOrcamentoCompra = false));
+    let nenhumOrcamentoIsCompra = true;
+    //procurar pelo orcamentoCompra atual
+    newOrcamentos.forEach((orcamento, i) => {
+      if (orcamento.isOrcamentoCompra) {
+        orcamento.isOrcamentoCompra = false;
+        //setar mudancas
+        setDirtyOrcamentoFields((oldDirty) => {
+          //orcamentoCompra atual
+          const newDirty = [...oldDirty];
+          if (!newDirty[i]) newDirty[i] = {};
+          if (initialOrcamentos[i].isOrcamentoCompra)
+            newDirty[i].isOrcamentoCompra = true;
+          else delete newDirty[i].isOrcamentoCompra;
+
+          //novo orcamentoCompra
+          if (!newDirty[index]) newDirty[index] = {};
+          if (!initialOrcamentos[index].isOrcamentoCompra)
+            newDirty[index].isOrcamentoCompra = true;
+          else delete newDirty[index].isOrcamentoCompra;
+          return newDirty;
+        });
+        nenhumOrcamentoIsCompra = false;
+        return;
+      }
+    });
     newOrcamentos[index].isOrcamentoCompra = true;
+    //caso nenhum orcamentoCompra seja encontrado
+    if (nenhumOrcamentoIsCompra) {
+      //setar mudancas do novo orcamentoCompra
+      setDirtyOrcamentoFields((oldDirty) => {
+        const newDirty = [...oldDirty];
+
+        if (!newDirty[index]) newDirty[index] = {};
+        if (!initialOrcamentos[index].isOrcamentoCompra)
+          newDirty[index].isOrcamentoCompra = true;
+        else delete newDirty[index].isOrcamentoCompra;
+        return newDirty;
+      });
+    }
     setOrcamentos(newOrcamentos);
   }
 
@@ -430,6 +527,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Data do orçamento"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
 
                 <div className={style.vh} />
@@ -443,6 +542,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Nome do material / serviço"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
                 <TextInput
                   name="marca"
@@ -450,6 +551,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Marca"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
                 <TextInput
                   name="modelo"
@@ -457,6 +560,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Modelo"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
               </div>
 
@@ -469,6 +574,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Favorecido (CNPJ)"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
                 <TextInput
                   name="quantidade"
@@ -477,15 +584,14 @@ function ContentOrcamentos({
                   index={current - 1}
                   label={"Quantidade"}
                   isNumber={true}
-                  onChange={(e) => {
-                    let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].quantidade = e.target.value;
-
-                    newOrcamentos[current - 1].valorTotal =
-                      Number(e.target.value) *
-                        Number(newOrcamentos[current - 1].valorUnitario) +
-                      Number(newOrcamentos[current - 1].frete);
-                    setOrcamentos(newOrcamentos);
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
+                  onChangeExtra={(newOrcamentos, index, value) => {
+                    newOrcamentos[index].valorTotal =
+                      Number(value) *
+                        Number(newOrcamentos[index].valorUnitario) +
+                      Number(newOrcamentos[index].frete);
+                    return newOrcamentos;
                   }}
                 />
                 <TextInput
@@ -495,15 +601,13 @@ function ContentOrcamentos({
                   index={current - 1}
                   label={"Valor unitário"}
                   isNumber={true}
-                  onChange={(e) => {
-                    let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].valorUnitario = e.target.value;
-
-                    newOrcamentos[current - 1].valorTotal =
-                      Number(e.target.value) *
-                        Number(newOrcamentos[current - 1].quantidade) +
-                      Number(newOrcamentos[current - 1].frete);
-                    setOrcamentos(newOrcamentos);
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
+                  onChangeExtra={(newOrcamentos, index, value) => {
+                    newOrcamentos[index].valorTotal =
+                      Number(value) * Number(newOrcamentos[index].quantidade) +
+                      Number(newOrcamentos[index].frete);
+                    return newOrcamentos;
                   }}
                 />
                 <TextInput
@@ -513,14 +617,14 @@ function ContentOrcamentos({
                   index={current - 1}
                   label={"Valor do frete"}
                   isNumber={true}
-                  onChange={(e) => {
-                    let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].frete = e.target.value;
-                    newOrcamentos[current - 1].valorTotal =
-                      Number(newOrcamentos[current - 1].quantidade) *
-                        Number(newOrcamentos[current - 1].valorUnitario) +
-                      Number(e.target.value);
-                    setOrcamentos(newOrcamentos);
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
+                  onChangeExtra={(newOrcamentos, index, value) => {
+                    newOrcamentos[index].valorTotal =
+                      Number(newOrcamentos[index].quantidade) *
+                        Number(newOrcamentos[index].valorUnitario) +
+                      Number(value);
+                    return newOrcamentos;
                   }}
                 />
                 <TextInput
@@ -541,6 +645,8 @@ function ContentOrcamentos({
                 setObject={setOrcamentos}
                 index={current - 1}
                 label={"Orçado com o CPF do coordenador"}
+                objectToCompare={initialOrcamentos}
+                setDirtyFields={setDirtyOrcamentoFields}
               />
             </div>
             <div className={style.mainContentFormFiles}>
