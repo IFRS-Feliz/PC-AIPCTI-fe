@@ -105,9 +105,8 @@
   height: 4rem;
 }
 
-.mainContentHeader h1 {
+.mainContentHeader h3 {
   font-size: 1.5rem;
-  /* height: 100%; */
   margin: auto;
 }
 
@@ -241,7 +240,7 @@
   display: flex;
   align-items: center;
 
-  padding: 0.25rem 0;
+  padding: 0.25rem 0.5rem;
   font-size: 0.7rem;
 
   background-color: white;

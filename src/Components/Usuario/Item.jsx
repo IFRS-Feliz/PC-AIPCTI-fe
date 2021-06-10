@@ -484,7 +484,9 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
 
   return (
     <>
-      <div className={style.mainContentHeader}></div>
+      <div className={style.mainContentHeader}>
+        <h3>Informações</h3>
+      </div>
       <div className={style.mainContentForm}>
         <div style={{ position: "relative" }}>
           <div className={style.mainContentFormTico}></div>
@@ -728,7 +730,9 @@ function ContentOrcamentos({
 
   return (
     <>
-      <div className={style.mainContentHeader}></div>
+      <div className={style.mainContentHeader}>
+        {current > 0 ? <h3>Orçamento {current}</h3> : <h3>Orçamentos</h3>}
+      </div>
       <div className={style.mainContentForm}>
         <div className={style.helpPin}>
           <div>
@@ -995,7 +999,9 @@ function ContentJustificativa({
   }, [justificativa, setJustificativa, idItem]);
   return (
     <>
-      <div className={style.mainContentHeader}></div>
+      <div className={style.mainContentHeader}>
+        <h3>Justificativa</h3>
+      </div>
       <div className={style.mainContentForm}>
         <div style={{ position: "relative" }}>
           <div className={style.mainContentFormTico}></div>

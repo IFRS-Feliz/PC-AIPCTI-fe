@@ -38,27 +38,123 @@
   margin-bottom: 2rem;
 }
 
-.sectionHeader > div {
+.sectionHeader > div,
+.sectionHeader span {
   grid-area: main;
+}
+
+.sectionHeader div > h1 {
+  padding: 0.5rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  border-top: 2px solid #91211f;
+  border-left: 2px solid #91211f;
+  border-right: 2px solid #91211f;
 }
 
 .sectionHeader > div p {
   font-size: 0.9rem;
 }
 
+/* GRU */
+
+.mainContentGru {
+  box-sizing: border-box;
+  width: 100%;
+
+  background-color: #ca302d;
+
+  border-radius: 0 0 0.5rem 0.5rem;
+  overflow: hidden;
+
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.mainContentGru form {
+  display: grid;
+  grid-template-rows: 2fr 2fr;
+  grid-template-areas:
+    "divTop"
+    "divBottom";
+  align-items: center;
+}
+
+.divTop {
+  grid-area: divTop;
+  background-color: #91211f;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.divTop label {
+  display: block;
+  margin: auto;
+  width: max-content;
+}
+
+.divTop label p {
+  color: white;
+  font-size: 1.3rem;
+}
+
+.divTop input {
+  width: 99.5%;
+  transform: translateX(0.03rem);
+  text-align: center;
+  height: 2rem;
+  font-size: 1rem;
+}
+
+.divBottom {
+  display: flex;
+  flex-direction: column;
+  grid-area: divBottom;
+  height: 100%;
+}
+
+.divBottom p {
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}
+
+.divBottom div {
+  gap: 0.1rem;
+  background-color: rgb(192, 149, 231);
+  padding-top: 0.1rem;
+}
+
+.divBottom button,
+.divBottom label {
+  width: 100%;
+  height: 100%;
+  background-color: blueviolet;
+  border: none;
+  color: white;
+}
+
+.divBottom label {
+  color: white;
+  text-align: center;
+  width: 100%;
+  cursor: pointer;
+}
+
 /* resumo */
 
 .gridResumo {
   display: grid;
-  margin: 1rem 0;
+
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: 4fr 1fr;
   grid-template-areas:
     "resumoCusteio resumoCapital"
     "resumoTotal resumoTotal";
 
-  border-radius: 0.5rem;
+  border-radius: 0 0 0.5rem 0.5rem;
   overflow: hidden;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 .resumoCapital,
@@ -125,4 +221,39 @@
 
 .informacoesResumo p strong {
   color: white;
+}
+
+.buttonCreatePDF {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  display: flex;
+
+  margin: 0 2rem 2rem 0;
+
+  height: 4rem;
+  width: 4rem;
+
+  background-color: #ca302d;
+
+  border-radius: 50%;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  transition: 0.2s ease;
+}
+
+.buttonCreatePDF button {
+  border: none;
+  background-color: transparent;
+  width: 100%;
+}
+
+.buttonCreatePDF button svg {
+  fill: white;
+}
+
+.buttonCreatePDF:hover {
+  transform: scale(1.1);
+  background-color: #91211f;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
 }
