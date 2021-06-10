@@ -1,421 +1,13 @@
-import axios from "../../axios";
+import style from "../../../assets/css/components/item.module.css";
+import axios from "../../../axios";
 import { useEffect, useRef, useState } from "react";
-import { getProjectArrays } from "../../Helpers/EditarAdicionarUsuario";
-
-import style from "../../assets/css/components/item.module.css";
-import Loading from "../Loading";
-
-export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
-  const [content, setContent] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const [initialItem, setInitialItem] = useState(itens[index]); //informacoes ja salvas no banco
-  const [item, setItem] = useState(itens[index]); //informacoes nao salvas (sendo escritas)
-  const [anexoItem, setAnexoItem] = useState(); //onde o anexo é salvo apos a primeira requisicao pelo mesmo ou criacao
-
-  const [initialOrcamentos, setInitialOrcamentos] = useState([]);
-  const [orcamentos, setOrcamentos] = useState([]);
-  const [anexosOrcamentos, setAnexosOrcamentos] = useState([]);
-
-  const [justificativa, setJustificativa] = useState({});
-  const [anexoJustificativa, setAnexoJustificativa] = useState();
-
-  const [isDirty, setIsDirty] = useState(false);
-
-  function handleChangeContent(newContent) {
-    if (content === newContent) setContent(null);
-    else setContent(newContent);
-  }
-
-  function handleDelete() {
-    if (item.id) {
-      axios
-        .delete("/item", { data: { itens: [item] } })
-        .then(() => {
-          updateLocalArray();
-        })
-        .catch((e) => console.log(e));
-    } else {
-      updateLocalArray();
-    }
-
-    function updateLocalArray() {
-      const newItens = [...itens];
-      newItens.splice(index, 1);
-      setItens(newItens);
-    }
-  }
-
-  function handleSave(itemToCopy, orcamentosToCopy) {
-    let item = { ...itemToCopy };
-    let orcamentos = JSON.parse(JSON.stringify(orcamentosToCopy));
-    setIsSaving(true);
-
-    //inferir tipo de despesa do item
-    const despesa = item.tipo === "materialPermanente" ? "capital" : "custeio";
-
-    //cuidar das justificativas
-    if (justificativa.actionAnexo === "post") {
-      const formData = new FormData();
-      formData.append("file", anexoJustificativa);
-      axios
-        .post(`/justificativa/${justificativa.id}/file`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() =>
-          setJustificativa({
-            ...justificativa,
-            actionAnexo: undefined,
-            pathAnexo: true,
-          })
-        );
-    } else if (justificativa.actionAnexo === "delete") {
-      axios.delete(`/justificativa/${justificativa.id}/file`).then(() =>
-        setJustificativa({
-          ...justificativa,
-          actionAnexo: undefined,
-          pathAnexo: false,
-        })
-      );
-    }
-    //apaga-la caso o item nao seja mais de natureza singular
-    if (!item.isNaturezaSingular && justificativa.id) {
-      axios.delete(`/justificativa/${justificativa.id}`).then(() => {
-        setAnexoJustificativa();
-        setJustificativa({});
-      });
-    }
-
-    //separar listas dos orcamentos para enviar
-    //*mudar nome da funcao helper e seus retornos no futuro
-    let { addedProjects: added, updatedProjects: updated } = getProjectArrays(
-      initialOrcamentos,
-      orcamentos
-    );
-    let deleted = [];
-    initialOrcamentos.forEach((o) => {
-      const wasDeleted = !Boolean(
-        orcamentos.filter((o2) => o2.id === o.id).length
-      );
-      if (wasDeleted) deleted.push(o);
-    });
-
-    //definir se os orcamentos e justificativas tem que esperar pela criacao do ID do item
-    const isItemInDB = item.id !== undefined;
-
-    async function create() {
-      const res = await axios.post("/item", {
-        itens: [{ ...item, despesa: despesa }],
-      });
-
-      //setando aqui, antes do promise.all para caso o actions tenha tamenho zero
-      setItem(res.data.results[0]);
-      setInitialItem(res.data.results[0]);
-
-      const idItem = res.data.results[0].id;
-
-      added.forEach((orcamento) => (orcamento.idItem = idItem));
-
-      //separar requisicoes
-      let actions = [];
-
-      //orcamentos
-      if (added.length > 0)
-        actions.push(
-          axios.post("/orcamento", { orcamentos: added }).then((response) => {
-            added = response.data.results;
-          })
-        );
-
-      //anexo do item
-      if (item.actionAnexo === "post") {
-        let formData = new FormData();
-        formData.append("file", anexoItem);
-        actions.push(
-          axios
-            .post(`/item/${idItem}/file`, formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-            })
-            .then(() => {
-              item = res.data.results[0];
-              item.pathAnexo = true;
-              delete item.actionAnexo;
-            })
-        );
-      }
-      return actions;
-    }
-
-    function update() {
-      added.forEach((orcamento) => (orcamento.idItem = item.id));
-
-      //separar requisicoes
-      let actions = [
-        axios.put("/item", { itens: [{ ...item, despesa: despesa }] }),
-      ];
-
-      //orcamentos
-      if (added.length > 0)
-        actions.push(
-          axios.post("/orcamento", { orcamentos: added }).then((response) => {
-            added = response.data.results;
-          })
-        );
-      if (updated.length > 0)
-        actions.push(axios.put("/orcamento", { orcamentos: updated }));
-      if (deleted.length > 0)
-        actions.push(
-          axios.delete("/orcamento", { data: { orcamentos: deleted } })
-        );
-
-      //anexo do item
-      if (item.actionAnexo === "delete")
-        actions.push(
-          axios.delete(`/item/${item.id}/file`).then(() => {
-            item.pathAnexo = false;
-            delete item.actionAnexo;
-          })
-        );
-      else if (item.actionAnexo === "post") {
-        let formData = new FormData();
-        formData.append("file", anexoItem);
-        actions.push(
-          axios
-            .post(`/item/${item.id}/file`, formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-            })
-            .then(() => {
-              item.pathAnexo = true;
-              delete item.actionAnexo;
-            })
-        );
-      }
-
-      //anexos dos orcamentos
-      for (const [i, orcamento] of orcamentos.entries()) {
-        if (
-          orcamento.actionAnexo === "post" &&
-          orcamento.hasOwnProperty("id")
-        ) {
-          let formData = new FormData();
-          formData.append("file", anexosOrcamentos[i]);
-          actions.push(
-            axios
-              .post(`/orcamento/${orcamento.id}/file`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-              })
-              .then(() => {
-                orcamento.pathAnexo = true;
-                delete orcamento.actionAnexo;
-              })
-          );
-        } else if (orcamento.actionAnexo === "delete") {
-          actions.push(
-            axios.delete(`/orcamento/${orcamento.id}/file`).then(() => {
-              delete orcamento.pathAnexo;
-              delete orcamento.actionAnexo;
-            })
-          );
-        }
-      }
-      return actions;
-    }
-
-    //setar os estados do item e orcamentos
-    setThings();
-
-    async function setThings() {
-      let actions;
-      if (isItemInDB) {
-        actions = update();
-      } else {
-        actions = await create();
-      }
-
-      if (actions.length > 0) {
-        Promise.allSettled(actions)
-          .then(() => {
-            setItem(item);
-            setInitialItem(item);
-
-            const orcs = updated.concat(added);
-            setOrcamentos(orcs);
-            setInitialOrcamentos(orcs);
-          })
-          .catch((e) => {
-            console.log(e);
-            console.log("in catch all");
-          })
-          .finally(() => setIsSaving(false));
-      } else setIsSaving(false);
-    }
-  }
-
-  //fetch orcamentos e justificativas
-  useEffect(() => {
-    //somente pegar orcamentos se o item estiver no banco
-    if (item.id) {
-      axios
-        .get(`/orcamento?idItem=${item.id}`)
-        .then((response) => {
-          setOrcamentos(response.data.results);
-          setInitialOrcamentos(response.data.results);
-          setAnexosOrcamentos(Array(response.data.results.length));
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-      axios.get(`/justificativa?idItem=${item.id}`).then((response) => {
-        setJustificativa(response.data.results[0] || {});
-      });
-    }
-  }, [item.id]);
-
-  //verificar se form sofreu mudanças
-  useEffect(() => {
-    function checkDirty() {
-      if (justificativa.actionAnexo) return true;
-      const isItemDirty = !compareObjects(item, initialItem);
-      let isOrcamentosDirty =
-        orcamentos.length !== initialOrcamentos.length ? true : false;
-
-      if (
-        orcamentos.length > 0 &&
-        initialOrcamentos.length > 0 &&
-        !isOrcamentosDirty
-      ) {
-        for (const [i] of orcamentos.entries()) {
-          if (!compareObjects(orcamentos[i], initialOrcamentos[i])) {
-            isOrcamentosDirty = true;
-            break;
-          }
-        }
-      }
-
-      return isItemDirty || isOrcamentosDirty;
-    }
-    setIsDirty(checkDirty);
-  }, [
-    item,
-    orcamentos,
-    initialOrcamentos,
-    initialItem,
-    justificativa.actionAnexo,
-  ]);
-
-  //verificar se posicao sofreu mudancas por drag and drop
-  const posicao = itens[index].posicao;
-  useEffect(() => {
-    setItem((oldItem) => {
-      return { ...oldItem, posicao: posicao };
-    });
-    setInitialItem((oldInitialItem) => {
-      return { ...oldInitialItem, posicao: posicao };
-    });
-  }, [posicao]);
-
-  return (
-    <div
-      className={style.container}
-      style={content ? {} : { marginBottom: "2rem" }}
-    >
-      <div className={style.handle}>
-        <div {...dragHandleInnerProps} hidden={content}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 0 24 24"
-            width="24px"
-            fill="#000000"
-          >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path d="M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z" />
-          </svg>
-        </div>
-      </div>
-      <div className={style.main}>
-        <div className={style.mainHeader}>
-          <p>{item.nomeMaterialServico || "Novo item"}</p>
-          <div>
-            <span className={content === "informacoes" ? style.ticoAppear : ""}>
-              <button onClick={() => handleChangeContent("informacoes")}>
-                Informações
-              </button>
-            </span>
-
-            <span
-              className={content === "orcamentos" ? style.ticoAppearWhite : ""}
-            >
-              <button onClick={() => handleChangeContent("orcamentos")}>
-                Orçamentos
-              </button>
-            </span>
-
-            <span
-              className={content === "justificativa" ? style.ticoAppear : ""}
-            >
-              <button
-                onClick={() => handleChangeContent("justificativa")}
-                disabled={!item.isNaturezaSingular}
-              >
-                Justificativa
-              </button>
-            </span>
-          </div>
-        </div>
-        {content && (
-          <div className={style.mainContent}>
-            {isSaving && <Loading />}
-            <MainContent
-              content={content}
-              item={item}
-              setItem={setItem}
-              anexoItem={anexoItem}
-              setAnexoItem={setAnexoItem}
-              orcamentos={orcamentos}
-              setOrcamentos={setOrcamentos}
-              anexosOrcamentos={anexosOrcamentos}
-              setAnexosOrcamentos={setAnexosOrcamentos}
-              justificativa={justificativa}
-              setJustificativa={setJustificativa}
-              anexoJustificativa={anexoJustificativa}
-              setAnexoJustificativa={setAnexoJustificativa}
-              idItem={item.id}
-            />
-          </div>
-        )}
-      </div>
-      <div className={style.tools}>
-        <button
-          onClick={() => handleSave(item, orcamentos)}
-          disabled={!isDirty || isSaving}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 0 24 24"
-            width="24px"
-            fill="#000000"
-          >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
-          </svg>
-        </button>
-        <button onClick={handleDelete} disabled={isSaving}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
+import Loading from "../../Loading";
+import {
+  TextInput,
+  SelectInput,
+  DateInput,
+  CheckBoxInput,
+} from "../../FormInputs";
 
 function MainContent({
   content,
@@ -432,6 +24,11 @@ function MainContent({
   anexoJustificativa,
   setAnexoJustificativa,
   idItem,
+  //dirty
+  setDirtyItemFields,
+  setDirtyOrcamentoFields,
+  initialItem,
+  initialOrcamentos,
 }) {
   if (content === "informacoes")
     return (
@@ -440,6 +37,8 @@ function MainContent({
         setItem={setItem}
         anexoItem={anexoItem}
         setAnexoItem={setAnexoItem}
+        setDirtyItemFields={setDirtyItemFields}
+        initialItem={initialItem}
       />
     );
   else if (content === "orcamentos")
@@ -449,6 +48,8 @@ function MainContent({
         setOrcamentos={setOrcamentos}
         anexosOrcamentos={anexosOrcamentos}
         setAnexosOrcamentos={setAnexosOrcamentos}
+        setDirtyOrcamentoFields={setDirtyOrcamentoFields}
+        initialOrcamentos={initialOrcamentos}
       />
     );
   else if (content === "justificativa") {
@@ -464,7 +65,14 @@ function MainContent({
   }
 }
 
-function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
+function ContentInformacoes({
+  item,
+  setItem,
+  anexoItem,
+  setAnexoItem,
+  setDirtyItemFields,
+  initialItem,
+}) {
   useEffect(() => {
     if (!canBeNaturezaSingular(item.tipo)) {
       setItem((item) => {
@@ -499,12 +107,16 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Descrição"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <SelectInput
               name="tipo"
               object={item}
               setObject={setItem}
               label={"Tipo"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             >
               <option value="materialConsumo">Material de consumo</option>
               <option value="materialPermanente">Material permanente</option>
@@ -523,6 +135,8 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Possui natureza singular ou fornecimento exclusivo"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
               disabled={!canBeNaturezaSingular(item.tipo)}
             />
 
@@ -536,24 +150,32 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Nome do material / serviço"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="marca"
               object={item}
               setObject={setItem}
               label={"Marca"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="modelo"
               object={item}
               setObject={setItem}
               label={"Modelo"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <SelectInput
               name="tipoDocumentoFiscal"
               object={item}
               setObject={setItem}
               label={"Tipo do documento fiscal"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             >
               <option value="nf">Nota fiscal</option>
               <option value="cf">Cupom fiscal</option>
@@ -573,12 +195,16 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               object={item}
               setObject={setItem}
               label={"Data da compra"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="cnpjFavorecido"
               object={item}
               setObject={setItem}
               label={"Favorecido (CNPJ)"}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
             <TextInput
               name="quantidade"
@@ -586,14 +212,13 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"Quantidade"}
               isNumber={true}
-              onChange={(e) => {
-                setItem({
-                  ...item,
-                  quantidade: e.target.value,
-                  valorTotal:
-                    Number(item.valorUnitario) * Number(e.target.value) +
-                    Number(item.frete),
-                });
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
+              onChangeExtra={(newItem, _, value) => {
+                newItem.valorTotal =
+                  Number(value) * Number(newItem.valorUnitario) +
+                  Number(newItem.frete);
+                return newItem;
               }}
             />
             <TextInput
@@ -602,14 +227,13 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"Valor unitário"}
               isNumber={true}
-              onChange={(e) => {
-                setItem({
-                  ...item,
-                  valorUnitario: e.target.value,
-                  valorTotal:
-                    Number(e.target.value) * Number(item.quantidade) +
-                    Number(item.frete),
-                });
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
+              onChangeExtra={(newItem, _, value) => {
+                newItem.valorTotal =
+                  Number(value) * Number(newItem.quantidade) +
+                  Number(newItem.frete);
+                return newItem;
               }}
             />
             <TextInput
@@ -618,14 +242,13 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"Valor do frete"}
               isNumber={true}
-              onChange={(e) => {
-                setItem({
-                  ...item,
-                  frete: e.target.value,
-                  valorTotal:
-                    Number(item.valorUnitario) * Number(item.quantidade) +
-                    Number(e.target.value),
-                });
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
+              onChangeExtra={(newItem, _, value) => {
+                newItem.valorTotal =
+                  Number(newItem.quantidade) * Number(newItem.valorUnitario) +
+                  Number(value);
+                return newItem;
               }}
             />
             <TextInput
@@ -642,6 +265,8 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
               setObject={setItem}
               label={"N° do documento fiscal"}
               isNumber={true}
+              objectToCompare={initialItem}
+              setDirtyFields={setDirtyItemFields}
             />
           </div>
         </div>
@@ -652,6 +277,8 @@ function ContentInformacoes({ item, setItem, anexoItem, setAnexoItem }) {
             object={item}
             setObject={setItem}
             label={"Comprado com o CPF do coordenador"}
+            objectToCompare={initialItem}
+            setDirtyFields={setDirtyItemFields}
           />
         </div>
 
@@ -675,6 +302,8 @@ function ContentOrcamentos({
   setOrcamentos,
   anexosOrcamentos,
   setAnexosOrcamentos,
+  setDirtyOrcamentoFields,
+  initialOrcamentos,
 }) {
   const [current, setCurrent] = useState(0);
   const botoesRef = useRef();
@@ -694,6 +323,9 @@ function ContentOrcamentos({
 
     //atualizar lista de anexos de acordo
     setAnexosOrcamentos([...anexosOrcamentos, undefined]);
+
+    //atualizar lista de alteracoes dos campos de acordo
+    setDirtyOrcamentoFields((oldDirty) => [...oldDirty, {}]);
   }
 
   function handleDeleteOrcamento(index) {
@@ -708,6 +340,13 @@ function ContentOrcamentos({
     let newAnexosOrcamentos = [...anexosOrcamentos];
     newAnexosOrcamentos.splice(index, 1);
     setAnexosOrcamentos(newAnexosOrcamentos);
+
+    //atualizar lista de alteracoes dos campos de acordo
+    setDirtyOrcamentoFields((oldDirty) => {
+      const newDirty = [...oldDirty];
+      newDirty.splice(index, 1);
+      return newDirty;
+    });
   }
 
   function handleSetOrcamentoCompra(index) {
@@ -716,11 +355,61 @@ function ContentOrcamentos({
     if (orcamentos[index].isOrcamentoCompra) {
       newOrcamentos[index].isOrcamentoCompra = false;
       setOrcamentos(newOrcamentos);
+
+      setDirtyOrcamentoFields((oldDirty) => {
+        const newDirty = [...oldDirty];
+        if (!newDirty[index]) newDirty[index] = {};
+
+        if (
+          initialOrcamentos[index].isOrcamentoCompra !==
+          newOrcamentos[index].isOrcamentoCompra
+        )
+          newDirty[index].isOrcamentoCompra = true;
+        else delete newDirty[index].posicao;
+        return newDirty;
+      });
       return;
     }
     //else
-    newOrcamentos.forEach((orcamento) => (orcamento.isOrcamentoCompra = false));
+    let nenhumOrcamentoIsCompra = true;
+    //procurar pelo orcamentoCompra atual
+    newOrcamentos.forEach((orcamento, i) => {
+      if (orcamento.isOrcamentoCompra) {
+        orcamento.isOrcamentoCompra = false;
+        //setar mudancas
+        setDirtyOrcamentoFields((oldDirty) => {
+          //orcamentoCompra atual
+          const newDirty = [...oldDirty];
+          if (!newDirty[i]) newDirty[i] = {};
+          if (initialOrcamentos[i].isOrcamentoCompra)
+            newDirty[i].isOrcamentoCompra = true;
+          else delete newDirty[i].isOrcamentoCompra;
+
+          //novo orcamentoCompra
+          if (!newDirty[index]) newDirty[index] = {};
+          if (!initialOrcamentos[index].isOrcamentoCompra)
+            newDirty[index].isOrcamentoCompra = true;
+          else delete newDirty[index].isOrcamentoCompra;
+          return newDirty;
+        });
+        nenhumOrcamentoIsCompra = false;
+        return;
+      }
+    });
     newOrcamentos[index].isOrcamentoCompra = true;
+    //caso nenhum orcamentoCompra seja encontrado
+    if (nenhumOrcamentoIsCompra) {
+      //setar mudancas do novo orcamentoCompra
+      setDirtyOrcamentoFields((oldDirty) => {
+        const newDirty = [...oldDirty];
+
+        if (!newDirty[index]) newDirty[index] = {};
+        if (!initialOrcamentos[index].isOrcamentoCompra)
+          newDirty[index].isOrcamentoCompra = true;
+        else delete newDirty[index].isOrcamentoCompra;
+        return newDirty;
+      });
+    }
     setOrcamentos(newOrcamentos);
   }
 
@@ -842,6 +531,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Data do orçamento"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
 
                 <div className={style.vh} />
@@ -855,6 +546,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Nome do material / serviço"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
                 <TextInput
                   name="marca"
@@ -862,6 +555,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Marca"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
                 <TextInput
                   name="modelo"
@@ -869,6 +564,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Modelo"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
               </div>
 
@@ -881,6 +578,8 @@ function ContentOrcamentos({
                   setObject={setOrcamentos}
                   index={current - 1}
                   label={"Favorecido (CNPJ)"}
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
                 />
                 <TextInput
                   name="quantidade"
@@ -889,15 +588,14 @@ function ContentOrcamentos({
                   index={current - 1}
                   label={"Quantidade"}
                   isNumber={true}
-                  onChange={(e) => {
-                    let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].quantidade = e.target.value;
-
-                    newOrcamentos[current - 1].valorTotal =
-                      Number(e.target.value) *
-                        Number(newOrcamentos[current - 1].valorUnitario) +
-                      Number(newOrcamentos[current - 1].frete);
-                    setOrcamentos(newOrcamentos);
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
+                  onChangeExtra={(newOrcamentos, index, value) => {
+                    newOrcamentos[index].valorTotal =
+                      Number(value) *
+                        Number(newOrcamentos[index].valorUnitario) +
+                      Number(newOrcamentos[index].frete);
+                    return newOrcamentos;
                   }}
                 />
                 <TextInput
@@ -907,15 +605,13 @@ function ContentOrcamentos({
                   index={current - 1}
                   label={"Valor unitário"}
                   isNumber={true}
-                  onChange={(e) => {
-                    let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].valorUnitario = e.target.value;
-
-                    newOrcamentos[current - 1].valorTotal =
-                      Number(e.target.value) *
-                        Number(newOrcamentos[current - 1].quantidade) +
-                      Number(newOrcamentos[current - 1].frete);
-                    setOrcamentos(newOrcamentos);
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
+                  onChangeExtra={(newOrcamentos, index, value) => {
+                    newOrcamentos[index].valorTotal =
+                      Number(value) * Number(newOrcamentos[index].quantidade) +
+                      Number(newOrcamentos[index].frete);
+                    return newOrcamentos;
                   }}
                 />
                 <TextInput
@@ -925,14 +621,14 @@ function ContentOrcamentos({
                   index={current - 1}
                   label={"Valor do frete"}
                   isNumber={true}
-                  onChange={(e) => {
-                    let newOrcamentos = JSON.parse(JSON.stringify(orcamentos));
-                    newOrcamentos[current - 1].frete = e.target.value;
-                    newOrcamentos[current - 1].valorTotal =
-                      Number(newOrcamentos[current - 1].quantidade) *
-                        Number(newOrcamentos[current - 1].valorUnitario) +
-                      Number(e.target.value);
-                    setOrcamentos(newOrcamentos);
+                  objectToCompare={initialOrcamentos}
+                  setDirtyFields={setDirtyOrcamentoFields}
+                  onChangeExtra={(newOrcamentos, index, value) => {
+                    newOrcamentos[index].valorTotal =
+                      Number(newOrcamentos[index].quantidade) *
+                        Number(newOrcamentos[index].valorUnitario) +
+                      Number(value);
+                    return newOrcamentos;
                   }}
                 />
                 <TextInput
@@ -953,6 +649,8 @@ function ContentOrcamentos({
                 setObject={setOrcamentos}
                 index={current - 1}
                 label={"Orçado com o CPF do coordenador"}
+                objectToCompare={initialOrcamentos}
+                setDirtyFields={setDirtyOrcamentoFields}
               />
             </div>
             <div className={style.mainContentFormFiles}>
@@ -1253,136 +951,11 @@ function AnexoContent({
   );
 }
 
-function TextInput({
-  name,
-  object,
-  setObject,
-  index = null,
-  label,
-  isNumber = false,
-  ...rest
-}) {
-  let value = index === null ? object[name] : object[index][name];
-  value = !value && value !== 0 ? "" : value;
-
-  return (
-    <div className={style.inputLabelGroup}>
-      <label htmlFor={name}>{(label || name) + ": "}</label>
-      <input
-        id={name}
-        type={isNumber ? "number" : "text"}
-        value={value}
-        onChange={(e) =>
-          handleChange(e, name, object, setObject, index, isNumber)
-        }
-        {...rest}
-      />
-    </div>
-  );
-}
-
-function SelectInput({
-  name,
-  object,
-  setObject,
-  index = null,
-  children,
-  label,
-}) {
-  return (
-    <div className={style.inputLabelGroup}>
-      <label htmlFor={name}>{(label || name) + ": "}</label>
-      <select
-        id={name}
-        type="text"
-        value={index === null ? object[name] : object[index][name]}
-        onChange={(e) => handleChange(e, name, object, setObject, index)}
-      >
-        {children}
-      </select>
-    </div>
-  );
-}
-
-function DateInput({ name, object, setObject, index = null, label }) {
-  return (
-    <div className={style.inputLabelGroup}>
-      <label htmlFor={name}>{(label || name) + ": "}</label>
-      <input
-        id={name}
-        type="date"
-        value={index === null ? object[name] || "" : object[index][name] || ""}
-        onChange={(e) => handleChange(e, name, object, setObject, index)}
-      />
-    </div>
-  );
-}
-
-function CheckBoxInput({
-  name,
-  object,
-  setObject,
-  index = null,
-  label,
-  ...rest
-}) {
-  function handleChange() {
-    //caso seja parte de uma lista de objetos
-    if (index !== null) {
-      let newObject = JSON.parse(JSON.stringify(object));
-      newObject[index][name] = !object[index][name];
-      setObject(newObject);
-      return;
-    }
-    //caso seja parte de um objeto apenas
-    setObject({ ...object, [name]: !object[name] });
-  }
-
-  const checked = index === null ? object[name] : object[index][name];
-  return (
-    <div className={style.checkBoxLabelGroup}>
-      <input
-        id={name}
-        type="checkbox"
-        checked={checked || false}
-        onChange={handleChange}
-        {...rest}
-      />
-      <label htmlFor={name}>{label || name}</label>
-    </div>
-  );
-}
-
-function handleChange(e, name, object, setObject, index, isNumber = false) {
-  let value =
-    isNumber && e.target.value ? Number(e.target.value) : e.target.value;
-  //caso seja parte de uma lista de objetos
-  if (index !== null) {
-    let newObject = JSON.parse(JSON.stringify(object));
-    newObject[index][name] = value;
-    setObject(newObject);
-    return;
-  }
-  //caso seja parte de um objeto apenas
-  setObject({ ...object, [name]: value });
-}
-
-function compareObjects(object1, object2) {
-  const keys1 = Object.keys(object1);
-  const keys2 = Object.keys(object2);
-
-  if (keys1.length !== keys2.length) {
-    return false;
-  }
-
-  for (let key of keys1) {
-    if (key === "anexo") {
-    }
-    // eslint-disable-next-line
-    if (object1[key] != object2[key]) {
-      return false;
-    }
-  }
-
-  return true;
-}
+export {
+  ContentInformacoes,
+  ContentOrcamentos,
+  ContentJustificativa,
+  MainContent,
+  AnexoContent,
+  AnexoRiseUpMenu,
+};
