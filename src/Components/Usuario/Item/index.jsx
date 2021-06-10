@@ -57,7 +57,7 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
     setIsSaving(true);
 
     //inferir tipo de despesa do item
-    const despesa = item.tipo === "materialPermanente" ? "capital" : "custeio";
+    item.despesa = item.tipo === "materialPermanente" ? "capital" : "custeio";
 
     //cuidar das justificativas
     if (justificativa.actionAnexo === "post") {
@@ -105,59 +105,11 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
       if (wasDeleted) deleted.push(o);
     });
 
-    //definir se os orcamentos e justificativas tem que esperar pela criacao do ID do item
-    const isItemInDB = item.id !== undefined;
-
-    async function create() {
-      const res = await axios.post("/item", {
-        itens: [{ ...item, despesa: despesa }],
-      });
-
-      //setando aqui, antes do promise.all para caso o actions tenha tamenho zero
-      setItem(res.data.results[0]);
-      setInitialItem(res.data.results[0]);
-
-      const idItem = res.data.results[0].id;
-
-      added.forEach((orcamento) => (orcamento.idItem = idItem));
-
-      //separar requisicoes
-      let actions = [];
-
-      //orcamentos
-      if (added.length > 0)
-        actions.push(
-          axios.post("/orcamento", { orcamentos: added }).then((response) => {
-            added = response.data.results;
-          })
-        );
-
-      //anexo do item
-      if (item.actionAnexo === "post") {
-        let formData = new FormData();
-        formData.append("file", anexoItem);
-        actions.push(
-          axios
-            .post(`/item/${idItem}/file`, formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-            })
-            .then(() => {
-              item = res.data.results[0];
-              item.pathAnexo = true;
-              delete item.actionAnexo;
-            })
-        );
-      }
-      return actions;
-    }
-
     function update() {
       added.forEach((orcamento) => (orcamento.idItem = item.id));
 
       //separar requisicoes
-      let actions = [
-        axios.put("/item", { itens: [{ ...item, despesa: despesa }] }),
-      ];
+      let actions = [axios.put("/item", { itens: [{ ...item }] })];
 
       //orcamentos
       if (added.length > 0)
@@ -227,34 +179,25 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
     }
 
     //setar os estados do item e orcamentos
-    setThings();
+    const actions = update();
 
-    async function setThings() {
-      let actions;
-      if (isItemInDB) {
-        actions = update();
-      } else {
-        actions = await create();
-      }
+    if (actions.length > 0) {
+      Promise.allSettled(actions)
+        .then(() => {
+          setItem(item);
+          setInitialItem(item);
+          setDirtyItemFields({});
 
-      if (actions.length > 0) {
-        Promise.allSettled(actions)
-          .then(() => {
-            setItem(item);
-            setInitialItem(item);
-            setDirtyItemFields({});
-
-            const orcs = updated.concat(added);
-            setOrcamentos(orcs);
-            setInitialOrcamentos(orcs);
-            setDirtyOrcamentoFields([Array(orcs.length)]);
-          })
-          .catch((e) => {
-            console.log(e);
-          })
-          .finally(() => setIsSaving(false));
-      } else setIsSaving(false);
-    }
+          const orcs = updated.concat(added);
+          setOrcamentos(orcs);
+          setInitialOrcamentos(orcs);
+          setDirtyOrcamentoFields([Array(orcs.length)]);
+        })
+        .catch((e) => {
+          console.log(e);
+        })
+        .finally(() => setIsSaving(false));
+    } else setIsSaving(false);
   }
 
   //fetch orcamentos e justificativas
@@ -307,6 +250,15 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
     orcamentos,
     initialOrcamentos,
   ]);
+
+  //atualizar a lista de itens do parent para refletir no valor gasto do resumo
+  useEffect(() => {
+    setItens((oldItens) => {
+      const newItens = [...oldItens];
+      newItens[initialItem.posicao] = initialItem;
+      return newItens;
+    });
+  }, [initialItem, setItens, initialItem.posicao]);
 
   //verificar se posicao sofreu mudancas por drag and drop
   const posicao = itens[index].posicao;
