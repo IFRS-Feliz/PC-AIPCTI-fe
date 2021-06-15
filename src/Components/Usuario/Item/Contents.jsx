@@ -422,13 +422,16 @@ function ContentOrcamentos({
       setDirtyOrcamentoFields((oldDirty) => {
         const newDirty = [...oldDirty];
         if (!newDirty[index]) newDirty[index] = {};
-
-        if (
-          initialOrcamentos[index].isOrcamentoCompra !==
-          newOrcamentos[index].isOrcamentoCompra
-        )
+        //caso nao esteja no banco
+        if (initialOrcamentos.length - 1 < index) {
           newDirty[index].isOrcamentoCompra = true;
-        else delete newDirty[index].posicao;
+        }
+        //caso nao esteja
+        else if (initialOrcamentos[index].isOrcamentoCompra) {
+          newDirty[index].isOrcamentoCompra = true;
+        } else {
+          delete newDirty[index].isOrcamentoCompra;
+        }
         return newDirty;
       });
       return;
@@ -444,15 +447,26 @@ function ContentOrcamentos({
           //orcamentoCompra atual
           const newDirty = [...oldDirty];
           if (!newDirty[i]) newDirty[i] = {};
-          if (initialOrcamentos[i].isOrcamentoCompra)
+          //caso nao esteja no banco
+          if (initialOrcamentos.length - 1 < i) {
+            delete newDirty[i].isOrcamentoCompra;
+          }
+          //caso esteja
+          else if (initialOrcamentos[i].isOrcamentoCompra)
             newDirty[i].isOrcamentoCompra = true;
           else delete newDirty[i].isOrcamentoCompra;
 
           //novo orcamentoCompra
           if (!newDirty[index]) newDirty[index] = {};
-          if (!initialOrcamentos[index].isOrcamentoCompra)
+
+          //caso nao esteja no banco
+          if (initialOrcamentos.length - 1 < index) {
             newDirty[index].isOrcamentoCompra = true;
-          else delete newDirty[index].isOrcamentoCompra;
+          }
+          //caso nao esteja
+          else if (!initialOrcamentos[index].isOrcamentoCompra) {
+            newDirty[index].isOrcamentoCompra = true;
+          } else delete newDirty[index].isOrcamentoCompra;
           return newDirty;
         });
         nenhumOrcamentoIsCompra = false;
@@ -467,7 +481,12 @@ function ContentOrcamentos({
         const newDirty = [...oldDirty];
 
         if (!newDirty[index]) newDirty[index] = {};
-        if (!initialOrcamentos[index].isOrcamentoCompra)
+        //caso nao esteja no banco
+        if (initialOrcamentos.length - 1 < index) {
+          newDirty[index].isOrcamentoCompra = true;
+        }
+        //caso nao esteja
+        else if (!initialOrcamentos[index].isOrcamentoCompra)
           newDirty[index].isOrcamentoCompra = true;
         else delete newDirty[index].isOrcamentoCompra;
         return newDirty;
