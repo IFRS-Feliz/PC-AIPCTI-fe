@@ -7,6 +7,9 @@ import {
   SelectInput,
   DateInput,
   CheckBoxInput,
+  notEmptyCriteria,
+  notEmptyNumberCriteria,
+  cnpjCriteria,
 } from "../../FormInputs";
 
 function MainContent({
@@ -29,6 +32,11 @@ function MainContent({
   setDirtyOrcamentoFields,
   initialItem,
   initialOrcamentos,
+  //warnings
+  warnings,
+  setWarnings,
+  warningsOrcamentos,
+  setWarningsOrcamentos,
 }) {
   if (content === "informacoes")
     return (
@@ -39,6 +47,8 @@ function MainContent({
         setAnexoItem={setAnexoItem}
         setDirtyItemFields={setDirtyItemFields}
         initialItem={initialItem}
+        warnings={warnings}
+        setWarnings={setWarnings}
       />
     );
   else if (content === "orcamentos")
@@ -50,6 +60,8 @@ function MainContent({
         setAnexosOrcamentos={setAnexosOrcamentos}
         setDirtyOrcamentoFields={setDirtyOrcamentoFields}
         initialOrcamentos={initialOrcamentos}
+        warningsOrcamentos={warningsOrcamentos}
+        setWarningsOrcamentos={setWarningsOrcamentos}
       />
     );
   else if (content === "justificativa") {
@@ -72,6 +84,8 @@ function ContentInformacoes({
   setAnexoItem,
   setDirtyItemFields,
   initialItem,
+  warnings,
+  setWarnings,
 }) {
   useEffect(() => {
     if (!canBeNaturezaSingular(item.tipo)) {
@@ -109,6 +123,9 @@ function ContentInformacoes({
               label={"Descrição"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             />
             <SelectInput
               name="tipo"
@@ -117,6 +134,9 @@ function ContentInformacoes({
               label={"Tipo"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             >
               <option value="materialConsumo">Material de consumo</option>
               <option value="materialPermanente">Material permanente</option>
@@ -152,6 +172,9 @@ function ContentInformacoes({
               label={"Nome do material / serviço"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             />
             <TextInput
               name="marca"
@@ -160,6 +183,9 @@ function ContentInformacoes({
               label={"Marca"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             />
             <TextInput
               name="modelo"
@@ -168,6 +194,9 @@ function ContentInformacoes({
               label={"Modelo"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             />
             <SelectInput
               name="tipoDocumentoFiscal"
@@ -176,6 +205,9 @@ function ContentInformacoes({
               label={"Tipo do documento fiscal"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             >
               <option value="nf">Nota fiscal</option>
               <option value="cf">Cupom fiscal</option>
@@ -197,6 +229,9 @@ function ContentInformacoes({
               label={"Data da compra"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             />
             <TextInput
               name="cnpjFavorecido"
@@ -205,6 +240,9 @@ function ContentInformacoes({
               label={"Favorecido (CNPJ)"}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[cnpjCriteria, notEmptyNumberCriteria]}
             />
             <TextInput
               name="quantidade"
@@ -214,12 +252,15 @@ function ContentInformacoes({
               isNumber={true}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
               onChangeExtra={(newItem, _, value) => {
                 newItem.valorTotal =
                   Number(value) * Number(newItem.valorUnitario) +
                   Number(newItem.frete);
                 return newItem;
               }}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyNumberCriteria]}
             />
             <TextInput
               name="valorUnitario"
@@ -229,12 +270,15 @@ function ContentInformacoes({
               isNumber={true}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
               onChangeExtra={(newItem, _, value) => {
                 newItem.valorTotal =
                   Number(value) * Number(newItem.quantidade) +
                   Number(newItem.frete);
                 return newItem;
               }}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyNumberCriteria]}
             />
             <TextInput
               name="frete"
@@ -244,12 +288,15 @@ function ContentInformacoes({
               isNumber={true}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
               onChangeExtra={(newItem, _, value) => {
                 newItem.valorTotal =
                   Number(newItem.quantidade) * Number(newItem.valorUnitario) +
                   Number(value);
                 return newItem;
               }}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyNumberCriteria]}
             />
             <TextInput
               name="valorTotal"
@@ -257,6 +304,7 @@ function ContentInformacoes({
               setObject={setItem}
               label={"Valor total"}
               isNumber={true}
+              warnings={warnings}
               disabled={true}
             />
             <TextInput
@@ -267,6 +315,9 @@ function ContentInformacoes({
               isNumber={true}
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningCriteria={[notEmptyCriteria]}
             />
           </div>
         </div>
@@ -304,6 +355,8 @@ function ContentOrcamentos({
   setAnexosOrcamentos,
   setDirtyOrcamentoFields,
   initialOrcamentos,
+  warningsOrcamentos,
+  setWarningsOrcamentos,
 }) {
   const [current, setCurrent] = useState(0);
   const botoesRef = useRef();
@@ -326,6 +379,9 @@ function ContentOrcamentos({
 
     //atualizar lista de alteracoes dos campos de acordo
     setDirtyOrcamentoFields((oldDirty) => [...oldDirty, {}]);
+
+    //atualizar lista de warnings de acordo
+    setWarningsOrcamentos((oldWarnings) => [...oldWarnings, {}]);
   }
 
   function handleDeleteOrcamento(index) {
@@ -347,6 +403,13 @@ function ContentOrcamentos({
       newDirty.splice(index, 1);
       return newDirty;
     });
+
+    //atualizar lista de warnings de acordo
+    setWarningsOrcamentos((oldWarnings) => {
+      const newWarnings = [...oldWarnings];
+      newWarnings.splice(index, 1);
+      return newWarnings;
+    });
   }
 
   function handleSetOrcamentoCompra(index) {
@@ -359,13 +422,16 @@ function ContentOrcamentos({
       setDirtyOrcamentoFields((oldDirty) => {
         const newDirty = [...oldDirty];
         if (!newDirty[index]) newDirty[index] = {};
-
-        if (
-          initialOrcamentos[index].isOrcamentoCompra !==
-          newOrcamentos[index].isOrcamentoCompra
-        )
+        //caso nao esteja no banco
+        if (initialOrcamentos.length - 1 < index) {
           newDirty[index].isOrcamentoCompra = true;
-        else delete newDirty[index].posicao;
+        }
+        //caso nao esteja
+        else if (initialOrcamentos[index].isOrcamentoCompra) {
+          newDirty[index].isOrcamentoCompra = true;
+        } else {
+          delete newDirty[index].isOrcamentoCompra;
+        }
         return newDirty;
       });
       return;
@@ -381,15 +447,26 @@ function ContentOrcamentos({
           //orcamentoCompra atual
           const newDirty = [...oldDirty];
           if (!newDirty[i]) newDirty[i] = {};
-          if (initialOrcamentos[i].isOrcamentoCompra)
+          //caso nao esteja no banco
+          if (initialOrcamentos.length - 1 < i) {
+            delete newDirty[i].isOrcamentoCompra;
+          }
+          //caso esteja
+          else if (initialOrcamentos[i].isOrcamentoCompra)
             newDirty[i].isOrcamentoCompra = true;
           else delete newDirty[i].isOrcamentoCompra;
 
           //novo orcamentoCompra
           if (!newDirty[index]) newDirty[index] = {};
-          if (!initialOrcamentos[index].isOrcamentoCompra)
+
+          //caso nao esteja no banco
+          if (initialOrcamentos.length - 1 < index) {
             newDirty[index].isOrcamentoCompra = true;
-          else delete newDirty[index].isOrcamentoCompra;
+          }
+          //caso nao esteja
+          else if (!initialOrcamentos[index].isOrcamentoCompra) {
+            newDirty[index].isOrcamentoCompra = true;
+          } else delete newDirty[index].isOrcamentoCompra;
           return newDirty;
         });
         nenhumOrcamentoIsCompra = false;
@@ -404,7 +481,12 @@ function ContentOrcamentos({
         const newDirty = [...oldDirty];
 
         if (!newDirty[index]) newDirty[index] = {};
-        if (!initialOrcamentos[index].isOrcamentoCompra)
+        //caso nao esteja no banco
+        if (initialOrcamentos.length - 1 < index) {
+          newDirty[index].isOrcamentoCompra = true;
+        }
+        //caso nao esteja
+        else if (!initialOrcamentos[index].isOrcamentoCompra)
           newDirty[index].isOrcamentoCompra = true;
         else delete newDirty[index].isOrcamentoCompra;
         return newDirty;
@@ -533,6 +615,9 @@ function ContentOrcamentos({
                   label={"Data do orçamento"}
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[notEmptyCriteria]}
                 />
 
                 <div className={style.vh} />
@@ -548,6 +633,9 @@ function ContentOrcamentos({
                   label={"Nome do material / serviço"}
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[notEmptyCriteria]}
                 />
                 <TextInput
                   name="marca"
@@ -557,6 +645,9 @@ function ContentOrcamentos({
                   label={"Marca"}
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[notEmptyCriteria]}
                 />
                 <TextInput
                   name="modelo"
@@ -566,6 +657,9 @@ function ContentOrcamentos({
                   label={"Modelo"}
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[notEmptyCriteria]}
                 />
               </div>
 
@@ -580,6 +674,9 @@ function ContentOrcamentos({
                   label={"Favorecido (CNPJ)"}
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[cnpjCriteria, notEmptyCriteria]}
                 />
                 <TextInput
                   name="quantidade"
@@ -597,6 +694,9 @@ function ContentOrcamentos({
                       Number(newOrcamentos[index].frete);
                     return newOrcamentos;
                   }}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[notEmptyNumberCriteria]}
                 />
                 <TextInput
                   name="valorUnitario"
@@ -613,6 +713,9 @@ function ContentOrcamentos({
                       Number(newOrcamentos[index].frete);
                     return newOrcamentos;
                   }}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[notEmptyNumberCriteria]}
                 />
                 <TextInput
                   name="frete"
@@ -630,6 +733,9 @@ function ContentOrcamentos({
                       Number(value);
                     return newOrcamentos;
                   }}
+                  warnings={warningsOrcamentos}
+                  setWarnings={setWarningsOrcamentos}
+                  warningCriteria={[notEmptyNumberCriteria]}
                 />
                 <TextInput
                   name="valorTotal"
@@ -639,6 +745,7 @@ function ContentOrcamentos({
                   label={"Valor total"}
                   isNumber={true}
                   disabled={true}
+                  warnings={Array(orcamentos.length)} //temporario
                 />
               </div>
             </div>
@@ -765,7 +872,7 @@ function AnexoContent({
 
   function handleFileChange(e) {
     let file = e.target.files[0];
-    console.log(file);
+
     if (!file) {
       desanexar();
       return;

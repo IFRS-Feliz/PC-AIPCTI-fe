@@ -383,10 +383,24 @@
   grid-area: tools;
 
   display: flex;
-  flex-direction: column;
+  gap: 1rem;
 
   width: 1.5rem;
   margin-top: 0.5rem;
+}
+
+.toolsActions {
+  display: flex;
+  flex-direction: column;
+}
+
+.toolsWarning {
+  display: flex;
+  margin-top: 0.5rem;
+}
+
+.toolsWarning svg:hover {
+  cursor: pointer;
 }
 
 .tools button {

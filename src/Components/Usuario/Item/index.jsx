@@ -5,8 +5,15 @@ import { MainContent } from "./Contents";
 
 import style from "../../../assets/css/components/item.module.css";
 import Loading from "../../Loading";
+import { notEmptyCriteria } from "../../FormInputs";
 
-export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
+export default function Item({
+  itens,
+  index,
+  setItens,
+  dragHandleInnerProps,
+  handleTogglingModal,
+}) {
   const [content, setContent] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -22,10 +29,11 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
   const [anexoJustificativa, setAnexoJustificativa] = useState();
 
   const [isDirty, setIsDirty] = useState(false);
-
   const [dirtyItemFields, setDirtyItemFields] = useState({});
-
   const [dirtyOrcamentoFields, setDirtyOrcamentoFields] = useState([]);
+
+  const [warnings, setWarnings] = useState({});
+  const [warningsOrcamentos, setWarningsOrcamentos] = useState([]);
 
   function handleChangeContent(newContent) {
     if (content === newContent) setContent(null);
@@ -208,6 +216,7 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
         .get(`/orcamento?idItem=${item.id}`)
         .then((response) => {
           setOrcamentos(response.data.results);
+          setWarningsOrcamentos(Array(response.data.results.length));
           setInitialOrcamentos(response.data.results);
           setAnexosOrcamentos(Array(response.data.results.length));
           setDirtyOrcamentoFields(Array(response.data.results.length));
@@ -249,6 +258,8 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
     item.actionAnexo,
     orcamentos,
     initialOrcamentos,
+    setItens,
+    initialItem.posicao,
   ]);
 
   //atualizar a lista de itens do parent para refletir no valor gasto do resumo
@@ -270,6 +281,129 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
       return { ...oldInitialItem, posicao: posicao };
     });
   }, [posicao]);
+
+  //secao dos warnings
+  //realizar um check inicial e ao salvar
+  function checkInicial(newWarnings, initial, target) {
+    //check things
+
+    const nome = notEmptyCriteria(initial["nomeMaterialServico"]);
+    newWarnings["nomeMaterialServico"] = nome[0]
+      ? nome[1]
+      : newWarnings["nomeMaterialServico"];
+
+    const marca = notEmptyCriteria(initial["marca"]);
+    newWarnings["marca"] = marca[0] ? marca[1] : newWarnings["marca"];
+
+    const modelo = notEmptyCriteria(initial["modelo"]);
+    newWarnings["modelo"] = modelo[0] ? modelo[1] : newWarnings["modelo"];
+
+    const cnpjFavorecido = notEmptyCriteria(initial["cnpjFavorecido"]);
+    newWarnings["cnpjFavorecido"] = cnpjFavorecido[0]
+      ? cnpjFavorecido[1]
+      : newWarnings["cnpjFavorecido"];
+
+    const quantidade = notEmptyCriteria(initial["quantidade"]);
+    newWarnings["quantidade"] = quantidade[0]
+      ? quantidade[1]
+      : newWarnings["quantidade"];
+
+    const valorUnitario = notEmptyCriteria(initial["valorUnitario"]);
+    newWarnings["valorUnitario"] = valorUnitario[0]
+      ? valorUnitario[1]
+      : newWarnings["valorUnitario"];
+
+    const frete = notEmptyCriteria(initial["frete"]);
+    newWarnings["frete"] = frete[0] ? frete[1] : newWarnings["frete"];
+
+    const valorTotal = notEmptyCriteria(initial["valorTotal"]);
+    newWarnings["valorTotal"] = valorTotal[0]
+      ? valorTotal[1]
+      : newWarnings["valorTotal"];
+
+    if (target === "orcamento") {
+      const dataOrcamento = notEmptyCriteria(initial["dataOrcamento"]);
+      newWarnings["dataOrcamento"] = dataOrcamento[0]
+        ? dataOrcamento[1]
+        : newWarnings["dataOrcamento"];
+    } else if (target === "item") {
+      const descricao = notEmptyCriteria(initial["descricao"]);
+      newWarnings["descricao"] = descricao[0]
+        ? descricao[1]
+        : newWarnings["descricao"];
+
+      const tipo = notEmptyCriteria(initial["tipo"]);
+      newWarnings["tipo"] = tipo[0] ? tipo[1] : newWarnings["tipo"];
+
+      const tipoDocumentoFiscal = notEmptyCriteria(
+        initial["tipoDocumentoFiscal"]
+      );
+      newWarnings["tipoDocumentoFiscal"] = tipoDocumentoFiscal[0]
+        ? tipoDocumentoFiscal[1]
+        : newWarnings["tipoDocumentoFiscal"];
+
+      const dataCompra = notEmptyCriteria(initial["dataCompraContratacao"]);
+      newWarnings["dataCompraContratacao"] = dataCompra[0]
+        ? dataCompra[1]
+        : newWarnings["dataCompraContratacao"];
+
+      const numeroDocumentoFiscal = notEmptyCriteria(
+        initial["numeroDocumentoFiscal"]
+      );
+      newWarnings["numeroDocumentoFiscal"] = numeroDocumentoFiscal[0]
+        ? numeroDocumentoFiscal[1]
+        : newWarnings["numeroDocumentoFiscal"];
+    }
+
+    return newWarnings;
+  }
+  useEffect(() => {
+    setWarnings((oldWarnings) => {
+      let newWarnings = JSON.parse(JSON.stringify(oldWarnings));
+
+      newWarnings = checkInicial(newWarnings, initialItem, "item");
+
+      return newWarnings;
+    });
+  }, [initialItem]);
+
+  useEffect(() => {
+    if (initialOrcamentos.length === 0) return;
+    setWarningsOrcamentos((oldWarnings) => {
+      let newWarnings = JSON.parse(JSON.stringify(oldWarnings));
+
+      for (const [i] of initialOrcamentos.entries()) {
+        if (!newWarnings[i]) newWarnings[i] = {};
+
+        newWarnings[i] = checkInicial(
+          newWarnings[i],
+          initialOrcamentos[i],
+          "orcamento"
+        );
+      }
+
+      return newWarnings;
+    });
+  }, [initialOrcamentos]);
+
+  useEffect(() => {
+    setItens((oldItens) => {
+      const newItens = JSON.parse(JSON.stringify(oldItens));
+      newItens[index].isDirty = isDirty;
+      newItens[index].warnings = [warnings, warningsOrcamentos];
+      return newItens;
+    });
+  }, [warnings, warningsOrcamentos, index, setItens, isDirty]);
+
+  function hasWarnings(warnings) {
+    if (!warnings || warnings.length !== 2) return false;
+    if (Object.keys(warnings[0]).length > 0) return true;
+    for (const warningOrcameto of warnings[1]) {
+      if (warningOrcameto && Object.keys(warningOrcameto).length > 0)
+        return true;
+    }
+    return false;
+  }
 
   return (
     <div
@@ -343,38 +477,70 @@ export default function Item({ itens, index, setItens, dragHandleInnerProps }) {
               setDirtyOrcamentoFields={setDirtyOrcamentoFields}
               initialItem={initialItem}
               initialOrcamentos={initialOrcamentos}
+              //warnings
+              warnings={warnings}
+              setWarnings={setWarnings}
+              warningsOrcamentos={warningsOrcamentos}
+              setWarningsOrcamentos={setWarningsOrcamentos}
             />
           </div>
         )}
       </div>
       <div className={style.tools}>
-        <button
-          onClick={() => handleSave(item, orcamentos)}
-          disabled={!isDirty || isSaving}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 0 24 24"
-            width="24px"
-            fill="#000000"
+        <div className={style.toolsActions}>
+          <button
+            onClick={() => handleSave(item, orcamentos)}
+            disabled={!isDirty || isSaving}
           >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
-          </svg>
-        </button>
-        <button onClick={handleDelete} disabled={isSaving}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 0 24 24"
+              width="24px"
+              fill="#000000"
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+            </svg>
+          </button>
+          <button onClick={handleDelete} disabled={isSaving}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+          </button>
+        </div>
+        {hasWarnings([warnings, warningsOrcamentos]) && (
+          <WarningDiv
+            warnings={warnings}
+            handleTogglingModal={handleTogglingModal}
+            index={index}
+          />
+        )}
       </div>
+    </div>
+  );
+}
+
+function WarningDiv({ handleTogglingModal, index }) {
+  return (
+    <div className={style.toolsWarning}>
+      <svg
+        onClick={() => handleTogglingModal(index)}
+        xmlns="http://www.w3.org/2000/svg"
+        height="36px"
+        viewBox="0 0 24 24"
+        width="36px"
+        fill="#ffea00"
+      >
+        <path d="M0 0h24v24H0z" fill="none" />
+        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+      </svg>
     </div>
   );
 }
