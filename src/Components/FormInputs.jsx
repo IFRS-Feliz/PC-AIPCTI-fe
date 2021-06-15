@@ -10,15 +10,23 @@ function TextInput({
   objectToCompare,
   setDirtyFields,
   onChangeExtra,
+  warnings,
+  setWarnings,
+  warningCriteria,
   ...rest
 }) {
   let value = index === null ? object[name] : object[index][name];
   value = !value && value !== 0 ? "" : value;
 
+  let warning = index === null ? warnings[name] : warnings[index];
+  warning = warning && index !== null ? warning[name] : warning;
+
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
+      {warning && <WarningDiv warning={warning} />}
       <input
+        style={warning ? { border: "0.2rem solid #ffea00" } : {}}
         id={name}
         type={isNumber ? "number" : "text"}
         value={value}
@@ -32,11 +40,14 @@ function TextInput({
             objectToCompare,
             setDirtyFields,
             onChangeExtra,
+            setWarnings,
+            warningCriteria,
             isNumber
           )
         }
         {...rest}
       />
+      <br />
     </div>
   );
 }
@@ -50,12 +61,21 @@ function SelectInput({
   label,
   objectToCompare,
   setDirtyFields,
+  onChangeExtra,
+  warnings,
+  setWarnings,
+  warningCriteria,
   ...rest
 }) {
+  let warning = index === null ? warnings[name] : warnings[index];
+  warning = warning && index !== null ? warning[name] : warning;
+
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
+      {warning && <WarningDiv warning={warning} />}
       <select
+        style={warning ? { border: "0.2rem solid #ffea00" } : {}}
         id={name}
         type="text"
         value={index === null ? object[name] : object[index][name]}
@@ -67,7 +87,10 @@ function SelectInput({
             setObject,
             index,
             objectToCompare,
-            setDirtyFields
+            setDirtyFields,
+            onChangeExtra,
+            setWarnings,
+            warningCriteria
           )
         }
         {...rest}
@@ -86,12 +109,21 @@ function DateInput({
   label,
   objectToCompare,
   setDirtyFields,
+  onChangeExtra,
+  warnings,
+  setWarnings,
+  warningCriteria,
   ...rest
 }) {
+  let warning = index === null ? warnings[name] : warnings[index];
+  warning = warning && index !== null ? warning[name] : warning;
+
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
+      {warning && <WarningDiv warning={warning} />}
       <input
+        style={warning ? { border: "0.2rem solid #ffea00" } : {}}
         id={name}
         type="date"
         value={index === null ? object[name] || "" : object[index][name] || ""}
@@ -103,7 +135,10 @@ function DateInput({
             setObject,
             index,
             objectToCompare,
-            setDirtyFields
+            setDirtyFields,
+            onChangeExtra,
+            setWarnings,
+            warningCriteria
           )
         }
         {...rest}
@@ -167,6 +202,8 @@ function handleChange(
   objectToCompare,
   setDirtyFields,
   extra, //extra function to run on change
+  setWarnings,
+  warningCriteria = [],
   isNumber = false
 ) {
   let value =
@@ -181,7 +218,9 @@ function handleChange(
     setDirtyFields
   );
 
-  //caso seja parte de uma lista de objetos
+  handleSettingsWarnings(value, name, index, setWarnings, warningCriteria);
+
+  // caso seja parte de uma lista de objetos
   if (index !== null) {
     let newObject = JSON.parse(JSON.stringify(object));
     if (extra) newObject = extra(newObject, index, value);
@@ -254,4 +293,84 @@ function handleSettingDirtyFields(
   }
 }
 
-export { TextInput, SelectInput, DateInput, CheckBoxInput };
+function handleSettingsWarnings(
+  value,
+  name,
+  index,
+  setWarnings,
+  warningCriteria
+) {
+  if (setWarnings && warningCriteria.length > 0) {
+    setWarnings((oldWarnings) => {
+      const newWarnings = JSON.parse(JSON.stringify(oldWarnings));
+      warningCriteria.forEach((criteria) => {
+        const [hasWarning, warningMessage] = criteria(value);
+        const currentWarning =
+          index !== null
+            ? newWarnings[index]
+              ? newWarnings[index][name]
+              : undefined
+            : newWarnings[name];
+        const shouldDeleteCurrentMessage = currentWarning === warningMessage;
+        //caso haja um warning, setar
+        if (hasWarning) {
+          if (index !== null) {
+            //caso a lista de warnings nao tenha sido utilizada nessa posicao ainda
+            if (!newWarnings[index]) {
+              newWarnings[index] = { [name]: warningMessage };
+
+              //caso contrario
+            } else newWarnings[index][name] = warningMessage;
+          } else newWarnings[name] = warningMessage;
+
+          //caso nao tenha um warning
+        } else if (shouldDeleteCurrentMessage) {
+          if (index !== null) delete newWarnings[index][name];
+          else delete newWarnings[name];
+        }
+      });
+      return newWarnings;
+    });
+  }
+}
+
+function notEmptyCriteria(value) {
+  return [!value && value !== 0, "Vazio"];
+}
+
+function notEmptyNumberCriteria(value) {
+  return [!value && value !== 0, "Vazio"];
+}
+
+//provover a um erro, nao somente warning
+function cnpjCriteria(value) {
+  return [value.length !== 14, "Deve ter 14 caracteres"];
+}
+
+function WarningDiv({ warning }) {
+  return (
+    <div title={warning} style={{ marginLeft: "0.5rem" }}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        height="24px"
+        viewBox="0 0 24 24"
+        width="24px"
+        fill="#ffea00"
+      >
+        <path d="M0 0h24v24H0z" fill="none" />
+        <circle cx="12" cy="19" r="2" />
+        <path d="M10 3h4v12h-4z" />
+      </svg>
+    </div>
+  );
+}
+
+export {
+  TextInput,
+  SelectInput,
+  DateInput,
+  CheckBoxInput,
+  notEmptyCriteria,
+  notEmptyNumberCriteria,
+  cnpjCriteria,
+};

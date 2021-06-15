@@ -15,6 +15,12 @@ export default function Relatorio() {
 
   const [isPostingItem, setIsPostingItem] = useState(false);
 
+  const [alertModalContent, setAlertModalContent] = useState(null);
+  function handleTogglingModal(itemIdx) {
+    if (alertModalContent === itemIdx) setAlertModalContent(null);
+    else setAlertModalContent(itemIdx);
+  }
+
   useEffect(() => {
     axios
       .get(`/projeto/${id}`)
@@ -68,6 +74,22 @@ export default function Relatorio() {
       soma += Number(value.valorTotal);
     });
     return soma;
+  }
+
+  function dirtyItens() {
+    function hasWarnings(warnings) {
+      if (!warnings || warnings.length !== 2) return false;
+      if (Object.keys(warnings[0]).length > 0) return true;
+      for (const warningOrcameto of warnings[1]) {
+        if (warningOrcameto && Object.keys(warningOrcameto).length > 0)
+          return true;
+      }
+      return false;
+    }
+    const filtered = itens.filter(
+      (item) => item.isDirty || hasWarnings(item.warnings)
+    );
+    return filtered;
   }
 
   function handleAddItem() {
@@ -147,6 +169,7 @@ export default function Relatorio() {
                           index={index}
                           setItens={setItens}
                           dragHandleInnerProps={{ ...provided.dragHandleProps }}
+                          handleTogglingModal={handleTogglingModal}
                         />
                       </div>
                     )}
@@ -222,7 +245,6 @@ export default function Relatorio() {
                     <strong>Valor total:</strong>
                   </p>
                   <p>
-                    {" "}
                     {valorTotalItens(
                       "custeio"
                     ).valorTotalDespesa.toLocaleString("pt-br", {
@@ -234,7 +256,6 @@ export default function Relatorio() {
                     <strong>Valor gasto:</strong>
                   </p>
                   <p>
-                    {" "}
                     {valorTotalItens("custeio").soma.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
@@ -244,7 +265,6 @@ export default function Relatorio() {
                     <strong>Valor restante:</strong>
                   </p>
                   <p>
-                    {" "}
                     {valorTotalItens("custeio").resto.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
@@ -323,6 +343,164 @@ export default function Relatorio() {
           </button>
         </div>
       </abbr>
+
+      {alertModalContent !== null && (
+        <WarningsModal
+          warnings={itens[alertModalContent].warnings}
+          isDirty={itens[alertModalContent].isDirty}
+          setAlertModalContent={setAlertModalContent}
+          posicao={alertModalContent}
+          name={itens[alertModalContent].nomeMaterialServico || "Novo item"}
+        />
+      )}
+      <div>
+        <h3>Verifique os seguintes itens:</h3>
+        <br />
+        <span>
+          {dirtyItens().map((item) => (
+            <div
+              key={item.id}
+              onClick={() => handleTogglingModal(item.posicao)}
+            >
+              <p>
+                {item.posicao + 1} - {item.nomeMaterialServico || "Novo item"}
+              </p>
+              <br />
+              <br />
+            </div>
+          ))}
+        </span>
+      </div>
     </>
   );
+}
+
+function WarningsModal({
+  warnings,
+  isDirty,
+  setAlertModalContent,
+  posicao,
+  name,
+}) {
+  const informacoes = warnings ? warnings[0] : null;
+  const orcamentos = warnings ? warnings[1] : null;
+
+  const informacoesContent = informacoes
+    ? Object.keys(informacoes).map((propriedade) => {
+        const warning = informacoes[propriedade];
+        let name = getName(propriedade);
+        if (warning) {
+          return <p key={propriedade}>{`${name}: ${warning}`}</p>;
+        }
+        return "";
+      })
+    : [];
+  const orcamentoContent = orcamentos
+    ? orcamentos.map((orcamento, i) => {
+        let content = [];
+        Object.keys(orcamento).forEach((propriedade) => {
+          const warning = orcamento[propriedade];
+          let name = getName(propriedade);
+          if (warning) {
+            content.push(<p key={propriedade}>{`${name}: ${warning}`}</p>);
+          }
+        });
+
+        if (content.length > 0) {
+          return (
+            <div key={i}>
+              <h3>Orcamento {i + 1}: </h3> {content}
+            </div>
+          );
+        }
+        return "";
+      })
+    : [];
+
+  return (
+    <div
+      onClick={() => setAlertModalContent(null)}
+      style={{
+        position: "fixed",
+        top: "0",
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: "1",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ backgroundColor: "lightgray", padding: "2rem" }}
+      >
+        {isDirty && <div>Existem mudanças pendendes - salve para resolver</div>}
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="36px"
+              viewBox="0 0 24 24"
+              width="36px"
+              fill="#ffea00"
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+            </svg>
+            <h2>{`Item ${posicao + 1} - ${name}`}</h2>
+          </div>
+          {informacoesContent.filter((info) => info !== "").length ? (
+            <>
+              <h3>Item:</h3>
+              {informacoesContent}
+            </>
+          ) : (
+            ""
+          )}
+        </div>
+        <div>
+          {orcamentoContent.filter((orcamento) => orcamento !== "").length
+            ? orcamentoContent
+            : ""}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function getName(propriedade) {
+  switch (propriedade) {
+    case "descricao":
+      return "Descrição";
+    case "tipo":
+      return "Tipo";
+    case "nomeMaterialServico":
+      return "Nome do material / serviço";
+    case "marca":
+      return "Marca";
+    case "modelo":
+      return "Modelo";
+    case "tipoDocumentoFiscal":
+      return "Tipo do documento fiscal";
+    case "dataCompraContratacao":
+      return "Data da compra";
+    case "cnpjFavorecido":
+      return "Favorecido (CNPJ)";
+    case "quantidade":
+      return "Quantidade";
+    case "valorUnitario":
+      return "Valor unitário";
+    case "frete":
+      return "Valor do frete";
+    case "valorTotal":
+      return "Valor total";
+    case "numeroDocumentoFiscal":
+      return "N° do documento fiscal";
+    case "dataOrcamento":
+      return "Data do orçamento";
+
+    default:
+      return propriedade;
+  }
 }
