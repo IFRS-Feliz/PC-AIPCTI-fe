@@ -25,9 +25,6 @@
   margin-right: 0.5rem;
 }
 
-.section {
-}
-
 .sectionHeader {
   display: grid;
   margin-bottom: 1rem;
@@ -148,8 +145,8 @@
   overflow: hidden;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
 
-  gap: 0.2rem;
-  background-color: #fff;
+  gap: 0.1rem;
+  background-color: #e2e2e2;
 }
 
 .resumoCapital,
@@ -163,8 +160,8 @@
 .resumoCusteio {
   grid-area: resumoCusteio;
   background-color: #5390d9;
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
+  /* border-top-right-radius: 0.5rem; */
+  /* border-bottom-right-radius: 0.5rem; */
   border-bottom-left-radius: 0.5rem;
   overflow: hidden;
 }
@@ -172,16 +169,16 @@
 .resumoCapital {
   grid-area: resumoCapital;
   background-color: #5390d9;
-  border-top-left-radius: 0.5rem;
+  /* border-top-left-radius: 0.5rem; */
   border-bottom-right-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
+  /* border-bottom-left-radius: 0.5rem; */
   overflow: hidden;
 }
 
 .resumoTotal {
   grid-area: resumoTotal;
   align-items: flex-end;
-  background-color: #fff;
+  background-color: transparent;
 }
 
 .resumoTotal p {
@@ -198,12 +195,12 @@
 
 .resumoCusteio .tituloResumo {
   background-color: #6930c3;
-  border-bottom: 0.2rem solid #fff;
+  border-bottom: 0.1rem solid #e2e2e2;
 }
 
 .resumoCapital .tituloResumo {
   background-color: #6930c3;
-  border-bottom: 0.2rem solid #fff;
+  border-bottom: 0.1rem solid #e2e2e2;
 }
 
 .informacoesResumo {
@@ -243,6 +240,7 @@
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   transition: 0.2s ease;
+  z-index: 1;
 }
 
 .buttonCreatePDF button {
@@ -259,4 +257,111 @@
   transform: scale(1.1);
   background-color: #91211f;
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
+}
+
+/* Modal Warnings */
+
+@keyframes openWarning {
+  to {
+    width: 600px;
+    height: 400px;
+    opacity: 1;
+  }
+}
+
+.modalWarning {
+  animation: openWarning 0.2s ease forwards;
+  opacity: 0;
+
+  background-color: lightgray;
+  position: relative;
+  width: 0px;
+  height: 0px;
+  overflow: auto;
+  margin-top: 4rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.26);
+}
+
+@keyframes tituloWarning {
+  to {
+    width: 600px;
+    height: 48px;
+    opacity: 1;
+  }
+}
+
+.tituloModal {
+  animation: tituloWarning 0.2s ease forwards;
+  opacity: 0;
+
+  position: fixed;
+  display: grid;
+  grid-template-columns: 1fr 6fr 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: "svg div";
+
+  align-items: center;
+  justify-items: center;
+  background: #ca302d;
+  padding: 0.5rem 0;
+  transform: translate(0, -4rem);
+  width: 0;
+  height: 0;
+
+  border-radius: 0.5rem 0.5rem 0 0;
+  box-shadow: 3px 0px 3px rgba(0, 0, 0, 0.26);
+}
+
+.tituloModal svg {
+  grid-area: svg;
+}
+
+.tituloModal div h2 {
+  color: white;
+  text-align: center;
+}
+
+.tituloModal div {
+  grid-area: div;
+  color: white;
+}
+
+/* Warnings */
+
+.contentFormWarning {
+  background-color: #ca302d;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.contentFormWarning h3 {
+  background: #91211f;
+  border-bottom: 0.2rem solid #92504f;
+  color: white;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.contentFormWarning span {
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contentFormWarning span div p {
+  color: white;
+  padding: 0.5rem;
+  cursor: pointer;
+  width: fit-content;
+
+  transition: 0.2s ease transform;
+}
+
+.contentFormWarning span div p:hover {
+  transform: scale(1.3);
 }

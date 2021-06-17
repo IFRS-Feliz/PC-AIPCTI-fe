@@ -536,10 +536,14 @@ function WarningDiv({ handleTogglingModal, index }) {
         height="36px"
         viewBox="0 0 24 24"
         width="36px"
-        fill="#ffea00"
+        fill="#000000"
       >
-        <path d="M0 0h24v24H0z" fill="none" />
-        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+        <path
+          d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+          opacity="1"
+          fill="yellow"
+        />
+        <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
       </svg>
     </div>
   );

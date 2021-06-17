@@ -199,7 +199,10 @@ export default function Relatorio() {
         </button>
       </div>
 
-      <div className={style.section}>
+      <div
+        className={style.section}
+        style={itens.length === 0 ? { display: "none" } : {}}
+      >
         <div className={style.sectionHeader}>
           <div>
             <h1>GRU - Guia de Recolhimento da União</h1>
@@ -353,23 +356,26 @@ export default function Relatorio() {
           name={itens[alertModalContent].nomeMaterialServico || "Novo item"}
         />
       )}
-      <div>
-        <h3>Verifique os seguintes itens:</h3>
-        <br />
-        <span>
-          {dirtyItens().map((item) => (
-            <div
-              key={item.id}
-              onClick={() => handleTogglingModal(item.posicao)}
-            >
-              <p>
-                {item.posicao + 1} - {item.nomeMaterialServico || "Novo item"}
-              </p>
-              <br />
-              <br />
-            </div>
-          ))}
-        </span>
+      <div
+        className={style.sectionHeader}
+        style={itens.length === 0 ? { display: "none" } : {}}
+      >
+        <div className={style.contentFormWarning}>
+          <h3>Verifique os seguintes itens:</h3>
+
+          <span>
+            {dirtyItens().map((item) => (
+              <div
+                key={item.id}
+                onClick={() => handleTogglingModal(item.posicao)}
+              >
+                <p>
+                  {item.posicao + 1} - {item.nomeMaterialServico || "Novo item"}
+                </p>
+              </div>
+            ))}
+          </span>
+        </div>
       </div>
     </>
   );
@@ -390,7 +396,11 @@ function WarningsModal({
         const warning = informacoes[propriedade];
         let name = getName(propriedade);
         if (warning) {
-          return <p key={propriedade}>{`${name}: ${warning}`}</p>;
+          return (
+            <li key={propriedade} style={{ marginLeft: "2.5rem" }}>
+              <p>{`${name}: ${warning}`}</p>
+            </li>
+          );
         }
         return "";
       })
@@ -402,13 +412,17 @@ function WarningsModal({
           const warning = orcamento[propriedade];
           let name = getName(propriedade);
           if (warning) {
-            content.push(<p key={propriedade}>{`${name}: ${warning}`}</p>);
+            content.push(
+              <li key={propriedade} style={{ marginLeft: "2.5rem" }}>
+                <p>{`${name}: ${warning}`}</p>
+              </li>
+            );
           }
         });
 
         if (content.length > 0) {
           return (
-            <div key={i}>
+            <div key={i} style={{ margin: "1rem 0" }}>
               <h3>Orcamento {i + 1}: </h3> {content}
             </div>
           );
@@ -429,37 +443,43 @@ function WarningsModal({
         justifyContent: "center",
         alignItems: "center",
         zIndex: "1",
+        backgroundColor: "rgba(0,0,0,0.5)",
       }}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{ backgroundColor: "lightgray", padding: "2rem" }}
-      >
-        {isDirty && <div>Existem mudanças pendendes - salve para resolver</div>}
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="36px"
-              viewBox="0 0 24 24"
-              width="36px"
-              fill="#ffea00"
-            >
-              <path d="M0 0h24v24H0z" fill="none" />
-              <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-            </svg>
+      <div onClick={(e) => e.stopPropagation()} className={style.modalWarning}>
+        <div className={style.tituloModal}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="36px"
+            viewBox="0 0 24 24"
+            width="36px"
+            fill="#000000"
+          >
+            <path
+              d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+              opacity="1"
+              fill="yellow"
+            />
+            <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+          </svg>
+          <div>
             <h2>{`Item ${posicao + 1} - ${name}`}</h2>
+            {isDirty && (
+              <div>Existem mudanças pendendes - salve para resolver</div>
+            )}
           </div>
+        </div>
+        <div>
           {informacoesContent.filter((info) => info !== "").length ? (
-            <>
-              <h3>Item:</h3>
+            <div style={{ margin: "1rem 2rem" }}>
+              <h3>Informações:</h3>
               {informacoesContent}
-            </>
+            </div>
           ) : (
             ""
           )}
         </div>
-        <div>
+        <div style={{ margin: "1rem 2rem" }}>
           {orcamentoContent.filter((orcamento) => orcamento !== "").length
             ? orcamentoContent
             : ""}
