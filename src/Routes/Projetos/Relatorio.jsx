@@ -7,6 +7,7 @@ import Item from "../../Components/Usuario/Item";
 
 import style from "../../assets/css/routes/relatorio.module.css";
 import Loading from "../../Components/Loading";
+import Gru from "./Gru";
 
 export default function Relatorio() {
   const { id } = useParams();
@@ -42,39 +43,45 @@ export default function Relatorio() {
       .catch((e) => console.log(e));
   }, [id]);
 
-  function valorTotalItens(despesa) {
-    let valorTotalDespesa = 0;
-    let soma = 0;
-    let resto;
+  const [totalDevolvidoGru, setTotalDevolvidoGru] = useState(0);
 
-    if (despesa === "custeio") {
-      valorTotalDespesa = Number(projeto.valorRecebidoCusteio);
-    } else {
-      valorTotalDespesa = Number(projeto.valorRecebidoCapital);
-    }
+  function valorTotalItens() {
+    let somaCusteio = 0;
+    let somaCapital = 0;
 
-    itens.forEach((value) => {
-      if (value.despesa === despesa) {
-        soma += Number(value.valorTotal);
+    let valorTotalCusteio = Number(projeto.valorRecebidoCusteio);
+    let valorTotalCapital = Number(projeto.valorRecebidoCapital);
+
+    itens.forEach((item) => {
+      if (item.despesa === "custeio") {
+        somaCusteio += Number(item.valorTotal);
+      } else {
+        somaCapital += Number(item.valorTotal);
       }
     });
 
-    resto = Number(valorTotalDespesa) - Number(soma);
+    let restoCusteio = Number(valorTotalCusteio) - Number(somaCusteio);
+
+    let restoCapital = Number(valorTotalCapital) - Number(somaCapital);
 
     return {
-      valorTotalDespesa,
-      soma,
-      resto,
+      valorTotalCusteio,
+      valorTotalCapital,
+      somaCusteio,
+      somaCapital,
+      restoCusteio,
+      restoCapital,
     };
   }
 
-  function valorTotal() {
-    let soma = 0;
-    itens.forEach((value) => {
-      soma += Number(value.valorTotal);
-    });
-    return soma;
-  }
+  const {
+    valorTotalCusteio,
+    valorTotalCapital,
+    somaCusteio,
+    somaCapital,
+    restoCusteio,
+    restoCapital,
+  } = valorTotalItens();
 
   function dirtyItens() {
     function hasWarnings(warnings) {
@@ -201,35 +208,11 @@ export default function Relatorio() {
 
       <div className={style.section}>
         <div className={style.sectionHeader}>
-          <div>
-            <h1>GRU - Guia de Recolhimento da União</h1>
-            <div className={style.mainContentGru}>
-              <form onSubmit={(e) => e.preventDefault()}>
-                <div className={style.divTop}>
-                  <label htmlFor="valorGru">
-                    <p>Valor devolvido:</p>
-                  </label>
-                  <input
-                    type="number"
-                    name="valorGru"
-                    id="valorGru"
-                    placeholder="Digite o valor aqui"
-                  />
-                </div>
-                <div className={style.divBottom}>
-                  <p>não anexado/visualizar</p>
-                  <div style={{ display: "flex", height: "100%" }}>
-                    <button>Desanexar</button>
-                    <label htmlFor="anexarGru">
-                      <p>Anexar GRU</p>
-                    </label>
-                    <input type="file" name="anexarGru" id="anexarGru" hidden />
-                    <button>Download</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
+          <Gru
+            idProjeto={id}
+            valorRestante={restoCusteio + restoCapital}
+            setTotalDevolvido={setTotalDevolvidoGru}
+          />
         </div>
       </div>
 
@@ -242,12 +225,10 @@ export default function Relatorio() {
                 <p className={style.tituloResumo}>Custos custeio</p>
                 <div className={style.informacoesResumo}>
                   <p>
-                    <strong>Valor total:</strong>
+                    <strong>Valor recebido:</strong>
                   </p>
                   <p>
-                    {valorTotalItens(
-                      "custeio"
-                    ).valorTotalDespesa.toLocaleString("pt-br", {
+                    {valorTotalCusteio.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
@@ -256,7 +237,7 @@ export default function Relatorio() {
                     <strong>Valor gasto:</strong>
                   </p>
                   <p>
-                    {valorTotalItens("custeio").soma.toLocaleString("pt-br", {
+                    {somaCusteio.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
@@ -265,7 +246,7 @@ export default function Relatorio() {
                     <strong>Valor restante:</strong>
                   </p>
                   <p>
-                    {valorTotalItens("custeio").resto.toLocaleString("pt-br", {
+                    {restoCusteio.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
@@ -276,12 +257,10 @@ export default function Relatorio() {
                 <p className={style.tituloResumo}>Custos capital</p>
                 <div className={style.informacoesResumo}>
                   <p>
-                    <strong>Valor total:</strong>
+                    <strong>Valor recebido:</strong>
                   </p>
                   <p>
-                    {valorTotalItens(
-                      "capital"
-                    ).valorTotalDespesa.toLocaleString("pt-br", {
+                    {valorTotalCapital.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
@@ -290,7 +269,7 @@ export default function Relatorio() {
                     <strong>Valor gasto:</strong>
                   </p>
                   <p>
-                    {valorTotalItens("capital").soma.toLocaleString("pt-br", {
+                    {somaCapital.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
@@ -299,7 +278,7 @@ export default function Relatorio() {
                     <strong>Valor restante:</strong>
                   </p>
                   <p>
-                    {valorTotalItens("capital").resto.toLocaleString("pt-br", {
+                    {restoCapital.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
@@ -309,16 +288,19 @@ export default function Relatorio() {
               <div className={style.resumoTotal}>
                 <p>
                   Total gasto:{" "}
-                  {valorTotal().toLocaleString("pt-br", {
+                  {(somaCapital + somaCusteio).toLocaleString("pt-br", {
                     style: "currency",
                     currency: "BRL",
                   })}
                 </p>
                 <p>
                   Total restante:{" "}
-                  {(
-                    Number(projeto.valorRecebidoTotal) - Number(valorTotal())
-                  ).toLocaleString("pt-br", {
+                  {(restoCapital + restoCusteio).toLocaleString("pt-br", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}{" "}
+                  | Total devolvido (GRU):{" "}
+                  {totalDevolvidoGru.toLocaleString("pt-br", {
                     style: "currency",
                     currency: "BRL",
                   })}
