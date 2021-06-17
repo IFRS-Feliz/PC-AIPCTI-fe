@@ -5,18 +5,20 @@ import axios from "../../axios";
 import Loading from "../../Components/Loading";
 
 export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
-  const [gru, setGru] = useState({ idProjeto: idProjeto });
+  const [gru, setGru] = useState({ idProjeto: idProjeto, valorTotal: 0 });
   const [valorTotalInicial, setValorTotalInicial] = useState(0);
 
   const [blobGru, setBlobGru] = useState();
   const [blobComprovante, setBlobComprovante] = useState();
 
   const [isFetching, setIsFetching] = useState(false);
+  const [wasHovered, setWasHovered] = useState(false);
 
   useEffect(() => {
     axios
       .get(`/projeto/${idProjeto}/gru`)
       .then((response) => {
+        if (!response.data.results.length) return;
         setGru({ ...response.data.results[0], idProjeto: idProjeto });
         const { valorTotal } = response.data.results[0];
         setValorTotalInicial(valorTotal);
@@ -176,7 +178,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
     setIsFetching(true);
     let actions = [];
     //caso haja um arquivo da gru e ele ja nao tenha sido baixado
-    if (gru.pathAnexoGru && !blobGru) {
+    if (gru.pathAnexoGru && !blobGru && !gru.actionAnexoGru) {
       actions.push(
         axios
           .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGru`)
@@ -192,7 +194,11 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
       );
     }
     //mesma logica para o comprovante
-    if (gru.pathAnexoComprovante && !blobComprovante) {
+    if (
+      gru.pathAnexoComprovante &&
+      !blobComprovante &&
+      !gru.actionAnexoComprovante
+    ) {
       actions.push(
         axios
           .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoComprovante`)
@@ -209,7 +215,10 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
     }
 
     //apos baixar os arquivos, remover spinner de loading
-    Promise.all(actions).finally(() => setIsFetching(false));
+    Promise.all(actions).finally(() => {
+      setIsFetching(false);
+      setWasHovered(true);
+    });
   }
 
   const gruBlobURL = blobGru ? URL.createObjectURL(blobGru) : "";
@@ -271,15 +280,19 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
               <a href={gruBlobURL} target="_blank" rel="noreferrer">
                 <p>Visualizar GRU</p>
               </a>
-            ) : (
+            ) : wasHovered ? (
               <p>SVG warning GRU não anexada</p>
+            ) : (
+              <p>...</p>
             )}
             {comprovanteBlobURL ? (
               <a href={comprovanteBlobURL} target="_blank" rel="noreferrer">
                 <p>Visualizar Comprovante</p>
               </a>
-            ) : (
+            ) : wasHovered ? (
               <p>SVG warning Comprovante não anexado</p>
+            ) : (
+              <p>...</p>
             )}
 
             <div style={{ display: "flex", height: "100%" }}>
