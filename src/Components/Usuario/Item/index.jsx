@@ -200,6 +200,13 @@ export default function Item({
           setOrcamentos(orcs);
           setInitialOrcamentos(orcs);
           setDirtyOrcamentoFields([Array(orcs.length)]);
+
+          //atualizar lista de itens do componente pai para refletir valores no resumo
+          setItens((oldItens) => {
+            const newItens = [...oldItens];
+            newItens[index] = initialItem;
+            return newItens;
+          });
         })
         .catch((e) => {
           console.log(e);
@@ -261,15 +268,6 @@ export default function Item({
     setItens,
     initialItem.posicao,
   ]);
-
-  //atualizar a lista de itens do parent para refletir no valor gasto do resumo
-  useEffect(() => {
-    setItens((oldItens) => {
-      const newItens = [...oldItens];
-      newItens[initialItem.posicao] = initialItem;
-      return newItens;
-    });
-  }, [initialItem, setItens, initialItem.posicao]);
 
   //verificar se posicao sofreu mudancas por drag and drop
   const posicao = itens[index].posicao;

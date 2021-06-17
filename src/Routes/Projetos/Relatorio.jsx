@@ -15,6 +15,7 @@ export default function Relatorio() {
   const [itens, setItens] = useState([]);
 
   const [isPostingItem, setIsPostingItem] = useState(false);
+  const [isReordenandoItens, setIsReordenandoItens] = useState(false);
 
   const [alertModalContent, setAlertModalContent] = useState(null);
   function handleTogglingModal(itemIdx) {
@@ -138,6 +139,7 @@ export default function Relatorio() {
             //caso tenha sido droppado no mesmo lugar onde ja estava
             if (result.source.index === result.destination.index) return;
 
+            setIsReordenandoItens(true);
             //criar lista com itens reordanados
             const itensCopy = JSON.parse(JSON.stringify(itens));
             const [deleted] = itensCopy.splice(result.source.index, 1);
@@ -157,19 +159,21 @@ export default function Relatorio() {
               })
               .catch(() => {
                 alert("Não foi possível alterar a ordem dos itens");
-              });
+              })
+              .finally(() => setIsReordenandoItens(false));
           }}
         >
           <Droppable droppableId="itens">
-            {(provided, snapshot) => (
+            {(provided, _snapshot) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
+                {isReordenandoItens && <Loading />}
                 {itens.map((item, index) => (
                   <Draggable
                     draggableId={String(item.id)}
                     key={item.id}
                     index={index}
                   >
-                    {(provided, snapshot) => (
+                    {(provided, _snapshot) => (
                       <div ref={provided.innerRef} {...provided.draggableProps}>
                         <Item
                           itens={itens}
