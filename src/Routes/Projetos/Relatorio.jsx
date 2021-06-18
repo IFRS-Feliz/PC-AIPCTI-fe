@@ -1,5 +1,6 @@
 import axios from "../../axios";
-import { useEffect, useState } from "react";
+import axiosDefault from "axios";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 
@@ -15,12 +16,41 @@ export default function Relatorio() {
   const [itens, setItens] = useState([]);
 
   const [isPostingItem, setIsPostingItem] = useState(false);
+  const [isReordenandoItens, setIsReordenandoItens] = useState(false);
 
   const [alertModalContent, setAlertModalContent] = useState(null);
   function handleTogglingModal(itemIdx) {
     if (alertModalContent === itemIdx) setAlertModalContent(null);
     else setAlertModalContent(itemIdx);
   }
+
+  const [relatorioUrl, setRelatorioUrl] = useState();
+  const relatorioDownload = useRef();
+
+  function handleRequestRelatorio() {
+    axiosDefault
+      .get(`http://localhost:5000/projeto/${id}/relatorio`, {
+        responseType: "arraybuffer",
+        headers: {
+          authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+      .then((response) => {
+        const data = response.data;
+        const blob = new Blob([data], {
+          type: "application/octet-stream",
+        });
+        const url = URL.createObjectURL(blob);
+        setRelatorioUrl(url);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
+
+  useEffect(() => {
+    if (relatorioUrl) relatorioDownload.current.click();
+  }, [relatorioUrl]);
 
   useEffect(() => {
     axios
@@ -138,6 +168,7 @@ export default function Relatorio() {
             //caso tenha sido droppado no mesmo lugar onde ja estava
             if (result.source.index === result.destination.index) return;
 
+            setIsReordenandoItens(true);
             //criar lista com itens reordanados
             const itensCopy = JSON.parse(JSON.stringify(itens));
             const [deleted] = itensCopy.splice(result.source.index, 1);
@@ -157,19 +188,21 @@ export default function Relatorio() {
               })
               .catch(() => {
                 alert("Não foi possível alterar a ordem dos itens");
-              });
+              })
+              .finally(() => setIsReordenandoItens(false));
           }}
         >
           <Droppable droppableId="itens">
-            {(provided, snapshot) => (
+            {(provided, _snapshot) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
+                {isReordenandoItens && <Loading />}
                 {itens.map((item, index) => (
                   <Draggable
                     draggableId={String(item.id)}
                     key={item.id}
                     index={index}
                   >
-                    {(provided, snapshot) => (
+                    {(provided, _snapshot) => (
                       <div ref={provided.innerRef} {...provided.draggableProps}>
                         <Item
                           itens={itens}
@@ -314,8 +347,18 @@ export default function Relatorio() {
         </div>
       </div>
       <abbr title="Clique aqui para gerar o PDF do relatório">
+        {/* link invisivel clicado pelo ref após requisicao do relatorio */}
+        <a
+          download={"relatorio.zip"}
+          disabled={!relatorioUrl}
+          ref={relatorioDownload}
+          href={relatorioUrl}
+          hidden
+        >
+          {relatorioUrl ? "download relatorio" : "relatorio nao gerado"}
+        </a>
         <div className={style.buttonCreatePDF}>
-          <button>
+          <button onClick={handleRequestRelatorio}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="24"
