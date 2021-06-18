@@ -173,6 +173,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
 
   //baixar arquivos inicialmente on mouse over
   function handleMouseOver() {
+    setWasHovered(true);
     if (gru.id === undefined) return;
 
     setIsFetching(true);
@@ -217,7 +218,6 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
     //apos baixar os arquivos, remover spinner de loading
     Promise.all(actions).finally(() => {
       setIsFetching(false);
-      setWasHovered(true);
     });
   }
 
