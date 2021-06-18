@@ -242,10 +242,27 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
         }}
       >
         GRU - Guia de Recolhimento da União{" "}
-        <div style={{ display: "flex", gap: "1rem" }}>
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <p>{hasChanges && "Há alterações não salvas "}</p>
-          <button onClick={handleSave} disabled={!hasChanges}>
-            Salvar
+          <button
+            onClick={handleSave}
+            disabled={!hasChanges}
+            style={{
+              border: "none",
+              backgroundColor: "transparent",
+            }}
+          >
+            <svg
+              style={{ fill: "#ca302d", transform: "translateY(0.1rem)" }}
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 0 24 24"
+              width="24px"
+              fill="#000000"
+            >
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+            </svg>
           </button>
         </div>
       </h1>
@@ -263,8 +280,9 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
                 )
               </p>
             </label>
-            {!gru.valorTotal && "SVG warning"}
+            {!gru.valorTotal && <div className={style.svgInputGru}>!</div>}
             <input
+              style={!gru.valorTotal ? { border: "0.2rem solid #ffea00" } : {}}
               type="number"
               name="valorGru"
               id="valorGru"
@@ -275,27 +293,35 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
               }
             />
           </div>
-          <div className={style.divBottom}>
+
+          <div className={style.containerGru}>
             {gruBlobURL ? (
               <a href={gruBlobURL} target="_blank" rel="noreferrer">
                 <p>Visualizar GRU</p>
               </a>
             ) : wasHovered ? (
-              <p>SVG warning GRU não anexada</p>
+              <p style={{ display: "flex", justifyContent: "center" }}>
+                <svg
+                  style={{ transform: "translateY(-0.2rem)" }}
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 0 24 24"
+                  width="24px"
+                  fill="#000000"
+                >
+                  <path
+                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                    opacity="1"
+                    fill="#ffea00"
+                  />
+                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                </svg>{" "}
+                GRU não anexada
+              </p>
             ) : (
               <p>...</p>
             )}
-            {comprovanteBlobURL ? (
-              <a href={comprovanteBlobURL} target="_blank" rel="noreferrer">
-                <p>Visualizar Comprovante</p>
-              </a>
-            ) : wasHovered ? (
-              <p>SVG warning Comprovante não anexado</p>
-            ) : (
-              <p>...</p>
-            )}
-
-            <div style={{ display: "flex", height: "100%" }}>
+            <div>
               <button onClick={desanexarGru} disabled={!blobGru}>
                 Desanexar
               </button>
@@ -316,11 +342,41 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
                   !gruBlobURL ? { pointerEvents: "none", opacity: "50%" } : {}
                 }
               >
-                Download
+                <p>Download</p>
               </a>
+            </div>
+          </div>
 
-              {}
+          {}
 
+          <div className={style.containerComprovante}>
+            {comprovanteBlobURL ? (
+              <a href={comprovanteBlobURL} target="_blank" rel="noreferrer">
+                <p>Visualizar Comprovante</p>
+              </a>
+            ) : wasHovered ? (
+              <p style={{ display: "flex", justifyContent: "center" }}>
+                <svg
+                  style={{ transform: "translateY(-0.2rem)" }}
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 0 24 24"
+                  width="24px"
+                  fill="#000000"
+                >
+                  <path
+                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                    opacity="1"
+                    fill="#ffea00"
+                  />
+                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                </svg>{" "}
+                Comprovante não anexado
+              </p>
+            ) : (
+              <p>...</p>
+            )}
+            <div>
               <button
                 onClick={desanexarComprovante}
                 disabled={!blobComprovante}
@@ -328,7 +384,9 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
                 Desanexar
               </button>
               <label htmlFor="sla">
-                <p>Anexar Comprovante</p>
+                <p>
+                  Anexar <br /> Comprovante
+                </p>
               </label>
               <input
                 onChange={handleComprovanteChange}
@@ -348,7 +406,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
                     : {}
                 }
               >
-                Download
+                <p>Download</p>
               </a>
             </div>
           </div>

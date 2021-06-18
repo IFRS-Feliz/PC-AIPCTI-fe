@@ -380,7 +380,7 @@ function WarningsModal({
         if (warning) {
           return (
             <li key={propriedade} style={{ marginLeft: "2.5rem" }}>
-              <p>{`${name}: ${warning}`}</p>
+              <p>- {`${name}: ${warning}`}</p>
             </li>
           );
         }
@@ -396,7 +396,7 @@ function WarningsModal({
           if (warning) {
             content.push(
               <li key={propriedade} style={{ marginLeft: "2.5rem" }}>
-                <p>{`${name}: ${warning}`}</p>
+                <p>- {`${name}: ${warning}`}</p>
               </li>
             );
           }
