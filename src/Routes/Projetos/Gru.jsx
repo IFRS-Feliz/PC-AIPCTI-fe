@@ -241,7 +241,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
           alignItems: "center",
         }}
       >
-        GRU - Guia de Recolhimento da União{" "}
+        GRU - GRU - Guia de Recolhimento da União{" "}
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <p>{hasChanges && "Há alterações não salvas "}</p>
           <button
@@ -268,10 +268,10 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
       </h1>
       <div className={style.mainContentGru}>
         <form onSubmit={(e) => e.preventDefault()}>
-          <div className={style.divTop}>
-            <label htmlFor="valorGru">
-              <p>Valor devolvido:</p>
-              <p style={{ fontSize: "0.8rem" }}>
+          <div className={style.divTopCusteio}>
+            <label htmlFor="valorGruCusteio">
+              <p>Valor devolvido custeio:</p>
+              <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
                 (Valor restante:{" "}
                 {valorRestante.toLocaleString("pt-br", {
                   style: "currency",
@@ -285,7 +285,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
               style={!gru.valorTotal ? { border: "0.2rem solid #ffea00" } : {}}
               type="number"
               name="valorGru"
-              id="valorGru"
+              id="valorGruCusteio"
               placeholder="Digite o valor aqui"
               value={gru.valorTotal || ""}
               onChange={(e) =>
@@ -294,10 +294,18 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
             />
           </div>
 
-          <div className={style.containerGru}>
+          <div className={style.containerGruCusteio}>
             {gruBlobURL ? (
               <a href={gruBlobURL} target="_blank" rel="noreferrer">
-                <p>Visualizar GRU</p>
+                <p
+                  style={{
+                    padding: "0.47rem",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  Visualizar GRU
+                </p>
               </a>
             ) : wasHovered ? (
               <p style={{ display: "flex", justifyContent: "center" }}>
@@ -325,13 +333,13 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
               <button onClick={desanexarGru} disabled={!blobGru}>
                 Desanexar
               </button>
-              <label htmlFor="anexarGru">
+              <label htmlFor="anexarGruCusteio">
                 <p>Anexar GRU</p>
               </label>
               <input
                 type="file"
                 name="anexarGru"
-                id="anexarGru"
+                id="anexarGruCusteio"
                 onChange={handleGruChange}
                 hidden
               />
@@ -349,10 +357,18 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
 
           {}
 
-          <div className={style.containerComprovante}>
+          <div className={style.containerComprovanteCusteio}>
             {comprovanteBlobURL ? (
               <a href={comprovanteBlobURL} target="_blank" rel="noreferrer">
-                <p>Visualizar Comprovante</p>
+                <p
+                  style={{
+                    padding: "0.47rem",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  Visualizar Comprovante
+                </p>
               </a>
             ) : wasHovered ? (
               <p style={{ display: "flex", justifyContent: "center" }}>
@@ -383,7 +399,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
               >
                 Desanexar
               </button>
-              <label htmlFor="sla">
+              <label htmlFor="slaCusteio">
                 <p>
                   Anexar <br /> Comprovante
                 </p>
@@ -392,7 +408,188 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
                 onChange={handleComprovanteChange}
                 type="file"
                 name="anexarGru"
-                id="sla"
+                id="slaCusteio"
+                hidden
+              />
+              <a
+                download={
+                  comprovanteBlobURL ? "anexo." + blobComprovante.ext : "anexo"
+                }
+                href={comprovanteBlobURL}
+                style={
+                  !comprovanteBlobURL
+                    ? { pointerEvents: "none", opacity: "50%" }
+                    : {}
+                }
+              >
+                <p>Download</p>
+              </a>
+            </div>
+          </div>
+
+          <div
+            className={style.separar}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div
+              style={{
+                height: "1px",
+                width: "100%",
+                backgroundColor: "#6930c3",
+              }}
+            ></div>
+            <div
+              style={{
+                height: "0px",
+                width: "100%",
+                border: "1px dashed black",
+              }}
+            ></div>
+            <div></div>
+          </div>
+
+          <div className={style.divTopCapital}>
+            <label htmlFor="valorGruCapital">
+              <p>Valor devolvido capital:</p>
+              <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
+                (Valor restante:{" "}
+                {valorRestante.toLocaleString("pt-br", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+                )
+              </p>
+            </label>
+            {!gru.valorTotal && <div className={style.svgInputGru}>!</div>}
+            <input
+              style={!gru.valorTotal ? { border: "0.2rem solid #ffea00" } : {}}
+              type="number"
+              name="valorGru"
+              id="valorGruCapital"
+              placeholder="Digite o valor aqui"
+              value={gru.valorTotal || ""}
+              onChange={(e) =>
+                setGru((oldGru) => ({ ...oldGru, valorTotal: e.target.value }))
+              }
+            />
+          </div>
+          <div className={style.containerGruCapital}>
+            {gruBlobURL ? (
+              <a href={gruBlobURL} target="_blank" rel="noreferrer">
+                <p
+                  style={{
+                    padding: "0.47rem",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  Visualizar GRU
+                </p>
+              </a>
+            ) : wasHovered ? (
+              <p style={{ display: "flex", justifyContent: "center" }}>
+                <svg
+                  style={{ transform: "translateY(-0.2rem)" }}
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 0 24 24"
+                  width="24px"
+                  fill="#000000"
+                >
+                  <path
+                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                    opacity="1"
+                    fill="#ffea00"
+                  />
+                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                </svg>{" "}
+                GRU não anexada
+              </p>
+            ) : (
+              <p>...</p>
+            )}
+            <div>
+              <button onClick={desanexarGru} disabled={!blobGru}>
+                Desanexar
+              </button>
+              <label htmlFor="anexarGruCapital">
+                <p>Anexar GRU</p>
+              </label>
+              <input
+                type="file"
+                name="anexarGru"
+                id="anexarGruCapital"
+                onChange={handleGruChange}
+                hidden
+              />
+              <a
+                download={gruBlobURL ? "anexo." + blobGru.ext : "anexo"}
+                href={gruBlobURL}
+                style={
+                  !gruBlobURL ? { pointerEvents: "none", opacity: "50%" } : {}
+                }
+              >
+                <p>Download</p>
+              </a>
+            </div>
+          </div>
+          <div className={style.containerComprovanteCapital}>
+            {comprovanteBlobURL ? (
+              <a href={comprovanteBlobURL} target="_blank" rel="noreferrer">
+                <p
+                  style={{
+                    padding: "0.47rem",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  Visualizar Comprovante
+                </p>
+              </a>
+            ) : wasHovered ? (
+              <p style={{ display: "flex", justifyContent: "center" }}>
+                <svg
+                  style={{ transform: "translateY(-0.2rem)" }}
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 0 24 24"
+                  width="24px"
+                  fill="#000000"
+                >
+                  <path
+                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                    opacity="1"
+                    fill="#ffea00"
+                  />
+                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                </svg>{" "}
+                Comprovante não anexado
+              </p>
+            ) : (
+              <p>...</p>
+            )}
+            <div>
+              <button
+                onClick={desanexarComprovante}
+                disabled={!blobComprovante}
+              >
+                Desanexar
+              </button>
+              <label htmlFor="slaCapital">
+                <p>
+                  Anexar <br /> Comprovante
+                </p>
+              </label>
+              <input
+                onChange={handleComprovanteChange}
+                type="file"
+                name="anexarGru"
+                id="slaCapital"
                 hidden
               />
               <a

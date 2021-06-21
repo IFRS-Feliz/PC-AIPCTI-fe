@@ -30,7 +30,8 @@
   background-color: #ca302d;
   color: white;
 
-  width: 20rem;
+  width: 22rem;
+  height: 1.1875rem;
   padding: 0.5rem;
 
   z-index: 1;
@@ -69,6 +70,8 @@
   background-color: blueviolet;
   display: flex;
   align-items: center;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 .mainHeader div button {
