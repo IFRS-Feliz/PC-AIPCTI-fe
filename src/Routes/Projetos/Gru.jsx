@@ -4,7 +4,7 @@ import style from "../../assets/css/routes/relatorio.module.css";
 import axios from "../../axios";
 import Loading from "../../Components/Loading";
 
-export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
+export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapital, setTotalDevolvido }) {
   const [gru, setGru] = useState({ idProjeto: idProjeto, valorTotal: 0 });
   const [valorTotalInicial, setValorTotalInicial] = useState(0);
 
@@ -273,7 +273,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
               <p>Valor devolvido custeio:</p>
               <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
                 (Valor restante:{" "}
-                {valorRestante.toLocaleString("pt-br", {
+                {valorRestanteCusteio.toLocaleString("pt-br", {
                   style: "currency",
                   currency: "BRL",
                 })}
@@ -458,7 +458,7 @@ export default function Gru({ idProjeto, valorRestante, setTotalDevolvido }) {
               <p>Valor devolvido capital:</p>
               <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
                 (Valor restante:{" "}
-                {valorRestante.toLocaleString("pt-br", {
+                {valorRestanteCapital.toLocaleString("pt-br", {
                   style: "currency",
                   currency: "BRL",
                 })}

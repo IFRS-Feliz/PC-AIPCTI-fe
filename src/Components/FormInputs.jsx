@@ -123,7 +123,7 @@ function DateInput({
       <label htmlFor={name}>{(label || name) + ": "}</label>
       {warning && <WarningDiv warning={warning} />}
       <input
-        style={warning ? { border: "0.2rem solid #ffea00" } : {}}
+        style={warning ? { border: "0.2rem solid #ffea00", paddingRight: "2rem", boxSizing: "border-box", width: "283.14px", height: "39.94px"} : {}}
         id={name}
         type="date"
         value={index === null ? object[name] || "" : object[index][name] || ""}

@@ -246,7 +246,8 @@ export default function Relatorio() {
         <div className={style.sectionHeader}>
           <Gru
             idProjeto={id}
-            valorRestante={restoCusteio + restoCapital}
+            valorRestanteCusteio={restoCusteio}
+            valorRestanteCapital={restoCapital}
             setTotalDevolvido={setTotalDevolvidoGru}
           />
         </div>
