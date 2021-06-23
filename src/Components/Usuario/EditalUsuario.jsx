@@ -38,7 +38,7 @@ export default function EditalUsuario({
     );
   }, [todosProjetos, editalInfo.id]);
 
-  const dataInicio = editalInfo.dataInicio.substring(0, 10).split("-");
+  // const dataInicio = editalInfo.dataInicio.substring(0, 10).split("-");
   //const dataFim = editalInfo.dataFim.substring(0, 10).split("-");
   const dataLimite = editalInfo.dataLimitePrestacao.substring(0, 10).split("-");
 
@@ -47,9 +47,10 @@ export default function EditalUsuario({
       <div className={style.user}>
         <p
           className={style.pUser}
-        >{`${editalInfo.nome}  |  ${dataInicio[2]}/${dataInicio[1]}/${dataInicio[0]} - ${dataLimite[2]}/${dataLimite[1]}/${dataLimite[0]}`}</p>
+        >{`${editalInfo.nome}  |  Limite para prestação de contas: ${dataLimite[2]}/${dataLimite[1]}/${dataLimite[0]}`}</p>
         <div className={style.agruparBotoes}>
           <p className={style.linhaVertical}>|</p>
+
           <button
             disabled={projetos.length === 0}
             title={projetos.length === 0 ? "Não possui projetos." : ""}

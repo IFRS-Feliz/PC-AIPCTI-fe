@@ -5,7 +5,11 @@ import { MainContent } from "./Contents";
 
 import style from "../../../assets/css/components/item.module.css";
 import Loading from "../../Loading";
-import { notEmptyCriteria } from "../../FormInputs";
+import {
+  notEmptyCriteria,
+  notMoreRecentThanCriteria,
+  cnpjCriteria,
+} from "../../FormInputs";
 
 export default function Item({
   itens,
@@ -13,6 +17,7 @@ export default function Item({
   setItens,
   dragHandleInnerProps,
   handleTogglingModal,
+  dataLimiteEdital,
 }) {
   const [content, setContent] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -192,6 +197,13 @@ export default function Item({
     if (actions.length > 0) {
       Promise.allSettled(actions)
         .then(() => {
+          //atualizar lista de itens do componente pai para refletir valores no resumo
+          setItens((oldItens) => {
+            const newItens = [...oldItens];
+            newItens[index] = item;
+            return newItens;
+          });
+
           setItem(item);
           setInitialItem(item);
           setDirtyItemFields({});
@@ -200,13 +212,6 @@ export default function Item({
           setOrcamentos(orcs);
           setInitialOrcamentos(orcs);
           setDirtyOrcamentoFields([Array(orcs.length)]);
-
-          //atualizar lista de itens do componente pai para refletir valores no resumo
-          setItens((oldItens) => {
-            const newItens = [...oldItens];
-            newItens[index] = initialItem;
-            return newItens;
-          });
         })
         .catch((e) => {
           console.log(e);
@@ -280,128 +285,237 @@ export default function Item({
     });
   }, [posicao]);
 
-  //secao dos warnings
-  //realizar um check inicial e ao salvar
-  function checkInicial(newWarnings, initial, target) {
-    //check things
+  //warnings
+  //estado para saber se deve permitir ou não salvar
+  //(não deve ser possível salvar com cnpjs invalidos)
+  const [thereAreWrongCnpjs, setThereAreWrongCnpjs] = useState(false);
 
-    const nome = notEmptyCriteria(initial["nomeMaterialServico"]);
-    newWarnings["nomeMaterialServico"] = nome[0]
-      ? nome[1]
-      : newWarnings["nomeMaterialServico"];
-
-    const marca = notEmptyCriteria(initial["marca"]);
-    newWarnings["marca"] = marca[0] ? marca[1] : newWarnings["marca"];
-
-    const modelo = notEmptyCriteria(initial["modelo"]);
-    newWarnings["modelo"] = modelo[0] ? modelo[1] : newWarnings["modelo"];
-
-    const cnpjFavorecido = notEmptyCriteria(initial["cnpjFavorecido"]);
-    newWarnings["cnpjFavorecido"] = cnpjFavorecido[0]
-      ? cnpjFavorecido[1]
-      : newWarnings["cnpjFavorecido"];
-
-    const quantidade = notEmptyCriteria(initial["quantidade"]);
-    newWarnings["quantidade"] = quantidade[0]
-      ? quantidade[1]
-      : newWarnings["quantidade"];
-
-    const valorUnitario = notEmptyCriteria(initial["valorUnitario"]);
-    newWarnings["valorUnitario"] = valorUnitario[0]
-      ? valorUnitario[1]
-      : newWarnings["valorUnitario"];
-
-    const frete = notEmptyCriteria(initial["frete"]);
-    newWarnings["frete"] = frete[0] ? frete[1] : newWarnings["frete"];
-
-    const valorTotal = notEmptyCriteria(initial["valorTotal"]);
-    newWarnings["valorTotal"] = valorTotal[0]
-      ? valorTotal[1]
-      : newWarnings["valorTotal"];
-
-    if (target === "orcamento") {
-      const dataOrcamento = notEmptyCriteria(initial["dataOrcamento"]);
-      newWarnings["dataOrcamento"] = dataOrcamento[0]
-        ? dataOrcamento[1]
-        : newWarnings["dataOrcamento"];
-    } else if (target === "item") {
-      const descricao = notEmptyCriteria(initial["descricao"]);
-      newWarnings["descricao"] = descricao[0]
-        ? descricao[1]
-        : newWarnings["descricao"];
-
-      const tipo = notEmptyCriteria(initial["tipo"]);
-      newWarnings["tipo"] = tipo[0] ? tipo[1] : newWarnings["tipo"];
-
-      const tipoDocumentoFiscal = notEmptyCriteria(
-        initial["tipoDocumentoFiscal"]
-      );
-      newWarnings["tipoDocumentoFiscal"] = tipoDocumentoFiscal[0]
-        ? tipoDocumentoFiscal[1]
-        : newWarnings["tipoDocumentoFiscal"];
-
-      const dataCompra = notEmptyCriteria(initial["dataCompraContratacao"]);
-      newWarnings["dataCompraContratacao"] = dataCompra[0]
-        ? dataCompra[1]
-        : newWarnings["dataCompraContratacao"];
-
-      const numeroDocumentoFiscal = notEmptyCriteria(
-        initial["numeroDocumentoFiscal"]
-      );
-      newWarnings["numeroDocumentoFiscal"] = numeroDocumentoFiscal[0]
-        ? numeroDocumentoFiscal[1]
-        : newWarnings["numeroDocumentoFiscal"];
-    }
-
-    return newWarnings;
-  }
+  //setar warnings
   useEffect(() => {
-    setWarnings((oldWarnings) => {
-      let newWarnings = JSON.parse(JSON.stringify(oldWarnings));
+    if (!item || !orcamentos) return;
 
-      newWarnings = checkInicial(newWarnings, initialItem, "item");
+    let foundWrongCnpjs = false;
+    function checkFields(newWarnings, initial, target) {
+      //check things
+      const pathAnexo = notEmptyCriteria(initial["pathAnexo"]);
+      const actionAnexo = initial["actionAnexo"] !== "post";
+      newWarnings["pathAnexo"] =
+        pathAnexo[0] && actionAnexo
+          ? "Nenhum documento foi anexado"
+          : undefined;
+
+      const nome = notEmptyCriteria(initial["nomeMaterialServico"]);
+      newWarnings["nomeMaterialServico"] = nome[0] ? nome[1] : undefined;
+
+      const marca = notEmptyCriteria(initial["marca"]);
+      newWarnings["marca"] = marca[0] ? marca[1] : undefined;
+
+      const modelo = notEmptyCriteria(initial["modelo"]);
+      newWarnings["modelo"] = modelo[0] ? modelo[1] : undefined;
+
+      let cnpjFavorecido = notEmptyCriteria(initial["cnpjFavorecido"]);
+      if (cnpjFavorecido[0]) {
+        newWarnings["cnpjFavorecido"] = cnpjFavorecido[1];
+      } else {
+        cnpjFavorecido = cnpjCriteria(initial["cnpjFavorecido"]);
+        newWarnings["cnpjFavorecido"] = cnpjFavorecido[0]
+          ? cnpjFavorecido[1]
+          : undefined;
+
+        if (!foundWrongCnpjs && cnpjFavorecido[0]) {
+          foundWrongCnpjs = true;
+          setThereAreWrongCnpjs(true);
+        } else if (!foundWrongCnpjs) {
+          setThereAreWrongCnpjs(false);
+        }
+      }
+
+      const quantidade = notEmptyCriteria(initial["quantidade"]);
+      newWarnings["quantidade"] = quantidade[0] ? quantidade[1] : undefined;
+
+      const valorUnitario = notEmptyCriteria(initial["valorUnitario"]);
+      newWarnings["valorUnitario"] = valorUnitario[0]
+        ? valorUnitario[1]
+        : undefined;
+
+      const frete = notEmptyCriteria(initial["frete"]);
+      newWarnings["frete"] = frete[0] ? frete[1] : undefined;
+
+      const valorTotal = notEmptyCriteria(initial["valorTotal"]);
+      newWarnings["valorTotal"] = valorTotal[0] ? valorTotal[1] : undefined;
+
+      if (target === "orcamento") {
+        newWarnings["isOrcadoComCpfCoordenador"] =
+          initial.isOrcadoComCpfCoordenador
+            ? undefined
+            : "Não orçado com o CPF do coordenador";
+
+        let dataOrcamento = notEmptyCriteria(initial["dataOrcamento"]);
+        if (dataOrcamento[0]) {
+          newWarnings["dataOrcamento"] = dataOrcamento[1];
+        } else {
+          dataOrcamento = notMoreRecentThanCriteria(
+            initial["dataOrcamento"],
+            dataLimiteEdital
+          );
+          newWarnings["dataOrcamento"] = dataOrcamento[0]
+            ? `Orçamento feito após a data limite estipulada no edital ${dataLimiteEdital}`
+            : undefined;
+        }
+      } else if (target === "item") {
+        newWarnings["isCompradoComCpfCoordenador"] =
+          initial.isCompradoComCpfCoordenador
+            ? undefined
+            : "Não comprado com o CPF do coordenador";
+
+        const descricao = notEmptyCriteria(initial["descricao"]);
+        newWarnings["descricao"] = descricao[0] ? descricao[1] : undefined;
+
+        const tipo = notEmptyCriteria(initial["tipo"]);
+        newWarnings["tipo"] = tipo[0] ? tipo[1] : undefined;
+
+        const tipoDocumentoFiscal = notEmptyCriteria(
+          initial["tipoDocumentoFiscal"]
+        );
+        newWarnings["tipoDocumentoFiscal"] = tipoDocumentoFiscal[0]
+          ? tipoDocumentoFiscal[1]
+          : undefined;
+
+        let dataCompra = notEmptyCriteria(initial["dataCompraContratacao"]);
+        if (dataCompra[0]) {
+          newWarnings["dataCompraContratacao"] = dataCompra[1];
+        } else {
+          dataCompra = notMoreRecentThanCriteria(
+            initial["dataCompraContratacao"],
+            dataLimiteEdital
+          );
+          newWarnings["dataCompraContratacao"] = dataCompra[0]
+            ? `Compra feita após a data limite estipulada no edital ${dataLimiteEdital}`
+            : undefined;
+        }
+
+        const numeroDocumentoFiscal = notEmptyCriteria(
+          initial["numeroDocumentoFiscal"]
+        );
+        newWarnings["numeroDocumentoFiscal"] = numeroDocumentoFiscal[0]
+          ? numeroDocumentoFiscal[1]
+          : undefined;
+      }
 
       return newWarnings;
-    });
-  }, [initialItem]);
+    }
 
-  useEffect(() => {
-    if (initialOrcamentos.length === 0) return;
+    //objeto com os warnings do item que dependem dos orcamentos
+    let propriedadesParaAdicionarAoItem = {};
+
+    //verificar se a quantidade de orcamentos é suficiente
+    if (orcamentos.length < 3 && !item.isNaturezaSingular) {
+      propriedadesParaAdicionarAoItem.quantidadeOrcamentos =
+        "Você deve adicionar ao menos 3 orçamentos.";
+      propriedadesParaAdicionarAoItem.justificativa = undefined;
+    }
+    //verificar se uma justificativa foi anexada
+    else {
+      propriedadesParaAdicionarAoItem.quantidadeOrcamentos = undefined;
+      if (
+        item.isNaturezaSingular &&
+        !justificativa.pathAnexo &&
+        justificativa.actionAnexo !== "post"
+      ) {
+        propriedadesParaAdicionarAoItem.justificativa =
+          "Você deve adicionar uma justificativa";
+      } else {
+        propriedadesParaAdicionarAoItem.justificativa = undefined;
+      }
+    }
+
     setWarningsOrcamentos((oldWarnings) => {
       let newWarnings = JSON.parse(JSON.stringify(oldWarnings));
 
-      for (const [i] of initialOrcamentos.entries()) {
-        if (!newWarnings[i]) newWarnings[i] = {};
+      let existeOrcamentoReferenteACompra = false;
+      for (let i = 0; i < orcamentos.length; i++) {
+        if (orcamentos[i].isOrcamentoCompra)
+          existeOrcamentoReferenteACompra = true;
 
-        newWarnings[i] = checkInicial(
+        //verificar campos que podem ser avaliados individualmente
+        if (!newWarnings[i]) newWarnings[i] = {};
+        newWarnings[i] = checkFields(
           newWarnings[i],
-          initialOrcamentos[i],
+          orcamentos[i],
           "orcamento"
         );
+
+        //verificar se a data do orcamento é mais recente do que a compra
+        const [isDateWrong, msg] = notMoreRecentThanCriteria(
+          orcamentos[i].dataOrcamento,
+          item.dataCompraContratacao
+        );
+        if (isDateWrong) newWarnings[i].dataOrcamento = msg;
+      }
+
+      if (!existeOrcamentoReferenteACompra) {
+        propriedadesParaAdicionarAoItem.isOrcamentoCompra =
+          "Não há nenhum orçamento referente à compra";
+      } else {
+        propriedadesParaAdicionarAoItem.isOrcamentoCompra = undefined;
       }
 
       return newWarnings;
     });
-  }, [initialOrcamentos]);
 
+    setWarnings((oldWarnings) => {
+      let newWarnings = { ...oldWarnings };
+      newWarnings = checkFields(newWarnings, item, "item");
+      newWarnings = { ...newWarnings, ...propriedadesParaAdicionarAoItem };
+
+      return newWarnings;
+    });
+  }, [
+    item,
+    orcamentos,
+    justificativa.pathAnexo,
+    justificativa.actionAnexo,
+    dataLimiteEdital,
+  ]);
+
+  //enviar warnings para a lista no componte pai
   useEffect(() => {
+    function checkWarnigs(warnings) {
+      if (!warnings || warnings.length !== 2) {
+        return false;
+      }
+      if (
+        Object.keys(warnings[0]).filter((propriedade) =>
+          Boolean(warnings[0][propriedade])
+        ).length > 0
+      ) {
+        return true;
+      }
+      for (const warningOrcameto of warnings[1]) {
+        if (
+          warningOrcameto &&
+          Object.keys(warningOrcameto).filter((propriedade) =>
+            Boolean(warningOrcameto[propriedade])
+          ).length > 0
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
+    const w = checkWarnigs([warnings, warningsOrcamentos]);
+    setHasWarnings(w);
     setItens((oldItens) => {
       const newItens = JSON.parse(JSON.stringify(oldItens));
       newItens[index].isDirty = isDirty;
-      newItens[index].warnings = [warnings, warningsOrcamentos];
+      newItens[index].warnings = [warnings, warningsOrcamentos, w];
       return newItens;
     });
   }, [warnings, warningsOrcamentos, index, setItens, isDirty]);
 
-  function hasWarnings(warnings) {
-    if (!warnings || warnings.length !== 2) return false;
-    if (Object.keys(warnings[0]).length > 0) return true;
-    for (const warningOrcameto of warnings[1]) {
-      if (warningOrcameto && Object.keys(warningOrcameto).length > 0)
-        return true;
-    }
-    return false;
-  }
+  const canSave = thereAreWrongCnpjs;
+
+  const [hasWarnings, setHasWarnings] = useState(false);
 
   return (
     <div
@@ -477,9 +591,14 @@ export default function Item({
               initialOrcamentos={initialOrcamentos}
               //warnings
               warnings={warnings}
-              setWarnings={setWarnings}
               warningsOrcamentos={warningsOrcamentos}
               setWarningsOrcamentos={setWarningsOrcamentos}
+              handleTogglingModal={({ name, idx }) => {
+                handleTogglingModal(index, {
+                  highlitedFieldName: name,
+                  index: idx,
+                });
+              }}
             />
           </div>
         )}
@@ -487,7 +606,16 @@ export default function Item({
       <div className={style.tools}>
         <div className={style.toolsActions}>
           <button
-            onClick={() => handleSave(item, orcamentos)}
+            onClick={
+              !canSave
+                ? () => handleSave(item, orcamentos)
+                : () =>
+                    handleTogglingModal(
+                      index,
+                      {},
+                      "Antes de salvar, arrume os CNPJs inválidos:"
+                    )
+            }
             disabled={!isDirty || isSaving}
           >
             <svg
@@ -513,7 +641,7 @@ export default function Item({
             </svg>
           </button>
         </div>
-        {hasWarnings([warnings, warningsOrcamentos]) && (
+        {hasWarnings && (
           <WarningDiv
             warnings={warnings}
             handleTogglingModal={handleTogglingModal}
@@ -529,7 +657,7 @@ function WarningDiv({ handleTogglingModal, index }) {
   return (
     <div className={style.toolsWarning}>
       <svg
-        onClick={() => handleTogglingModal(index)}
+        onClick={() => handleTogglingModal(index, {})}
         xmlns="http://www.w3.org/2000/svg"
         height="36px"
         viewBox="0 0 24 24"

@@ -7,9 +7,6 @@ import {
   SelectInput,
   DateInput,
   CheckBoxInput,
-  notEmptyCriteria,
-  notEmptyNumberCriteria,
-  cnpjCriteria,
 } from "../../FormInputs";
 
 function MainContent({
@@ -34,9 +31,9 @@ function MainContent({
   initialOrcamentos,
   //warnings
   warnings,
-  setWarnings,
   warningsOrcamentos,
   setWarningsOrcamentos,
+  handleTogglingModal
 }) {
   if (content === "informacoes")
     return (
@@ -48,7 +45,7 @@ function MainContent({
         setDirtyItemFields={setDirtyItemFields}
         initialItem={initialItem}
         warnings={warnings}
-        setWarnings={setWarnings}
+        handleTogglingModal={handleTogglingModal}
       />
     );
   else if (content === "orcamentos")
@@ -62,6 +59,7 @@ function MainContent({
         initialOrcamentos={initialOrcamentos}
         warningsOrcamentos={warningsOrcamentos}
         setWarningsOrcamentos={setWarningsOrcamentos}
+        handleTogglingModal={handleTogglingModal}
       />
     );
   else if (content === "justificativa") {
@@ -85,7 +83,7 @@ function ContentInformacoes({
   setDirtyItemFields,
   initialItem,
   warnings,
-  setWarnings,
+  handleTogglingModal
 }) {
   useEffect(() => {
     if (!canBeNaturezaSingular(item.tipo)) {
@@ -124,8 +122,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <SelectInput
               name="tipo"
@@ -135,8 +132,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             >
               <option value="materialConsumo">Material de consumo</option>
               <option value="materialPermanente">Material permanente</option>
@@ -173,8 +169,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="marca"
@@ -184,8 +179,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="modelo"
@@ -195,8 +189,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <SelectInput
               name="tipoDocumentoFiscal"
@@ -206,8 +199,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             >
               <option value="nf">Nota fiscal</option>
               <option value="cf">Cupom fiscal</option>
@@ -230,8 +222,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="cnpjFavorecido"
@@ -241,8 +232,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[cnpjCriteria, notEmptyNumberCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="quantidade"
@@ -259,8 +249,7 @@ function ContentInformacoes({
                   Number(newItem.frete);
                 return newItem;
               }}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyNumberCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="valorUnitario"
@@ -277,8 +266,7 @@ function ContentInformacoes({
                   Number(newItem.frete);
                 return newItem;
               }}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyNumberCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="frete"
@@ -295,8 +283,7 @@ function ContentInformacoes({
                   Number(value);
                 return newItem;
               }}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyNumberCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="valorTotal"
@@ -306,6 +293,7 @@ function ContentInformacoes({
               isNumber={true}
               warnings={warnings}
               disabled={true}
+              handleTogglingModal={handleTogglingModal}
             />
             <TextInput
               name="numeroDocumentoFiscal"
@@ -316,8 +304,7 @@ function ContentInformacoes({
               objectToCompare={initialItem}
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
-              setWarnings={setWarnings}
-              warningCriteria={[notEmptyCriteria]}
+              handleTogglingModal={handleTogglingModal}
             />
           </div>
         </div>
@@ -357,6 +344,7 @@ function ContentOrcamentos({
   initialOrcamentos,
   warningsOrcamentos,
   setWarningsOrcamentos,
+  handleTogglingModal
 }) {
   const [current, setCurrent] = useState(0);
   const botoesRef = useRef();
@@ -436,8 +424,8 @@ function ContentOrcamentos({
       });
       return;
     }
-    //else
     let nenhumOrcamentoIsCompra = true;
+
     //procurar pelo orcamentoCompra atual
     newOrcamentos.forEach((orcamento, i) => {
       if (orcamento.isOrcamentoCompra) {
@@ -616,8 +604,7 @@ function ContentOrcamentos({
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[notEmptyCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
 
                 <div className={style.vh} />
@@ -634,8 +621,7 @@ function ContentOrcamentos({
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[notEmptyCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
                 <TextInput
                   name="marca"
@@ -646,8 +632,7 @@ function ContentOrcamentos({
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[notEmptyCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
                 <TextInput
                   name="modelo"
@@ -658,8 +643,7 @@ function ContentOrcamentos({
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[notEmptyCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
               </div>
 
@@ -675,8 +659,7 @@ function ContentOrcamentos({
                   objectToCompare={initialOrcamentos}
                   setDirtyFields={setDirtyOrcamentoFields}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[cnpjCriteria, notEmptyCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
                 <TextInput
                   name="quantidade"
@@ -695,8 +678,7 @@ function ContentOrcamentos({
                     return newOrcamentos;
                   }}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[notEmptyNumberCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
                 <TextInput
                   name="valorUnitario"
@@ -714,8 +696,7 @@ function ContentOrcamentos({
                     return newOrcamentos;
                   }}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[notEmptyNumberCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
                 <TextInput
                   name="frete"
@@ -734,8 +715,7 @@ function ContentOrcamentos({
                     return newOrcamentos;
                   }}
                   warnings={warningsOrcamentos}
-                  setWarnings={setWarningsOrcamentos}
-                  warningCriteria={[notEmptyNumberCriteria]}
+                  handleTogglingModal={handleTogglingModal}
                 />
                 <TextInput
                   name="valorTotal"
@@ -746,6 +726,7 @@ function ContentOrcamentos({
                   isNumber={true}
                   disabled={true}
                   warnings={Array(orcamentos.length)} //temporario
+                  handleTogglingModal={handleTogglingModal}
                 />
               </div>
             </div>

@@ -1,7 +1,7 @@
 import axios from "../../axios";
 import axiosDefault from "axios";
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 
 import Item from "../../Components/Usuario/Item";
@@ -12,16 +12,20 @@ import Gru from "./Gru";
 
 export default function Relatorio() {
   const { id } = useParams();
-  const [projeto, setProjeto] = useState([]);
+  const [edital, setEdital] = useState({});
+  const [projeto, setProjeto] = useState({});
   const [itens, setItens] = useState([]);
 
   const [isPostingItem, setIsPostingItem] = useState(false);
   const [isReordenandoItens, setIsReordenandoItens] = useState(false);
 
-  const [alertModalContent, setAlertModalContent] = useState(null);
-  function handleTogglingModal(itemIdx) {
-    if (alertModalContent === itemIdx) setAlertModalContent(null);
-    else setAlertModalContent(itemIdx);
+  const [alertModalContent, setAlertModalContent] = useState({});
+
+  function handleTogglingModal(itemIdx, { highlitedFieldName, index }, msg) {
+    if (alertModalContent.itemIdx === itemIdx) setAlertModalContent({});
+    else {
+      setAlertModalContent({ itemIdx, highlitedFieldName, index, msg });
+    }
   }
 
   const [relatorioUrl, setRelatorioUrl] = useState();
@@ -74,6 +78,16 @@ export default function Relatorio() {
   }, [id]);
 
   const [totalDevolvidoGru, setTotalDevolvidoGru] = useState(0);
+  useEffect(() => {
+    if (projeto.idEdital) {
+      axios
+        .get(`/edital/${projeto.idEdital}`)
+        .then((response) => {
+          setEdital(response.data.results[0]);
+        })
+        .catch((e) => console.log(e));
+    }
+  }, [projeto]);
 
   function valorTotalItens() {
     let somaCusteio = 0;
@@ -113,21 +127,13 @@ export default function Relatorio() {
     restoCapital,
   } = valorTotalItens();
 
-  function dirtyItens() {
-    function hasWarnings(warnings) {
-      if (!warnings || warnings.length !== 2) return false;
-      if (Object.keys(warnings[0]).length > 0) return true;
-      for (const warningOrcameto of warnings[1]) {
-        if (warningOrcameto && Object.keys(warningOrcameto).length > 0)
-          return true;
-      }
-      return false;
-    }
+  function getDirtyItens() {
     const filtered = itens.filter(
-      (item) => item.isDirty || hasWarnings(item.warnings)
+      (item) => item.isDirty || (item.warnings && item.warnings[2])
     );
     return filtered;
   }
+  const dirtyItens = getDirtyItens();
 
   function handleAddItem() {
     setIsPostingItem(true);
@@ -210,6 +216,7 @@ export default function Relatorio() {
                           setItens={setItens}
                           dragHandleInnerProps={{ ...provided.dragHandleProps }}
                           handleTogglingModal={handleTogglingModal}
+                          dataLimiteEdital={edital.dataLimitePrestacao}
                         />
                       </div>
                     )}
@@ -372,36 +379,44 @@ export default function Relatorio() {
         </div>
       </abbr>
 
-      {alertModalContent !== null && (
+      {alertModalContent.itemIdx !== undefined && (
         <WarningsModal
-          warnings={itens[alertModalContent].warnings}
-          isDirty={itens[alertModalContent].isDirty}
+          warnings={itens[alertModalContent.itemIdx].warnings}
+          isDirty={itens[alertModalContent.itemIdx].isDirty}
           setAlertModalContent={setAlertModalContent}
-          posicao={alertModalContent}
-          name={itens[alertModalContent].nomeMaterialServico || "Novo item"}
+          posicao={alertModalContent.itemIdx}
+          name={
+            itens[alertModalContent.itemIdx].nomeMaterialServico || "Novo item"
+          }
+          highlitedFieldName={alertModalContent.highlitedFieldName}
+          highlitedFieldNameIndex={alertModalContent.index}
+          msg={alertModalContent.msg}
         />
       )}
-      <div
-        className={style.sectionHeader}
-        style={itens.length === 0 ? { display: "none" } : {}}
-      >
-        <div className={style.contentFormWarning}>
-          <h3>Verifique os seguintes itens:</h3>
+      {dirtyItens.length && (
+        <div
+          className={style.sectionHeader}
+          style={itens.length === 0 ? { display: "none" } : {}}
+        >
+          <div className={style.contentFormWarning}>
+            <h3>Verifique os seguintes itens:</h3>
 
-          <span>
-            {dirtyItens().map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleTogglingModal(item.posicao)}
-              >
-                <p>
-                  {item.posicao + 1} - {item.nomeMaterialServico || "Novo item"}
-                </p>
-              </div>
-            ))}
-          </span>
+            <span>
+              {dirtyItens.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => handleTogglingModal(item.posicao, {})}
+                >
+                  <p>
+                    {item.posicao + 1} -{" "}
+                    {item.nomeMaterialServico || "Novo item"}
+                  </p>
+                </div>
+              ))}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
@@ -412,33 +427,86 @@ function WarningsModal({
   setAlertModalContent,
   posicao,
   name,
+  highlitedFieldName,
+  highlitedFieldNameIndex,
+  msg,
 }) {
   const informacoes = warnings ? warnings[0] : null;
   const orcamentos = warnings ? warnings[1] : null;
 
+  const scrollToHighlitedField = useRef();
+
   const informacoesContent = informacoes
-    ? Object.keys(informacoes).map((propriedade) => {
+    ? Object.keys(informacoes).reduce((result, propriedade) => {
         const warning = informacoes[propriedade];
         let name = getName(propriedade);
         if (warning) {
-          return (
-            <li key={propriedade} style={{ marginLeft: "2.5rem" }}>
+          if (
+            propriedade === highlitedFieldName &&
+            (highlitedFieldNameIndex === undefined ||
+              highlitedFieldNameIndex === null)
+          ) {
+            result.unshift(
+              <li
+                key={propriedade}
+                style={{
+                  marginLeft: "2.5rem",
+                  padding: "0.4rem 0",
+                }}
+              >
+                <p>
+                  <span
+                    style={{ color: "red", fontWeight: "bold" }}
+                  >{`- ${name}: `}</span>
+                  {`${warning}`}
+                </p>
+              </li>
+            );
+            return result;
+          }
+          result.push(
+            <li
+              key={propriedade}
+              style={{ marginLeft: "2.5rem", padding: "0.4rem 0" }}
+            >
               <p>- {`${name}: ${warning}`}</p>
             </li>
           );
         }
-        return "";
-      })
+        return result;
+      }, [])
     : [];
   const orcamentoContent = orcamentos
-    ? orcamentos.map((orcamento, i) => {
+    ? orcamentos.reduce((result, orcamento, i) => {
         let content = [];
         Object.keys(orcamento).forEach((propriedade) => {
           const warning = orcamento[propriedade];
           let name = getName(propriedade);
           if (warning) {
+            if (
+              propriedade === highlitedFieldName &&
+              highlitedFieldNameIndex === i
+            ) {
+              content.unshift(
+                <li
+                  key={propriedade}
+                  style={{ marginLeft: "2.5rem", padding: "0.4rem 0" }}
+                >
+                  <p>
+                    <span
+                      style={{ color: "red", fontWeight: "bold" }}
+                    >{`- ${name}: `}</span>
+                    {`${warning}`}
+                  </p>
+                </li>
+              );
+              return;
+            }
             content.push(
-              <li key={propriedade} style={{ marginLeft: "2.5rem" }}>
+              <li
+                key={propriedade}
+                style={{ marginLeft: "2.5rem", padding: "0.4rem 0" }}
+              >
                 <p>- {`${name}: ${warning}`}</p>
               </li>
             );
@@ -446,19 +514,38 @@ function WarningsModal({
         });
 
         if (content.length > 0) {
-          return (
+          result.push(
             <div key={i} style={{ margin: "1rem 0" }}>
-              <h3>Orcamento {i + 1}: </h3> {content}
+              <h3 id={`warningsModalPosition${i}`}>Orcamento {i + 1}: </h3>{" "}
+              {content}
             </div>
           );
         }
-        return "";
-      })
+        return result;
+      }, [])
     : [];
+
+  useEffect(() => {
+    if (
+      highlitedFieldNameIndex !== undefined &&
+      highlitedFieldNameIndex !== null
+    ) {
+      scrollToHighlitedField.current.click();
+    }
+  }, [highlitedFieldNameIndex]);
+
+  const history = useHistory();
+
+  function closeModal() {
+    //fazer o modal desaparecer
+    setAlertModalContent({});
+    //remover # do url caso tenha scrollado para um orcamento
+    history.push(history.location.pathname.split("#")[0]);
+  }
 
   return (
     <div
-      onClick={() => setAlertModalContent(null)}
+      onClick={closeModal}
       style={{
         position: "fixed",
         top: "0",
@@ -472,6 +559,13 @@ function WarningsModal({
       }}
     >
       <div onClick={(e) => e.stopPropagation()} className={style.modalWarning}>
+        <a
+          href={`#warningsModalPosition${highlitedFieldNameIndex}`}
+          ref={scrollToHighlitedField}
+          hidden
+        >
+          Scroll
+        </a>
         <div className={style.tituloModal}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -495,7 +589,20 @@ function WarningsModal({
           </div>
         </div>
         <div>
-          {informacoesContent.filter((info) => info !== "").length ? (
+          {msg && (
+            <p
+              style={{
+                textAlign: "center",
+                margin: "1rem 0",
+                color: "red",
+                fontWeight: "bold",
+                fontSize: "1.2rem",
+              }}
+            >
+              {msg}
+            </p>
+          )}
+          {informacoesContent.length ? (
             <div style={{ margin: "1rem 2rem" }}>
               <h3>Informações:</h3>
               {informacoesContent}
@@ -505,9 +612,7 @@ function WarningsModal({
           )}
         </div>
         <div style={{ margin: "1rem 2rem" }}>
-          {orcamentoContent.filter((orcamento) => orcamento !== "").length
-            ? orcamentoContent
-            : ""}
+          {orcamentoContent.length ? orcamentoContent : ""}
         </div>
       </div>
     </div>
@@ -544,6 +649,18 @@ function getName(propriedade) {
       return "N° do documento fiscal";
     case "dataOrcamento":
       return "Data do orçamento";
+    case "isOrcamentoCompra":
+      return "Orçamento referente à compra";
+    case "pathAnexo":
+      return "Anexo do documento";
+    case "justificativa":
+      return "Justificativa";
+    case "quantidadeOrcamentos":
+      return "Quantidade de orçamentos";
+    case "isCompradoComCpfCoordenador":
+      return "CPF do coordenador";
+    case "isOrcadoComCpfCoordenador":
+      return "CPF do coordenador";
 
     default:
       return propriedade;

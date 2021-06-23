@@ -1,3 +1,5 @@
+import moment from "moment";
+
 import style from "../assets/css/components/item.module.css";
 
 function TextInput({
@@ -11,8 +13,7 @@ function TextInput({
   setDirtyFields,
   onChangeExtra,
   warnings,
-  setWarnings,
-  warningCriteria,
+  handleTogglingModal,
   ...rest
 }) {
   let value = index === null ? object[name] : object[index][name];
@@ -24,7 +25,14 @@ function TextInput({
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
-      {warning && <WarningDiv warning={warning} />}
+      {warning && (
+        <WarningDiv
+          warning={warning}
+          name={name}
+          index={index}
+          handleTogglingModal={handleTogglingModal}
+        />
+      )}
       <input
         style={warning ? { border: "0.2rem solid #ffea00" } : {}}
         id={name}
@@ -40,8 +48,6 @@ function TextInput({
             objectToCompare,
             setDirtyFields,
             onChangeExtra,
-            setWarnings,
-            warningCriteria,
             isNumber
           )
         }
@@ -63,8 +69,7 @@ function SelectInput({
   setDirtyFields,
   onChangeExtra,
   warnings,
-  setWarnings,
-  warningCriteria,
+  handleTogglingModal,
   ...rest
 }) {
   let warning = index === null ? warnings[name] : warnings[index];
@@ -73,7 +78,14 @@ function SelectInput({
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
-      {warning && <WarningDiv warning={warning} />}
+      {warning && (
+        <WarningDiv
+          warning={warning}
+          name={name}
+          index={index}
+          handleTogglingModal={handleTogglingModal}
+        />
+      )}
       <select
         style={warning ? { border: "0.2rem solid #ffea00" } : {}}
         id={name}
@@ -88,9 +100,7 @@ function SelectInput({
             index,
             objectToCompare,
             setDirtyFields,
-            onChangeExtra,
-            setWarnings,
-            warningCriteria
+            onChangeExtra
           )
         }
         {...rest}
@@ -111,8 +121,7 @@ function DateInput({
   setDirtyFields,
   onChangeExtra,
   warnings,
-  setWarnings,
-  warningCriteria,
+  handleTogglingModal,
   ...rest
 }) {
   let warning = index === null ? warnings[name] : warnings[index];
@@ -121,7 +130,14 @@ function DateInput({
   return (
     <div className={style.inputLabelGroup}>
       <label htmlFor={name}>{(label || name) + ": "}</label>
-      {warning && <WarningDiv warning={warning} />}
+      {warning && (
+        <WarningDiv
+          warning={warning}
+          name={name}
+          index={index}
+          handleTogglingModal={handleTogglingModal}
+        />
+      )}
       <input
         style={warning ? { border: "0.2rem solid #ffea00" } : {}}
         id={name}
@@ -136,9 +152,7 @@ function DateInput({
             index,
             objectToCompare,
             setDirtyFields,
-            onChangeExtra,
-            setWarnings,
-            warningCriteria
+            onChangeExtra
           )
         }
         {...rest}
@@ -202,8 +216,6 @@ function handleChange(
   objectToCompare,
   setDirtyFields,
   extra, //extra function to run on change
-  setWarnings,
-  warningCriteria = [],
   isNumber = false
 ) {
   let value =
@@ -217,8 +229,6 @@ function handleChange(
     index,
     setDirtyFields
   );
-
-  handleSettingsWarnings(value, name, index, setWarnings, warningCriteria);
 
   // caso seja parte de uma lista de objetos
   if (index !== null) {
@@ -293,47 +303,6 @@ function handleSettingDirtyFields(
   }
 }
 
-function handleSettingsWarnings(
-  value,
-  name,
-  index,
-  setWarnings,
-  warningCriteria
-) {
-  if (setWarnings && warningCriteria.length > 0) {
-    setWarnings((oldWarnings) => {
-      const newWarnings = JSON.parse(JSON.stringify(oldWarnings));
-      warningCriteria.forEach((criteria) => {
-        const [hasWarning, warningMessage] = criteria(value);
-        const currentWarning =
-          index !== null
-            ? newWarnings[index]
-              ? newWarnings[index][name]
-              : undefined
-            : newWarnings[name];
-        const shouldDeleteCurrentMessage = currentWarning === warningMessage;
-        //caso haja um warning, setar
-        if (hasWarning) {
-          if (index !== null) {
-            //caso a lista de warnings nao tenha sido utilizada nessa posicao ainda
-            if (!newWarnings[index]) {
-              newWarnings[index] = { [name]: warningMessage };
-
-              //caso contrario
-            } else newWarnings[index][name] = warningMessage;
-          } else newWarnings[name] = warningMessage;
-
-          //caso nao tenha um warning
-        } else if (shouldDeleteCurrentMessage) {
-          if (index !== null) delete newWarnings[index][name];
-          else delete newWarnings[name];
-        }
-      });
-      return newWarnings;
-    });
-  }
-}
-
 function notEmptyCriteria(value) {
   return [!value && value !== 0, "Vazio"];
 }
@@ -347,12 +316,20 @@ function cnpjCriteria(value) {
   return [value.length !== 14, "Deve ter 14 caracteres"];
 }
 
-function WarningDiv({ warning }) {
+function notMoreRecentThanCriteria(value, dateToCompare) {
+  return [
+    moment(value).isAfter(dateToCompare),
+    "Orçamento feito após compra/contratação",
+  ];
+}
+
+function WarningDiv({ warning, name, index, handleTogglingModal }) {
   return (
     <div
       title={warning}
       className={style.inputWarning}
-      style={{ marginLeft: "0.5rem" }}
+      style={{ marginLeft: "0.5rem", cursor: "pointer" }}
+      onClick={() => handleTogglingModal({ name, idx: index })}
     >
       <p>!</p>
     </div>
@@ -367,4 +344,5 @@ export {
   notEmptyCriteria,
   notEmptyNumberCriteria,
   cnpjCriteria,
+  notMoreRecentThanCriteria,
 };

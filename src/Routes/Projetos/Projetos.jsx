@@ -1,13 +1,9 @@
 import axios from "../../axios";
-import { useEffect, useContext } from "react";
-import { useState } from "react";
-
+import { useEffect, useContext, useRef, useState } from "react";
+import AuthContext from "../../Contexts/Auth";
 import EditalUsuario from "../../Components/Usuario/EditalUsuario";
 
 import style from "../../assets/css/routes/usuarios.module.css";
-import { useRef } from "react";
-
-import AuthContext from "../../Contexts/Auth";
 
 export default function Projetos() {
   const { user } = useContext(AuthContext);
@@ -104,7 +100,12 @@ export default function Projetos() {
           />
         </div>
       </div>
-
+      <div className={style.container}>
+        <h3>
+          Para prestar contas de um projeto, escolha o edital ao qual ele
+          pertence:
+        </h3>
+      </div>
       <div className={"users"}>
         {searchResults.map((edital) => {
           return (
