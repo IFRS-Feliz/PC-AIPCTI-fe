@@ -2,13 +2,13 @@ import axios from "axios";
 
 //criar instacia do axios com presets
 const instance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: process.env.REACT_APP_API_URL,
   headers: { "Content-Type": "application/json" },
   responseType: "json",
 });
 
 export const loginAxios = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: process.env.REACT_APP_API_URL,
   headers: { "Content-Type": "application/json" },
   timeout: 5000,
   responseType: "json",
