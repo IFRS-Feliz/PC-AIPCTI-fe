@@ -23,6 +23,7 @@ import { AuthContextProvider } from "./Contexts/Auth";
 import WithAuth from "./Routes/WithAuth";
 
 import "./assets/css/global.css";
+import AlterarSenha from "./Routes/AlterarSenha";
 
 export default function App() {
   return (
@@ -86,6 +87,11 @@ export default function App() {
             <Route exact path="/projetos/:id">
               <WithAuth>
                 <Relatorio />
+              </WithAuth>
+            </Route>
+            <Route exact path="/senha">
+              <WithAuth isAdminOnly={false}>
+                <AlterarSenha />
               </WithAuth>
             </Route>
             <Route>

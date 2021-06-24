@@ -12,6 +12,7 @@ import {
   fieldsHaveErrors,
   getProjectArrays,
 } from "../../../Helpers/EditarAdicionarUsuario";
+import Loading from "../../../Components/Loading";
 
 export default function Editar() {
   const history = useHistory();
@@ -85,12 +86,24 @@ export default function Editar() {
     }
   }, [history, cpf]); //adicionado cpf e history no array de dependencias para remover warning
 
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [passwordWasReset, setPasswordWasReset] = useState(false);
+  const [passwordResetError, setPasswordResetError] = useState(false);
+  function handleResetPassword() {
+    setIsResettingPassword(true);
+    axios
+      .put(`usuario/${cpf}/senha`)
+      .then(() => {
+        setPasswordWasReset(true);
+        setPasswordResetError(false);
+      })
+      .catch((e) => setPasswordResetError(true))
+      .finally(() => setIsResettingPassword(false));
+  }
+
   function handleSave() {
-    const {
-      addedProjects,
-      updatedProjects,
-      deletedProjects,
-    } = getProjectArrays(initialProjetos, newProjetos);
+    const { addedProjects, updatedProjects, deletedProjects } =
+      getProjectArrays(initialProjetos, newProjetos);
 
     async function sendData() {
       let failed = {};
@@ -221,6 +234,27 @@ export default function Editar() {
             value={user.email}
           />
         </div>
+        {/* botao de resetar a senha */}
+        <div
+          className={style.adicionarUserFormField}
+          style={{ position: "relative" }}
+        >
+          <label>Senha:</label>
+          <button
+            onClick={handleResetPassword}
+            className={style.normalInput}
+            disabled={isResettingPassword || passwordWasReset}
+          >
+            Resetar senha (usuário receberá a senha em seu email)
+          </button>
+          {isResettingPassword && (
+            <div style={{ position: "relative", transform: "scale(0.3)" }}>
+              <Loading />
+            </div>
+          )}
+          {passwordWasReset && <p>✓</p>}
+          {passwordResetError && <p>X</p>}
+        </div>
       </form>
 
       <hr className={style.adicionarHr}></hr>
@@ -254,7 +288,7 @@ export default function Editar() {
         </svg>
         <p>Projeto</p>
       </button>
-      {/* <button onClick={() => console.log(projetos)}>loggar projetos</button> */}
+
       <button
         disabled={fieldsHaveErrors(newProjetos, errors)}
         className={style.adicionarBotaoCriarUsuario}

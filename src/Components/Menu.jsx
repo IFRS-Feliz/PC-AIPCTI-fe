@@ -96,6 +96,11 @@ export default function Menu() {
           <div className={style.account}>
             <p>Seja bem vindo(a), {user.nome && user.nome.split(" ")[0]}</p>
           </div>
+          <div>
+            <NavLink activeClassName={style.linkMenuFocus} exact to="/senha">
+              Alterar senha
+            </NavLink>
+          </div>
 
           {user && (
             <button onClick={Logout} className={style.logoutButton}>
