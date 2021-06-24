@@ -33,7 +33,7 @@ export default function Relatorio() {
 
   function handleRequestRelatorio() {
     axiosDefault
-      .get(`http://localhost:5000/projeto/${id}/relatorio`, {
+      .get(`${process.env.REACT_APP_API_URL}/projeto/${id}/relatorio`, {
         responseType: "arraybuffer",
         headers: {
           authorization: "Bearer " + localStorage.getItem("token"),
