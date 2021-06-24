@@ -4,12 +4,25 @@ import style from "../../assets/css/routes/relatorio.module.css";
 import axios from "../../axios";
 import Loading from "../../Components/Loading";
 
-export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapital, setTotalDevolvido }) {
-  const [gru, setGru] = useState({ idProjeto: idProjeto, valorTotal: 0 });
-  const [valorTotalInicial, setValorTotalInicial] = useState(0);
+export default function Gru({
+  idProjeto,
+  valorRestanteCusteio,
+  valorRestanteCapital,
+  setTotalDevolvido,
+}) {
+  const [gru, setGru] = useState({
+    idProjeto: idProjeto,
+    valorTotalCusteio: 0,
+    valorTotalCapital: 0,
+  });
+  const [valorTotalInicialCusteio, setValorTotalInicialCusteio] = useState(0);
+  const [valorTotalInicialCapital, setValorTotalInicialCapital] = useState(0);
 
-  const [blobGru, setBlobGru] = useState();
-  const [blobComprovante, setBlobComprovante] = useState();
+  const [blobGruCusteio, setBlobGruCusteio] = useState();
+  const [blobComprovanteCusteio, setBlobComprovanteCusteio] = useState();
+
+  const [blobGruCapital, setBlobGruCapital] = useState();
+  const [blobComprovanteCapital, setBlobComprovanteCapital] = useState();
 
   const [isFetching, setIsFetching] = useState(false);
   const [wasHovered, setWasHovered] = useState(false);
@@ -20,11 +33,16 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
       .then((response) => {
         if (!response.data.results.length) return;
         setGru({ ...response.data.results[0], idProjeto: idProjeto });
-        const { valorTotal } = response.data.results[0];
-        setValorTotalInicial(valorTotal);
+
+        const { valorTotalCusteio } = response.data.results[0];
+        const { valorTotalCapital } = response.data.results[0];
+        setValorTotalInicialCusteio(valorTotalCusteio);
+        setValorTotalInicialCapital(valorTotalCapital);
       })
       .catch((e) => console.log(e));
   }, [idProjeto]);
+
+  console.log(gru);
 
   function handleSave() {
     //caso o gru nao exista no banco, cria-lo antes de enviar arquivos
@@ -35,7 +53,8 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
           .then((response) => {
             const gru = response.data.results[0];
             setGru(gru);
-            setValorTotalInicial(gru.valorTotal);
+            setValorTotalInicialCusteio(gru.valorTotalCusteio);
+            setValorTotalInicialCapital(gru.valorTotalCapital);
           })
           .catch((e) => console.log(e));
 
@@ -45,11 +64,14 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
     }
 
     //caso o gru ja exista no banco, atualizar e enviar arquivos
-    const { id, valorTotal } = gru;
+    const { id, valorTotalCusteio, valorTotalCapital } = gru;
     axios
-      .put(`/projeto/${idProjeto}/gru`, { gru: { id, valorTotal } })
+      .put(`/projeto/${idProjeto}/gru`, {
+        gru: { id, valorTotalCusteio, valorTotalCapital },
+      })
       .then(() => {
-        setValorTotalInicial(gru.valorTotal);
+        setValorTotalInicialCusteio(gru.valorTotalCusteio);
+        setValorTotalInicialCapital(gru.valorTotalCapital);
       })
       .catch((e) => console.log(e));
 
@@ -58,61 +80,131 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
     function updateFiles() {
       //actionAnexo de ambos podem ser post ou delete
 
-      //arquivo da gru
-      if (gru.actionAnexoGru === "post") {
+      //arquivo da gru Custeio
+      if (gru.actionAnexoGruCusteio === "post") {
         let formDataGru = new FormData();
-        formDataGru.append("file", blobGru);
+        formDataGru.append("file", blobGruCusteio);
         axios
-          .post(`projeto/${idProjeto}/gru/file?type=pathAnexoGru`, formDataGru)
+          .post(
+            `projeto/${idProjeto}/gru/file?type=pathAnexoGruCusteio`,
+            formDataGru
+          )
           .then(() => {
             //atualizar informacoes locais apos o envio
             setGru((oldGru) => ({
               ...oldGru,
-              pathAnexoGru: true,
-              actionAnexoGru: undefined,
+              pathAnexoGruCusteio: true,
+              actionAnexoGruCusteio: undefined,
             }));
           })
           .catch((e) => console.log(e));
-      } else if (gru.actionAnexoGru === "delete") {
+      } else if (gru.actionAnexoGruCusteio === "delete") {
         axios
-          .delete(`projeto/${idProjeto}/gru/file?type=pathAnexoGru`)
+          .delete(`projeto/${idProjeto}/gru/file?type=pathAnexoGruCusteio`)
           .then(() => {
-            setBlobGru();
+            setBlobGruCusteio();
             setGru((oldGru) => ({
               ...oldGru,
-              pathAnexoGru: undefined,
-              actionAnexoGru: undefined,
+              pathAnexoGruCusteio: undefined,
+              actionAnexoGruCusteio: undefined,
             }));
           })
           .catch((e) => console.log(e));
       }
 
-      //arquivo do comprovante
-      if (gru.actionAnexoComprovante === "post") {
-        let formDataComprovante = new FormData();
-        formDataComprovante.append("file", blobComprovante);
+      //arquivo da gru Capital
+      if (gru.actionAnexoGruCapital === "post") {
+        let formDataGru = new FormData();
+        formDataGru.append("file", blobGruCapital);
         axios
           .post(
-            `projeto/${idProjeto}/gru/file?type=pathAnexoComprovante`,
+            `projeto/${idProjeto}/gru/file?type=pathAnexoGruCapital`,
+            formDataGru
+          )
+          .then(() => {
+            //atualizar informacoes locais apos o envio
+            setGru((oldGru) => ({
+              ...oldGru,
+              pathAnexoGruCapital: true,
+              actionAnexoGruCapital: undefined,
+            }));
+          })
+          .catch((e) => console.log(e));
+      } else if (gru.actionAnexoGruCapital === "delete") {
+        axios
+          .delete(`projeto/${idProjeto}/gru/file?type=pathAnexoGruCapital`)
+          .then(() => {
+            setBlobGruCapital();
+            setGru((oldGru) => ({
+              ...oldGru,
+              pathAnexoGruCapital: undefined,
+              actionAnexoGruCapital: undefined,
+            }));
+          })
+          .catch((e) => console.log(e));
+      }
+
+      //arquivo do comprovante Custeio
+      if (gru.actionAnexoComprovanteCusteio === "post") {
+        let formDataComprovante = new FormData();
+        formDataComprovante.append("file", blobComprovanteCusteio);
+        axios
+          .post(
+            `projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCusteio`,
             formDataComprovante
           )
           .then(() => {
             setGru((oldGru) => ({
               ...oldGru,
-              pathAnexoComprovante: true,
-              actionAnexoComprovante: undefined,
+              pathAnexoComprovanteCusteio: true,
+              actionAnexoComprovanteCusteio: undefined,
             }));
           })
           .catch((e) => console.log(e));
-      } else if (gru.actionAnexoComprovante === "delete") {
+      } else if (gru.actionAnexoComprovanteCusteio === "delete") {
         axios
-          .delete(`projeto/${idProjeto}/gru/file?type=pathAnexoComprovante`)
+          .delete(
+            `projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCusteio`
+          )
           .then(() => {
-            setBlobComprovante();
+            setBlobComprovanteCusteio();
             setGru((oldGru) => ({
               ...oldGru,
-              pathAnexoComprovante: undefined,
-              actionAnexoComprovante: undefined,
+              pathAnexoComprovanteCusteio: undefined,
+              actionAnexoComprovanteCusteio: undefined,
+            }));
+          })
+          .catch((e) => console.log(e));
+      }
+
+      //arquivo do comprovante Capital
+      if (gru.actionAnexoComprovanteCapital === "post") {
+        let formDataComprovante = new FormData();
+        formDataComprovante.append("file", blobComprovanteCapital);
+        axios
+          .post(
+            `projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCapital`,
+            formDataComprovante
+          )
+          .then(() => {
+            setGru((oldGru) => ({
+              ...oldGru,
+              pathAnexoComprovanteCapital: true,
+              actionAnexoComprovanteCapital: undefined,
+            }));
+          })
+          .catch((e) => console.log(e));
+      } else if (gru.actionAnexoComprovanteCapital === "delete") {
+        axios
+          .delete(
+            `projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCapital`
+          )
+          .then(() => {
+            setBlobComprovanteCapital();
+            setGru((oldGru) => ({
+              ...oldGru,
+              pathAnexoComprovanteCapital: undefined,
+              actionAnexoComprovanteCapital: undefined,
             }));
           })
           .catch((e) => console.log(e));
@@ -120,56 +212,92 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
     }
   }
 
-  function handleGruChange(e) {
+  function handleGruChange(e, tipo) {
     let file = e.target.files[0];
 
     if (!file) {
-      desanexarGru();
+      tipo === "capital" ? desanexarGru("capital") : desanexarGru("custeio");
       return;
     }
 
     file.ext = getFileExtension(file.type);
 
-    setBlobGru(file);
-
-    setGru((oldGru) => ({ ...oldGru, actionAnexoGru: "post" }));
+    if (tipo === "capital") {
+      setBlobGruCapital(file);
+      setGru((oldGru) => ({ ...oldGru, actionAnexoGruCapital: "post" }));
+    } else {
+      setBlobGruCusteio(file);
+      setGru((oldGru) => ({ ...oldGru, actionAnexoGruCusteio: "post" }));
+    }
   }
 
-  function handleComprovanteChange(e) {
+  function handleComprovanteChange(e, tipo) {
     let file = e.target.files[0];
 
     if (!file) {
-      desanexarComprovante();
+      tipo === "capital"
+        ? desanexarComprovante("capital")
+        : desanexarComprovante("custeio");
       return;
     }
 
     file.ext = getFileExtension(file.type);
 
-    setBlobComprovante(file);
-
-    setGru((oldGru) => ({ ...oldGru, actionAnexoComprovante: "post" }));
+    if (tipo === "capital") {
+      setBlobComprovanteCapital(file);
+      setGru((oldGru) => ({
+        ...oldGru,
+        actionAnexoComprovanteCapital: "post",
+      }));
+    } else {
+      setBlobComprovanteCusteio(file);
+      setGru((oldGru) => ({
+        ...oldGru,
+        actionAnexoComprovanteCusteio: "post",
+      }));
+    }
   }
 
-  function desanexarGru() {
-    setBlobGru();
-    setGru((oldGru) => ({
-      ...oldGru,
-      actionAnexoGru: gru.pathAnexoGru ? "delete" : undefined,
-    }));
+  function desanexarGru(tipo) {
+    if (tipo === "capital") {
+      setBlobGruCapital();
+      setGru((oldGru) => ({
+        ...oldGru,
+        actionAnexoGruCapital: gru.pathAnexoGruCapital ? "delete" : undefined,
+      }));
+    } else {
+      setBlobGruCusteio();
+      setGru((oldGru) => ({
+        ...oldGru,
+        actionAnexoGruCusteio: gru.pathAnexoGruCusteio ? "delete" : undefined,
+      }));
+    }
   }
 
-  function desanexarComprovante() {
-    setBlobComprovante();
-    setGru((oldGru) => ({
-      ...oldGru,
-      actionAnexoComprovante: gru.pathAnexoComprovante ? "delete" : undefined,
-    }));
+  function desanexarComprovante(tipo) {
+    if (tipo === "capital") {
+      setBlobComprovanteCapital();
+      setGru((oldGru) => ({
+        ...oldGru,
+        actionAnexoComprovanteCapital: gru.pathAnexoComprovanteCapital
+          ? "delete"
+          : undefined,
+      }));
+    } else {
+      setBlobComprovanteCusteio();
+      setGru((oldGru) => ({
+        ...oldGru,
+        actionAnexoComprovanteCusteio: gru.pathAnexoComprovanteCusteio
+          ? "delete"
+          : undefined,
+      }));
+    }
   }
 
   //sincronizar valorTotalInicial com o valorDevolvido do componente pai
   useEffect(() => {
-    setTotalDevolvido(valorTotalInicial);
-  }, [valorTotalInicial, setTotalDevolvido]);
+    setTotalDevolvido(valorTotalInicialCusteio + valorTotalInicialCapital);
+  }, [valorTotalInicialCusteio, valorTotalInicialCapital, setTotalDevolvido]);
 
   //baixar arquivos inicialmente on mouse over
   function handleMouseOver() {
@@ -179,37 +307,87 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
     setIsFetching(true);
     let actions = [];
     //caso haja um arquivo da gru e ele ja nao tenha sido baixado
-    if (gru.pathAnexoGru && !blobGru && !gru.actionAnexoGru) {
+    if (
+      gru.pathAnexoGruCusteio &&
+      !blobGruCusteio &&
+      !gru.actionAnexoGruCusteio
+    ) {
       actions.push(
         axios
-          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGru`)
+          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGruCusteio`)
           .then((response) => {
             const mime = response.data.fileMime;
             const array = [new Uint8Array(response.data.file.data)];
             const blob = new Blob(array, { type: mime });
             blob.ext = getFileExtension(blob.type);
 
-            setBlobGru(blob);
+            setBlobGruCusteio(blob);
+          })
+          .catch((e) => console.log(e))
+      );
+    }
+    //mesma logica para o comprovante
+    // Custeio
+    if (
+      gru.pathAnexoComprovanteCusteio &&
+      !blobComprovanteCusteio &&
+      !gru.actionAnexoComprovanteCusteio
+    ) {
+      actions.push(
+        axios
+          .get(
+            `/projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCusteio`
+          )
+          .then((response) => {
+            const mime = response.data.fileMime;
+            const array = [new Uint8Array(response.data.file.data)];
+            const blob = new Blob(array, { type: mime });
+            blob.ext = getFileExtension(blob.type);
+
+            setBlobComprovanteCusteio(blob);
+          })
+          .catch((e) => console.log(e))
+      );
+    }
+
+    // Capital
+    if (
+      gru.pathAnexoGruCapital &&
+      !blobGruCapital &&
+      !gru.actionAnexoGruCapital
+    ) {
+      actions.push(
+        axios
+          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGruCapital`)
+          .then((response) => {
+            const mime = response.data.fileMime;
+            const array = [new Uint8Array(response.data.file.data)];
+            const blob = new Blob(array, { type: mime });
+            blob.ext = getFileExtension(blob.type);
+
+            setBlobGruCapital(blob);
           })
           .catch((e) => console.log(e))
       );
     }
     //mesma logica para o comprovante
     if (
-      gru.pathAnexoComprovante &&
-      !blobComprovante &&
-      !gru.actionAnexoComprovante
+      gru.pathAnexoComprovanteCapital &&
+      !blobComprovanteCapital &&
+      !gru.actionAnexoComprovanteCapital
     ) {
       actions.push(
         axios
-          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoComprovante`)
+          .get(
+            `/projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCapital`
+          )
           .then((response) => {
             const mime = response.data.fileMime;
             const array = [new Uint8Array(response.data.file.data)];
             const blob = new Blob(array, { type: mime });
             blob.ext = getFileExtension(blob.type);
 
-            setBlobComprovante(blob);
+            setBlobComprovanteCapital(blob);
           })
           .catch((e) => console.log(e))
       );
@@ -221,15 +399,27 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
     });
   }
 
-  const gruBlobURL = blobGru ? URL.createObjectURL(blobGru) : "";
-  const comprovanteBlobURL = blobComprovante
-    ? URL.createObjectURL(blobComprovante)
+  const gruBlobURLCusteio = blobGruCusteio
+    ? URL.createObjectURL(blobGruCusteio)
+    : "";
+  const comprovanteBlobURLCusteio = blobComprovanteCusteio
+    ? URL.createObjectURL(blobComprovanteCusteio)
+    : "";
+
+  const gruBlobURLCapital = blobGruCapital
+    ? URL.createObjectURL(blobGruCapital)
+    : "";
+  const comprovanteBlobURLCapital = blobComprovanteCapital
+    ? URL.createObjectURL(blobComprovanteCapital)
     : "";
 
   const hasChanges =
-    Number(gru.valorTotal) !== Number(valorTotalInicial) ||
-    gru.actionAnexoComprovante ||
-    gru.actionAnexoGru;
+    Number(gru.valorTotalCapital) + Number(gru.valorTotalCusteio) !==
+      Number(valorTotalInicialCusteio) + Number(valorTotalInicialCapital) ||
+    gru.actionAnexoComprovanteCusteio ||
+    gru.actionAnexoGruCusteio ||
+    gru.actionAnexoComprovanteCapital ||
+    gru.actionAnexoGruCapital;
 
   return (
     <div onMouseEnter={handleMouseOver} style={{ position: "relative" }}>
@@ -241,7 +431,7 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
           alignItems: "center",
         }}
       >
-        GRU - GRU - Guia de Recolhimento da União{" "}
+        GRU - Guia de Recolhimento da União{" "}
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <p>{hasChanges && "Há alterações não salvas "}</p>
           <button
@@ -266,348 +456,416 @@ export default function Gru({ idProjeto, valorRestanteCusteio, valorRestanteCapi
           </button>
         </div>
       </h1>
-      <div className={style.mainContentGru}>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <div className={style.divTopCusteio}>
-            <label htmlFor="valorGruCusteio">
-              <p>Valor devolvido custeio:</p>
-              <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
-                (Valor restante:{" "}
-                {valorRestanteCusteio.toLocaleString("pt-br", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
-                )
-              </p>
-            </label>
-            {!gru.valorTotal && <div className={style.svgInputGru}>!</div>}
-            <input
-              style={!gru.valorTotal ? { border: "0.2rem solid #ffea00" } : {}}
-              type="number"
-              name="valorGru"
-              id="valorGruCusteio"
-              placeholder="Digite o valor aqui"
-              value={gru.valorTotal || ""}
-              onChange={(e) =>
-                setGru((oldGru) => ({ ...oldGru, valorTotal: e.target.value }))
-              }
-            />
-          </div>
 
-          <div className={style.containerGruCusteio}>
-            {gruBlobURL ? (
-              <a href={gruBlobURL} target="_blank" rel="noreferrer">
-                <p
-                  style={{
-                    padding: "0.47rem",
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  Visualizar GRU
-                </p>
-              </a>
-            ) : wasHovered ? (
-              <p style={{ display: "flex", justifyContent: "center" }}>
-                <svg
-                  style={{ transform: "translateY(-0.2rem)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                  width="24px"
-                  fill="#000000"
-                >
-                  <path
-                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
-                    opacity="1"
-                    fill="#ffea00"
-                  />
-                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
-                </svg>{" "}
-                GRU não anexada
-              </p>
-            ) : (
-              <p>...</p>
-            )}
-            <div>
-              <button onClick={desanexarGru} disabled={!blobGru}>
-                Desanexar
-              </button>
-              <label htmlFor="anexarGruCusteio">
-                <p>Anexar GRU</p>
-              </label>
-              <input
-                type="file"
-                name="anexarGru"
-                id="anexarGruCusteio"
-                onChange={handleGruChange}
-                hidden
-              />
-              <a
-                download={gruBlobURL ? "anexo." + blobGru.ext : "anexo"}
-                href={gruBlobURL}
-                style={
-                  !gruBlobURL ? { pointerEvents: "none", opacity: "50%" } : {}
-                }
-              >
-                <p>Download</p>
-              </a>
-            </div>
-          </div>
-
-          {}
-
-          <div className={style.containerComprovanteCusteio}>
-            {comprovanteBlobURL ? (
-              <a href={comprovanteBlobURL} target="_blank" rel="noreferrer">
-                <p
-                  style={{
-                    padding: "0.47rem",
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  Visualizar Comprovante
-                </p>
-              </a>
-            ) : wasHovered ? (
-              <p style={{ display: "flex", justifyContent: "center" }}>
-                <svg
-                  style={{ transform: "translateY(-0.2rem)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                  width="24px"
-                  fill="#000000"
-                >
-                  <path
-                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
-                    opacity="1"
-                    fill="#ffea00"
-                  />
-                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
-                </svg>{" "}
-                Comprovante não anexado
-              </p>
-            ) : (
-              <p>...</p>
-            )}
-            <div>
-              <button
-                onClick={desanexarComprovante}
-                disabled={!blobComprovante}
-              >
-                Desanexar
-              </button>
-              <label htmlFor="slaCusteio">
-                <p>
-                  Anexar <br /> Comprovante
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <div className={style.mainContentGru}>
+          <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>Custeio</h2>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className={style.divTop}>
+              <label htmlFor="valorGruCusteio">
+                <p>Valor devolvido custeio:</p>
+                <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
+                  (Valor restante:{" "}
+                  {valorRestanteCusteio.toLocaleString("pt-br", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                  )
                 </p>
               </label>
+              {!gru.valorTotalCusteio && (
+                <div className={style.svgInputGru}>!</div>
+              )}
               <input
-                onChange={handleComprovanteChange}
-                type="file"
-                name="anexarGru"
-                id="slaCusteio"
-                hidden
-              />
-              <a
-                download={
-                  comprovanteBlobURL ? "anexo." + blobComprovante.ext : "anexo"
-                }
-                href={comprovanteBlobURL}
                 style={
-                  !comprovanteBlobURL
-                    ? { pointerEvents: "none", opacity: "50%" }
+                  !gru.valorTotalCusteio
+                    ? { border: "0.2rem solid #ffea00" }
                     : {}
                 }
-              >
-                <p>Download</p>
-              </a>
+                type="number"
+                name="valorGru"
+                id="valorGruCusteio"
+                placeholder="Digite o valor aqui"
+                value={gru.valorTotalCusteio || ""}
+                onChange={(e) =>
+                  setGru((oldGru) => ({
+                    ...oldGru,
+                    valorTotalCusteio: e.target.value,
+                  }))
+                }
+              />
             </div>
-          </div>
-
-          <div
-            className={style.separar}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div
-              style={{
-                height: "1px",
-                width: "100%",
-                backgroundColor: "#6930c3",
-              }}
-            ></div>
-            <div
-              style={{
-                height: "0px",
-                width: "100%",
-                border: "1px dashed black",
-              }}
-            ></div>
-            <div></div>
-          </div>
-
-          <div className={style.divTopCapital}>
-            <label htmlFor="valorGruCapital">
-              <p>Valor devolvido capital:</p>
-              <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
-                (Valor restante:{" "}
-                {valorRestanteCapital.toLocaleString("pt-br", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
-                )
-              </p>
-            </label>
-            {!gru.valorTotal && <div className={style.svgInputGru}>!</div>}
-            <input
-              style={!gru.valorTotal ? { border: "0.2rem solid #ffea00" } : {}}
-              type="number"
-              name="valorGru"
-              id="valorGruCapital"
-              placeholder="Digite o valor aqui"
-              value={gru.valorTotal || ""}
-              onChange={(e) =>
-                setGru((oldGru) => ({ ...oldGru, valorTotal: e.target.value }))
-              }
-            />
-          </div>
-          <div className={style.containerGruCapital}>
-            {gruBlobURL ? (
-              <a href={gruBlobURL} target="_blank" rel="noreferrer">
+            <div className={style.containerGru}>
+              {gruBlobURLCusteio ? (
+                <a href={gruBlobURLCusteio} target="_blank" rel="noreferrer">
+                  <p
+                    style={{
+                      padding: "0.5rem",
+                      display: "flex",
+                      justifyContent: "center",
+                      fontSize: "1rem ",
+                    }}
+                  >
+                    Visualizar GRU
+                  </p>
+                </a>
+              ) : wasHovered ? (
                 <p
                   style={{
-                    padding: "0.47rem",
                     display: "flex",
                     justifyContent: "center",
+                    fontSize: "1rem",
+                    padding: "0.5rem",
                   }}
                 >
-                  Visualizar GRU
+                  <svg
+                    style={{ transform: "translate(-0.3rem,-0.2rem)" }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 0 24 24"
+                    width="24px"
+                    fill="#000000"
+                  >
+                    <path
+                      d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                      opacity="1"
+                      fill="#ffea00"
+                    />
+                    <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                  </svg>{" "}
+                  GRU não anexada
                 </p>
-              </a>
-            ) : wasHovered ? (
-              <p style={{ display: "flex", justifyContent: "center" }}>
-                <svg
-                  style={{ transform: "translateY(-0.2rem)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                  width="24px"
-                  fill="#000000"
+              ) : (
+                <p>...</p>
+              )}
+              <div>
+                <button
+                  onClick={() => desanexarGru("custeio")}
+                  disabled={!blobGruCusteio}
                 >
-                  <path
-                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
-                    opacity="1"
-                    fill="#ffea00"
-                  />
-                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
-                </svg>{" "}
-                GRU não anexada
-              </p>
-            ) : (
-              <p>...</p>
-            )}
-            <div>
-              <button onClick={desanexarGru} disabled={!blobGru}>
-                Desanexar
-              </button>
-              <label htmlFor="anexarGruCapital">
-                <p>Anexar GRU</p>
-              </label>
-              <input
-                type="file"
-                name="anexarGru"
-                id="anexarGruCapital"
-                onChange={handleGruChange}
-                hidden
-              />
-              <a
-                download={gruBlobURL ? "anexo." + blobGru.ext : "anexo"}
-                href={gruBlobURL}
-                style={
-                  !gruBlobURL ? { pointerEvents: "none", opacity: "50%" } : {}
-                }
-              >
-                <p>Download</p>
-              </a>
+                  Desanexar
+                </button>
+                <label htmlFor="anexarGruCusteio">
+                  <p>Anexar GRU</p>
+                </label>
+                <input
+                  type="file"
+                  name="anexarGru"
+                  id="anexarGruCusteio"
+                  onChange={(e) => handleGruChange(e, "custeio")}
+                  hidden
+                />
+                <a
+                  download={
+                    gruBlobURLCusteio ? "anexo." + blobGruCusteio.ext : "anexo"
+                  }
+                  href={gruBlobURLCusteio}
+                  style={
+                    !gruBlobURLCusteio
+                      ? { pointerEvents: "none", opacity: "50%" }
+                      : {}
+                  }
+                >
+                  Download
+                </a>
+              </div>
             </div>
-          </div>
-          <div className={style.containerComprovanteCapital}>
-            {comprovanteBlobURL ? (
-              <a href={comprovanteBlobURL} target="_blank" rel="noreferrer">
+            {}
+            <div className={style.containerComprovante}>
+              {comprovanteBlobURLCusteio ? (
+                <a
+                  href={comprovanteBlobURLCusteio}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <p
+                    style={{
+                      padding: "0.5rem",
+                      fontSize: "1rem",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    Visualizar Comprovante
+                  </p>
+                </a>
+              ) : wasHovered ? (
                 <p
                   style={{
-                    padding: "0.47rem",
                     display: "flex",
                     justifyContent: "center",
+                    fontSize: "1rem",
+                    padding: "0.5rem",
                   }}
                 >
-                  Visualizar Comprovante
+                  <svg
+                    style={{ transform: "translate(-0.3rem,-0.2rem)" }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 0 24 24"
+                    width="24px"
+                    fill="#000000"
+                  >
+                    <path
+                      d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                      opacity="1"
+                      fill="#ffea00"
+                    />
+                    <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                  </svg>{" "}
+                  Comprovante não anexado
                 </p>
-              </a>
-            ) : wasHovered ? (
-              <p style={{ display: "flex", justifyContent: "center" }}>
-                <svg
-                  style={{ transform: "translateY(-0.2rem)" }}
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                  width="24px"
-                  fill="#000000"
+              ) : (
+                <p>...</p>
+              )}
+              <div>
+                <button
+                  onClick={() => {
+                    desanexarComprovante("custeio");
+                  }}
+                  disabled={!blobComprovanteCusteio}
                 >
-                  <path
-                    d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
-                    opacity="1"
-                    fill="#ffea00"
-                  />
-                  <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
-                </svg>{" "}
-                Comprovante não anexado
-              </p>
-            ) : (
-              <p>...</p>
-            )}
-            <div>
-              <button
-                onClick={desanexarComprovante}
-                disabled={!blobComprovante}
-              >
-                Desanexar
-              </button>
-              <label htmlFor="slaCapital">
-                <p>
-                  Anexar <br /> Comprovante
+                  Desanexar
+                </button>
+                <label htmlFor="slaCusteio">
+                  <p>
+                    Anexar <br /> Comprovante
+                  </p>
+                </label>
+                <input
+                  onChange={(e) => {
+                    handleComprovanteChange(e, "custeio");
+                  }}
+                  type="file"
+                  name="anexarGru"
+                  id="slaCusteio"
+                  hidden
+                />
+                <a
+                  download={
+                    comprovanteBlobURLCusteio
+                      ? "anexo." + blobComprovanteCusteio.ext
+                      : "anexo"
+                  }
+                  href={comprovanteBlobURLCusteio}
+                  style={
+                    !comprovanteBlobURLCusteio
+                      ? { pointerEvents: "none", opacity: "50%" }
+                      : {}
+                  }
+                >
+                  Download
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div className={style.mainContentGru}>
+          <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>Capital</h2>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className={style.divTop}>
+              <label htmlFor="valorGruCapital">
+                <p>Valor devolvido capital:</p>
+                <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
+                  (Valor restante:{" "}
+                  {valorRestanteCapital.toLocaleString("pt-br", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                  )
                 </p>
               </label>
+              {!gru.valorTotalCapital && (
+                <div className={style.svgInputGru}>!</div>
+              )}
               <input
-                onChange={handleComprovanteChange}
-                type="file"
-                name="anexarGru"
-                id="slaCapital"
-                hidden
-              />
-              <a
-                download={
-                  comprovanteBlobURL ? "anexo." + blobComprovante.ext : "anexo"
-                }
-                href={comprovanteBlobURL}
                 style={
-                  !comprovanteBlobURL
-                    ? { pointerEvents: "none", opacity: "50%" }
+                  !gru.valorTotalCapital
+                    ? { border: "0.2rem solid #ffea00" }
                     : {}
                 }
-              >
-                <p>Download</p>
-              </a>
+                type="number"
+                name="valorGru"
+                id="valorGruCapital"
+                placeholder="Digite o valor aqui"
+                value={gru.valorTotalCapital || ""}
+                onChange={(e) =>
+                  setGru((oldGru) => ({
+                    ...oldGru,
+                    valorTotalCapital: e.target.value,
+                  }))
+                }
+              />
             </div>
-          </div>
-        </form>
+            <div className={style.containerGru}>
+              {gruBlobURLCapital ? (
+                <a href={gruBlobURLCapital} target="_blank" rel="noreferrer">
+                  <p
+                    style={{
+                      padding: "0.5rem",
+                      display: "flex",
+                      justifyContent: "center",
+                      fontSize: "1rem ",
+                    }}
+                  >
+                    Visualizar GRU
+                  </p>
+                </a>
+              ) : wasHovered ? (
+                <p
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    fontSize: "1rem",
+                    padding: "0.5rem",
+                  }}
+                >
+                  <svg
+                    style={{ transform: "translate(-0.3rem,-0.2rem)" }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 0 24 24"
+                    width="24px"
+                    fill="#000000"
+                  >
+                    <path
+                      d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                      opacity="1"
+                      fill="#ffea00"
+                    />
+                    <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                  </svg>{" "}
+                  GRU não anexada
+                </p>
+              ) : (
+                <p>...</p>
+              )}
+              <div>
+                <button
+                  onClick={() => {
+                    desanexarGru("capital");
+                  }}
+                  disabled={!blobGruCapital}
+                >
+                  Desanexar
+                </button>
+                <label htmlFor="anexarGruCapital">
+                  <p>Anexar GRU</p>
+                </label>
+                <input
+                  type="file"
+                  name="anexarGru"
+                  id="anexarGruCapital"
+                  onChange={(e) => {
+                    handleGruChange(e, "capital");
+                  }}
+                  hidden
+                />
+                <a
+                  download={
+                    gruBlobURLCapital ? "anexo." + blobGruCapital.ext : "anexo"
+                  }
+                  href={gruBlobURLCapital}
+                  style={
+                    !gruBlobURLCapital
+                      ? { pointerEvents: "none", opacity: "50%" }
+                      : {}
+                  }
+                >
+                  Download
+                </a>
+              </div>
+            </div>
+            {}
+            <div className={style.containerComprovante}>
+              {comprovanteBlobURLCapital ? (
+                <a
+                  href={comprovanteBlobURLCapital}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <p
+                    style={{
+                      padding: "0.5rem",
+                      fontSize: "1rem",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    Visualizar Comprovante
+                  </p>
+                </a>
+              ) : wasHovered ? (
+                <p
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    fontSize: "1rem",
+                    padding: "0.5rem",
+                  }}
+                >
+                  <svg
+                    style={{ transform: "translate(-0.3rem,-0.2rem)" }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 0 24 24"
+                    width="24px"
+                    fill="#000000"
+                  >
+                    <path
+                      d="M4.47 19h15.06L12 5.99 4.47 19zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z"
+                      opacity="1"
+                      fill="#ffea00"
+                    />
+                    <path d="M1 21h22L12 2 1 21zm3.47-2L12 5.99 19.53 19H4.47zM11 16h2v2h-2zm0-6h2v4h-2z" />
+                  </svg>{" "}
+                  Comprovante não anexado
+                </p>
+              ) : (
+                <p>...</p>
+              )}
+              <div>
+                <button
+                  onClick={() => {
+                    desanexarComprovante("capital");
+                  }}
+                  disabled={!blobComprovanteCapital}
+                >
+                  Desanexar
+                </button>
+                <label htmlFor="slaCapital">
+                  <p>
+                    Anexar <br /> Comprovante
+                  </p>
+                </label>
+                <input
+                  onChange={(e) => {
+                    handleComprovanteChange(e, "capital");
+                  }}
+                  type="file"
+                  name="anexarGru"
+                  id="slaCapital"
+                  hidden
+                />
+                <a
+                  download={
+                    comprovanteBlobURLCapital
+                      ? "anexo." + blobComprovanteCapital.ext
+                      : "anexo"
+                  }
+                  href={comprovanteBlobURLCapital}
+                  style={
+                    !comprovanteBlobURLCapital
+                      ? { pointerEvents: "none", opacity: "50%" }
+                      : {}
+                  }
+                >
+                  Download
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

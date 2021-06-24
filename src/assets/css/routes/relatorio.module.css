@@ -47,55 +47,28 @@
 
 .mainContentGru {
   box-sizing: border-box;
-  width: 100%;
+  width: 50%;
   margin: 1rem 0;
-
-  border-radius: 0.5rem;
-  overflow: hidden;
-
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 .mainContentGru form {
   display: grid;
-  grid-template-rows: 1fr 0.7fr 1rem 1fr 0.7fr;
-  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 0.8fr 0.8fr;
+  grid-template-columns: 1fr;
   grid-template-areas:
-    "divTopCusteio divTopCusteio"
-    "containerGruCusteio containerComprovanteCusteio"
-    "separar separar"
-    "divTopCapital divTopCapital"
-    "containerGruCapital containerComprovanteCapital";
+    "divTop"
+    "containerGru"
+    "containerComprovante";
   align-items: center;
   background-color: #6930c3;
   overflow: hidden;
   column-gap: 0.1rem;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 0.5rem;
 }
 
-.separar {
-  grid-area: separar;
-  background-color: white;
-  height: 100%;
-}
-
-.divTopCusteio {
-  grid-area: divTopCusteio;
-}
-
-.divTopCapital {
-  grid-area: divTopCapital;
-}
-
-.containerGruCapital {
-  grid-area: containerGruCapital;
-}
-
-.containerComprovanteCapital {
-  grid-area: containerComprovanteCapital;
-}
-
-.divTopCusteio,
-.divTopCapital {
+.divTop {
+  grid-area: divTop;
   background-color: #6930c3;
   height: 100%;
   display: flex;
@@ -104,26 +77,22 @@
   position: relative;
 }
 
-.divTopCusteio p,
-.divTopCapital p {
+.divTop p {
   padding: 0.5rem 0 0 0;
 }
 
-.divTopCusteio label,
-.divTopCapital label {
+.divTop label {
   display: block;
   margin: auto;
   width: max-content;
 }
 
-.divTopCusteio label p,
-.divTopCapital label p {
+.divTop label p {
   color: white;
   font-size: 1.3rem;
 }
 
-.divTopCusteio input,
-.divTopCapital input {
+.divTop input {
   width: 100%;
   /* transform: translateX(0.03rem); */
   text-align: center;
@@ -134,34 +103,26 @@
   border: none;
 }
 
-.containerGruCusteio {
-  grid-area: containerGruCusteio;
-}
-
-.containerGruCusteio,
-.containerGruCapital {
+.containerGru {
+  grid-area: containerGru;
   position: relative;
   height: 100%;
   background: #5390d9;
   border-radius: 0 0 0.5rem 0.5rem;
+  border-top: 0.1rem solid #6930c3;
 }
 
-.containerComprovanteCusteio {
-  grid-area: containerComprovanteCusteio;
-}
-
-.containerComprovanteCusteio,
-.containerComprovanteCapital {
+.containerComprovante {
+  grid-area: containerComprovante;
   position: relative;
   height: 100%;
   background: #5390d9;
   border-radius: 0 0 0.5rem 0.5rem;
+  border-top: 0.1rem solid #6930c3;
 }
 
-.containerGruCusteio div,
-.containerComprovanteCusteio div,
-.containerGruCapital div,
-.containerComprovanteCapital div {
+.containerGru div,
+.containerComprovante div {
   display: flex;
 
   background-color: white;
@@ -170,55 +131,48 @@
   bottom: 0;
   width: 100%;
   height: 50%;
+  border-bottom: 0.1rem solid #6930c3;
+  border-top: 0.1rem solid #6930c3;
 }
 
-.containerGruCusteio div button,
-.containerGruCusteio div label,
-.containerGruCusteio div a,
-.containerComprovanteCusteio div button,
-.containerComprovanteCusteio div label,
-.containerComprovanteCusteio div a,
-.containerGruCapital div button,
-.containerGruCapital div label,
-.containerGruCapital div a,
-.containerComprovanteCapital div button,
-.containerComprovanteCapital div label,
-.containerComprovanteCapital div a {
+.containerGru div button,
+.containerGru div label,
+.containerGru div a,
+.containerComprovante div button,
+.containerComprovante div label,
+.containerComprovante div a {
   background-color: #e2e2e2;
+  font-size: small;
   border: none;
   width: 100%;
   text-align: center;
 }
 
-.containerGruCusteio div label,
-.containerComprovanteCusteio div label,
-.containerGruCapital div label,
-.containerComprovanteCapital div label {
+.containerGru div label p,
+.containerComprovante div label p {
+  font-size: small;
+}
+
+.containerGru div label,
+.containerComprovante div label {
   border-left: 0.1px solid #6930c3;
   border-right: 0.1px solid #6930c3;
 }
 
-.containerGruCusteio div a,
-.containerGruCusteio div label,
-.containerComprovanteCusteio div a,
-.containerComprovanteCusteio div label,
-.containerGruCapital div a,
-.containerGruCapital div label,
-.containerComprovanteCapital div a,
-.containerComprovanteCapital div label {
+.containerGru div a,
+.containerGru div label,
+.containerComprovante div a,
+.containerComprovante div label {
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
 }
 
-.containerGruCusteio > p,
-.containerComprovanteCusteio > p,
-.containerGruCapital > p,
-.containerComprovanteCapital > p {
+.containerGru > p,
+.containerComprovante > p {
   text-align: center;
   padding: 0.47rem 0;
-  border-bottom: 0.1rem solid #6930c3;
 }
 
 .svgInputGru {

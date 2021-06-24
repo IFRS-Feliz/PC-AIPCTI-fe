@@ -541,7 +541,15 @@ export default function Item({
           <p>{item.nomeMaterialServico || "Novo item"}</p>
           <div>
             <span className={content === "informacoes" ? style.ticoAppear : ""}>
-              <button onClick={() => handleChangeContent("informacoes")}>
+              <button
+                onClick={() => handleChangeContent("informacoes")}
+                className={
+                  content === "informacoes" ? style.borderRadiusLeft : ""
+                }
+                style={{
+                  borderRadius: "0.5rem 0 0 0.5rem",
+                }}
+              >
                 Informações
               </button>
             </span>
@@ -549,7 +557,12 @@ export default function Item({
             <span
               className={content === "orcamentos" ? style.ticoAppearWhite : ""}
             >
-              <button onClick={() => handleChangeContent("orcamentos")}>
+              <button
+                onClick={() => handleChangeContent("orcamentos")}
+                className={
+                  content === "orcamentos" ? style.borderRadiusNone : ""
+                }
+              >
                 Orçamentos
               </button>
             </span>
@@ -558,8 +571,12 @@ export default function Item({
               className={content === "justificativa" ? style.ticoAppear : ""}
             >
               <button
+                style={{ borderRadius: "0 0.5rem 0.5rem 0" }}
                 onClick={() => handleChangeContent("justificativa")}
                 disabled={!item.isNaturezaSingular}
+                className={
+                  content === "justificativa" ? style.borderRadiusRight : ""
+                }
               >
                 Justificativa
               </button>

@@ -67,11 +67,10 @@
   z-index: 1;
   margin-right: 1rem;
   height: 2.2rem;
-  background-color: blueviolet;
+
   display: flex;
   align-items: center;
   border-radius: 0.5rem;
-  overflow: hidden;
 }
 
 .mainHeader div button {
@@ -79,6 +78,7 @@
   border: none;
   padding: 0 0.8rem;
   background-color: transparent;
+  background-color: blueviolet;
   height: 2.2rem;
 }
 
@@ -529,7 +529,7 @@
 .ticoAppear,
 .ticoAppearWhite {
   position: relative !important;
-  background-color: #711ebe !important;
+  /* background-color: #711ebe !important; */
 }
 
 .ticoAppear::after,
@@ -552,4 +552,17 @@
 
 .ticoAppearWhite::after {
   border-bottom: 13px solid white;
+}
+
+.borderRadiusLeft {
+  border-radius: 0.5rem 0 0 0.5rem;
+  background-color: #711ebe !important;
+}
+.borderRadiusNone {
+  border-radius: 0;
+  background-color: #711ebe !important;
+}
+.borderRadiusRight {
+  border-radius: 0 0.5rem 0.5rem 0;
+  background-color: #711ebe !important;
 }
