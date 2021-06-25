@@ -1,5 +1,4 @@
-import axios from "../../axios";
-import axiosDefault from "axios";
+import axios, { fileBufferAxios } from "../../axios";
 import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
@@ -32,17 +31,13 @@ export default function Relatorio() {
   const relatorioDownload = useRef();
 
   function handleRequestRelatorio() {
-    axiosDefault
-      .get(`${process.env.REACT_APP_API_URL}/projeto/${id}/relatorio`, {
-        responseType: "arraybuffer",
-        headers: {
-          authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      })
+    fileBufferAxios
+      .get(`/projeto/${id}/relatorio`)
       .then((response) => {
+        const mime = response.headers["content-type"];
         const data = response.data;
         const blob = new Blob([data], {
-          type: "application/octet-stream",
+          type: mime,
         });
         const url = URL.createObjectURL(blob);
         setRelatorioUrl(url);

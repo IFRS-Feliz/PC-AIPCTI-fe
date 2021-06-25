@@ -5,6 +5,7 @@ const instance = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: { "Content-Type": "application/json" },
   responseType: "json",
+  withCredentials: true,
 });
 
 export const loginAxios = axios.create({
@@ -12,8 +13,15 @@ export const loginAxios = axios.create({
   headers: { "Content-Type": "application/json" },
   timeout: 5000,
   responseType: "json",
+  withCredentials: true,
 }); //instancia sem interceptors para Login
-loginAxios.defaults.withCredentials = true;
+
+export const fileBufferAxios = axios.create({
+  baseURL: process.env.REACT_APP_API_URL,
+  headers: { "Content-Type": "application/json" },
+  responseType: "arraybuffer",
+  withCredentials: true,
+});
 
 //enviar token nos headers do request caso ele exista
 //caso ele nao exista, servidor respondera se deu refresh ou nao
@@ -55,7 +63,5 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-instance.defaults.withCredentials = true;
 
 export default instance;

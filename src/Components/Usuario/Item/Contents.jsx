@@ -1,5 +1,5 @@
 import style from "../../../assets/css/components/item.module.css";
-import axios from "../../../axios";
+import axios, { fileBufferAxios } from "../../../axios";
 import { useEffect, useRef, useState } from "react";
 import Loading from "../../Loading";
 import {
@@ -33,7 +33,7 @@ function MainContent({
   warnings,
   warningsOrcamentos,
   setWarningsOrcamentos,
-  handleTogglingModal
+  handleTogglingModal,
 }) {
   if (content === "informacoes")
     return (
@@ -83,7 +83,7 @@ function ContentInformacoes({
   setDirtyItemFields,
   initialItem,
   warnings,
-  handleTogglingModal
+  handleTogglingModal,
 }) {
   useEffect(() => {
     if (!canBeNaturezaSingular(item.tipo)) {
@@ -344,7 +344,7 @@ function ContentOrcamentos({
   initialOrcamentos,
   warningsOrcamentos,
   setWarningsOrcamentos,
-  handleTogglingModal
+  handleTogglingModal,
 }) {
   const [current, setCurrent] = useState(0);
   const botoesRef = useRef();
@@ -919,26 +919,32 @@ function AnexoContent({
     function fetchFiles() {
       setIsFetching(true);
       if (index !== null) {
-        axios.get(`/orcamento/${item[index].id}/file`).then((response) => {
-          const mime = response.data.fileMime;
-          const array = [new Uint8Array(response.data.file.data)];
-          const blob = new Blob(array, { type: mime });
-          blob.ext = getFileExtension(blob.type);
+        fileBufferAxios
+          .get(`/orcamento/${item[index].id}/file`)
+          .then((response) => {
+            const mime = response.headers["content-type"];
+            const data = response.data;
+            const blob = new Blob([data], {
+              type: mime,
+            });
+            blob.ext = getFileExtension(blob.type);
 
-          let newObject = [...anexos];
-          newObject[index] = blob;
-          setAnexos(newObject);
-          // setBlob(blob);
-          setIsFetching(false);
-        });
+            let newObject = [...anexos];
+            newObject[index] = blob;
+            setAnexos(newObject);
+            // setBlob(blob);
+            setIsFetching(false);
+          });
       } else {
         const url = isJustificativa
           ? `/justificativa/${item.id}/file`
           : `/item/${item.id}/file`;
-        axios.get(url).then((response) => {
-          const mime = response.data.fileMime;
-          const array = [new Uint8Array(response.data.file.data)];
-          const blob = new Blob(array, { type: mime });
+        fileBufferAxios.get(url).then((response) => {
+          const mime = response.headers["content-type"];
+          const data = response.data;
+          const blob = new Blob([data], {
+            type: mime,
+          });
           blob.ext = getFileExtension(blob.type);
 
           setAnexos(blob);

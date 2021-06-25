@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import style from "../../assets/css/routes/relatorio.module.css";
-import axios from "../../axios";
+import axios, { fileBufferAxios } from "../../axios";
 import Loading from "../../Components/Loading";
 
 export default function Gru({
@@ -313,12 +313,14 @@ export default function Gru({
       !gru.actionAnexoGruCusteio
     ) {
       actions.push(
-        axios
+        fileBufferAxios
           .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGruCusteio`)
           .then((response) => {
-            const mime = response.data.fileMime;
-            const array = [new Uint8Array(response.data.file.data)];
-            const blob = new Blob(array, { type: mime });
+            const mime = response.headers["content-type"];
+            const data = response.data;
+            const blob = new Blob([data], {
+              type: mime,
+            });
             blob.ext = getFileExtension(blob.type);
 
             setBlobGruCusteio(blob);
@@ -334,14 +336,15 @@ export default function Gru({
       !gru.actionAnexoComprovanteCusteio
     ) {
       actions.push(
-        axios
-          .get(
-            `/projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCusteio`
-          )
+        fileBufferAxios
+          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGruCusteio`)
+
           .then((response) => {
-            const mime = response.data.fileMime;
-            const array = [new Uint8Array(response.data.file.data)];
-            const blob = new Blob(array, { type: mime });
+            const mime = response.headers["content-type"];
+            const data = response.data;
+            const blob = new Blob([data], {
+              type: mime,
+            });
             blob.ext = getFileExtension(blob.type);
 
             setBlobComprovanteCusteio(blob);
@@ -357,12 +360,14 @@ export default function Gru({
       !gru.actionAnexoGruCapital
     ) {
       actions.push(
-        axios
-          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGruCapital`)
+        fileBufferAxios
+          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGruCusteio`)
           .then((response) => {
-            const mime = response.data.fileMime;
-            const array = [new Uint8Array(response.data.file.data)];
-            const blob = new Blob(array, { type: mime });
+            const mime = response.headers["content-type"];
+            const data = response.data;
+            const blob = new Blob([data], {
+              type: mime,
+            });
             blob.ext = getFileExtension(blob.type);
 
             setBlobGruCapital(blob);
@@ -377,14 +382,14 @@ export default function Gru({
       !gru.actionAnexoComprovanteCapital
     ) {
       actions.push(
-        axios
-          .get(
-            `/projeto/${idProjeto}/gru/file?type=pathAnexoComprovanteCapital`
-          )
+        fileBufferAxios
+          .get(`/projeto/${idProjeto}/gru/file?type=pathAnexoGruCusteio`)
           .then((response) => {
-            const mime = response.data.fileMime;
-            const array = [new Uint8Array(response.data.file.data)];
-            const blob = new Blob(array, { type: mime });
+            const mime = response.headers["content-type"];
+            const data = response.data;
+            const blob = new Blob([data], {
+              type: mime,
+            });
             blob.ext = getFileExtension(blob.type);
 
             setBlobComprovanteCapital(blob);
