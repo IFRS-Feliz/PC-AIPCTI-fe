@@ -97,3 +97,12 @@
 .modalStatus > div {
   margin: 1rem;
 }
+
+/* Senha */
+
+.informacaoTrocaSenha {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(1rem, -50%);
+}

@@ -32,8 +32,7 @@ export default function AlterarSenha() {
   return (
     <div className={style.containerLogin} style={{ position: "relative" }}>
       {isLoading && <Loading />}
-      {success === true && <div>success</div>}
-      {success === false && <div>error</div>}
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -105,6 +104,12 @@ export default function AlterarSenha() {
 
         {/* <p className={style.pLogin}>não consegue acessar?</p> */}
       </form>
+      {success === true && (
+        <div className={style.mensagem}>Senha alterada com sucesso!</div>
+      )}
+      {success === false && (
+        <div className={style.mensagem}>Não foi possível alterar a senha!</div>
+      )}
     </div>
   );
 }
