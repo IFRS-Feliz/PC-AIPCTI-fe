@@ -51,13 +51,18 @@ export default function Relatorio() {
     if (relatorioUrl) relatorioDownload.current.click();
   }, [relatorioUrl]);
 
+  const [isFetchingProjeto, setIsFetchingProjeto] = useState(false);
+  const [isFetchingItens, setIsFetchingItens] = useState(false);
   useEffect(() => {
+    setIsFetchingProjeto(true);
+    setIsFetchingItens(true);
     axios
       .get(`/projeto/${id}`)
       .then((response) => {
         setProjeto(response.data.results[0]);
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e))
+      .finally(() => setIsFetchingProjeto(false));
     axios
       .get(`/item?idProjeto=${id}`)
       .then((response) => {
@@ -69,8 +74,11 @@ export default function Relatorio() {
         });
         setItens(response.data.results);
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e))
+      .finally(() => setIsFetchingItens(false));
   }, [id]);
+
+  const isFetching = isFetchingItens || isFetchingProjeto;
 
   const [totalDevolvidoGru, setTotalDevolvidoGru] = useState({
     capital: 0,
@@ -146,6 +154,10 @@ export default function Relatorio() {
         alert("Não foi possível criar o novo item.");
       })
       .finally(() => setIsPostingItem(false));
+  }
+
+  if (isFetching) {
+    return <Loading />;
   }
 
   return (
@@ -297,7 +309,7 @@ export default function Relatorio() {
                     <strong>Devolvido GRU:</strong>
                   </p>
                   <p>
-                    {totalDevolvidoGru.capital.toLocaleString("pt-br", {
+                    {totalDevolvidoGru.custeio.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
@@ -338,7 +350,7 @@ export default function Relatorio() {
                     <strong>Devolvido GRU:</strong>
                   </p>
                   <p>
-                    {totalDevolvidoGru.custeio.toLocaleString("pt-br", {
+                    {totalDevolvidoGru.capital.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
