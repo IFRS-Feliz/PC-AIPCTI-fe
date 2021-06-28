@@ -42,8 +42,6 @@ export default function Gru({
       .catch((e) => console.log(e));
   }, [idProjeto]);
 
-  console.log(gru);
-
   function handleSave() {
     //caso o gru nao exista no banco, cria-lo antes de enviar arquivos
     if (gru.id === undefined) {

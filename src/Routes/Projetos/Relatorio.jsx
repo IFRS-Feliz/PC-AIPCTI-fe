@@ -30,7 +30,12 @@ export default function Relatorio() {
   const [relatorioUrl, setRelatorioUrl] = useState();
   const relatorioDownload = useRef();
 
+  const [isDownloadingRelatorio, setIsDownloadingRelatorio] = useState(false);
+  const [showDownloadingRelatorioModal, setShowDownloadingRelatorioModal] =
+    useState(false);
   function handleRequestRelatorio() {
+    setIsDownloadingRelatorio(true);
+    setShowDownloadingRelatorioModal(true);
     fileBufferAxios
       .get(`/projeto/${id}/relatorio`)
       .then((response) => {
@@ -44,15 +49,16 @@ export default function Relatorio() {
       })
       .catch((e) => {
         console.log(e);
-      });
+      })
+      .finally(() => setIsDownloadingRelatorio(false));
   }
 
   useEffect(() => {
     if (relatorioUrl) relatorioDownload.current.click();
   }, [relatorioUrl]);
 
-  const [isFetchingProjeto, setIsFetchingProjeto] = useState(false);
-  const [isFetchingItens, setIsFetchingItens] = useState(false);
+  const [isFetchingProjeto, setIsFetchingProjeto] = useState(true);
+  const [isFetchingItens, setIsFetchingItens] = useState(true);
   useEffect(() => {
     setIsFetchingProjeto(true);
     setIsFetchingItens(true);
@@ -384,32 +390,37 @@ export default function Relatorio() {
           </div>
         </div>
       </div>
-      <abbr title="Clique aqui para gerar o PDF do relatório">
-        {/* link invisivel clicado pelo ref após requisicao do relatorio */}
-        <a
-          download={"relatorio.zip"}
-          disabled={!relatorioUrl}
-          ref={relatorioDownload}
-          href={relatorioUrl}
-          hidden
-        >
-          {relatorioUrl ? "download relatorio" : "relatorio nao gerado"}
-        </a>
-        <div className={style.buttonCreatePDF}>
-          <button onClick={handleRequestRelatorio}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <path d="M0 0h24v24H0z" fill="none" />
-              <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z" />
-            </svg>
-          </button>
-        </div>
-      </abbr>
 
+      {/* link invisivel clicado pelo ref após requisicao do relatorio */}
+      <a
+        download={"relatorio.zip"}
+        disabled={!relatorioUrl}
+        ref={relatorioDownload}
+        href={relatorioUrl}
+        hidden
+      >
+        {relatorioUrl ? "download relatorio" : "relatorio nao gerado"}
+      </a>
+
+      {/* botao de download do relatorio */}
+      <div className={style.buttonCreatePDF}>
+        <button
+          title="Clique aqui para gerar o PDF do relatório"
+          onClick={handleRequestRelatorio}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+          >
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z" />
+          </svg>
+        </button>
+      </div>
+
+      {/* modais */}
       {alertModalContent.itemIdx !== undefined && (
         <WarningsModal
           warnings={itens[alertModalContent.itemIdx].warnings}
@@ -424,7 +435,15 @@ export default function Relatorio() {
           msg={alertModalContent.msg}
         />
       )}
-      {dirtyItens.length && (
+
+      {showDownloadingRelatorioModal && (
+        <DownloadingRelatorioModal
+          setShowModal={setShowDownloadingRelatorioModal}
+          isDownloading={isDownloadingRelatorio}
+        />
+      )}
+
+      {dirtyItens.length ? (
         <div
           className={style.sectionHeader}
           style={itens.length === 0 ? { display: "none" } : {}}
@@ -447,8 +466,69 @@ export default function Relatorio() {
             </span>
           </div>
         </div>
+      ) : (
+        ""
       )}
     </>
+  );
+}
+
+function DownloadingRelatorioModal({ isDownloading, setShowModal }) {
+  function closeModal() {
+    setShowModal(false);
+  }
+  return (
+    <div
+      onClick={closeModal}
+      style={{
+        position: "fixed",
+        top: "0",
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: "1",
+        backgroundColor: "rgba(0,0,0,0.5)",
+      }}
+    >
+      <div onClick={(e) => e.stopPropagation()} className={style.modalWarning}>
+        <div className={style.tituloModal}>
+          <div>
+            <h2>
+              {isDownloading ? "Baixando relatório..." : "Relatório baixado"}
+            </h2>
+          </div>
+        </div>
+        <div>
+          {isDownloading ? (
+            <Loading />
+          ) : (
+            <div style={{ margin: "1rem 1rem" }}>
+              <h3>Como prosseguir:</h3>
+              <br />
+              <p>
+                Para visualizar o relatório, extraia o conteúdo do arquivo
+                baixado (relatório.zip) e abra o arquivo Relatório.pdf
+              </p>
+              <br />
+              <p>
+                Obs.: Não altere ou apague nenhum arquivo dentro do arquivo ZIP.
+                Este é o que você deve enviar para avaliação.
+              </p>
+              <br />
+              <br />
+              <p>Tudo pronto :)</p>
+              <p>
+                Agora você já pode sair do sistema. Caso necessite realizar
+                alterações, basta acessar essa página novamente e gerar um novo
+                relatório, tudo que o foi feito até agora ficará salvo.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

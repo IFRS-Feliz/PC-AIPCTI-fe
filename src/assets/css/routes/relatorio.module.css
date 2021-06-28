@@ -293,27 +293,41 @@
 
   background-color: #ca302d;
 
-  border-radius: 50%;
+  border-radius: 50rem;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  transition: 0.2s ease;
+  transition: 0.3s ease width;
   z-index: 1;
 }
 
+.buttonCreatePDF:hover {
+  width: 14rem;
+}
+
 .buttonCreatePDF button {
+  display: flex;
+  align-items: center;
   border: none;
   background-color: transparent;
   width: 100%;
 }
 
-.buttonCreatePDF button svg {
-  fill: white;
+.buttonCreatePDF button:hover {
+  padding-left: 2rem;
+  gap: 1rem;
 }
 
-.buttonCreatePDF:hover {
-  transform: scale(1.1);
-  background-color: #91211f;
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
+.buttonCreatePDF button:hover::before {
+  content: "Gerar Relatório";
+  color: white;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.buttonCreatePDF button svg {
+  fill: white;
+  position: fixed;
+  right: 3.25rem;
 }
 
 /* Modal Warnings */
