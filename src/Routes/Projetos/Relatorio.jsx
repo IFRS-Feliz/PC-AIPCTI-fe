@@ -72,7 +72,10 @@ export default function Relatorio() {
       .catch((e) => console.log(e));
   }, [id]);
 
-  const [totalDevolvidoGru, setTotalDevolvidoGru] = useState(0);
+  const [totalDevolvidoGru, setTotalDevolvidoGru] = useState({
+    capital: 0,
+    custeio: 0,
+  });
   useEffect(() => {
     if (projeto.idEdital) {
       axios
@@ -290,6 +293,15 @@ export default function Relatorio() {
                       currency: "BRL",
                     })}
                   </p>
+                  <p>
+                    <strong>Devolvido GRU:</strong>
+                  </p>
+                  <p>
+                    {totalDevolvidoGru.capital.toLocaleString("pt-br", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </p>
                 </div>
               </div>
               <div className={style.resumoCapital}>
@@ -322,6 +334,15 @@ export default function Relatorio() {
                       currency: "BRL",
                     })}
                   </p>
+                  <p>
+                    <strong>Devolvido GRU:</strong>
+                  </p>
+                  <p>
+                    {totalDevolvidoGru.custeio.toLocaleString("pt-br", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </p>
                 </div>
               </div>
               <div className={style.resumoTotal}>
@@ -339,7 +360,9 @@ export default function Relatorio() {
                     currency: "BRL",
                   })}{" "}
                   | Total devolvido (GRU):{" "}
-                  {totalDevolvidoGru.toLocaleString("pt-br", {
+                  {(
+                    totalDevolvidoGru.capital + totalDevolvidoGru.custeio
+                  ).toLocaleString("pt-br", {
                     style: "currency",
                     currency: "BRL",
                   })}

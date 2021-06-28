@@ -19,6 +19,15 @@ function TextInput({
   let value = index === null ? object[name] : object[index][name];
   value = !value && value !== 0 ? "" : value;
 
+  if (name === "cnpjFavorecido") {
+    if (value && value.length === 14)
+      value = value.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g,
+        "$1.$2.$3/$4-$5"
+      );
+    else value = value.replace(/[^\d]/g, "");
+  }
+
   let warning = index === null ? warnings[name] : warnings[index];
   warning = warning && index !== null ? warning[name] : warning;
 
@@ -139,7 +148,17 @@ function DateInput({
         />
       )}
       <input
-        style={warning ? { border: "0.2rem solid #ffea00", paddingRight: "2rem", boxSizing: "border-box", width: "283.14px", height: "39.94px"} : {}}
+        style={
+          warning
+            ? {
+                border: "0.2rem solid #ffea00",
+                paddingRight: "2rem",
+                boxSizing: "border-box",
+                width: "283.14px",
+                height: "39.94px",
+              }
+            : {}
+        }
         id={name}
         type="date"
         value={index === null ? object[name] || "" : object[index][name] || ""}

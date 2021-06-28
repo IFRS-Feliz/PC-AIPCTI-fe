@@ -296,7 +296,10 @@ export default function Gru({
 
   //sincronizar valorTotalInicial com o valorDevolvido do componente pai
   useEffect(() => {
-    setTotalDevolvido(valorTotalInicialCusteio + valorTotalInicialCapital);
+    setTotalDevolvido({
+      capital: Number(valorTotalInicialCapital),
+      custeio: Number(valorTotalInicialCusteio),
+    });
   }, [valorTotalInicialCusteio, valorTotalInicialCapital, setTotalDevolvido]);
 
   //baixar arquivos inicialmente on mouse over
@@ -559,6 +562,7 @@ export default function Gru({
                   id="anexarGruCusteio"
                   onChange={(e) => handleGruChange(e, "custeio")}
                   hidden
+                  accept={".jpeg, .jpg, .png, .pdf"}
                 />
                 <a
                   download={
@@ -645,6 +649,7 @@ export default function Gru({
                   name="anexarGru"
                   id="slaCusteio"
                   hidden
+                  accept={".jpeg, .jpg, .png, .pdf"}
                 />
                 <a
                   download={
@@ -765,6 +770,7 @@ export default function Gru({
                     handleGruChange(e, "capital");
                   }}
                   hidden
+                  accept={".jpeg, .jpg, .png, .pdf"}
                 />
                 <a
                   download={
@@ -851,6 +857,7 @@ export default function Gru({
                   name="anexarGru"
                   id="slaCapital"
                   hidden
+                  accept={".jpeg, .jpg, .png, .pdf"}
                 />
                 <a
                   download={
