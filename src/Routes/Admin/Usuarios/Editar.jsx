@@ -239,10 +239,11 @@ export default function Editar() {
           className={style.adicionarUserFormField}
           style={{ position: "relative" }}
         >
-          <label>Senha:</label>
+          <label style={{ width: "185.3px" }}>Senha:</label>
           <button
             onClick={handleResetPassword}
             className={style.normalInput}
+            style={{ height: "30px", width: "444.7px" }}
             disabled={isResettingPassword || passwordWasReset}
           >
             Resetar senha (usuário receberá a senha em seu email)
@@ -252,8 +253,10 @@ export default function Editar() {
               <Loading />
             </div>
           )}
-          {passwordWasReset && <p>✓</p>}
-          {passwordResetError && <p>X</p>}
+          {passwordWasReset && <p className={style.informacaoTrocaSenha}>✓</p>}
+          {passwordResetError && (
+            <p className={style.informacaoTrocaSenha}>X</p>
+          )}
         </div>
       </form>
 
