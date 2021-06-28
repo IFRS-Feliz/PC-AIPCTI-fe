@@ -409,7 +409,10 @@ export default function Item({
     let propriedadesParaAdicionarAoItem = {};
 
     //verificar se a quantidade de orcamentos é suficiente
-    if (orcamentos.length < 3 && !item.isNaturezaSingular) {
+    const needsOrcamentos = !["passagem", "hospedagem", "alimentacao"].includes(
+      item.tipo
+    );
+    if (orcamentos.length < 3 && !item.isNaturezaSingular && needsOrcamentos) {
       propriedadesParaAdicionarAoItem.quantidadeOrcamentos =
         "Você deve adicionar ao menos 3 orçamentos.";
       propriedadesParaAdicionarAoItem.justificativa = undefined;
@@ -420,7 +423,8 @@ export default function Item({
       if (
         item.isNaturezaSingular &&
         !justificativa.pathAnexo &&
-        justificativa.actionAnexo !== "post"
+        justificativa.actionAnexo !== "post" &&
+        needsOrcamentos
       ) {
         propriedadesParaAdicionarAoItem.justificativa =
           "Você deve adicionar uma justificativa";
@@ -453,7 +457,11 @@ export default function Item({
         if (isDateWrong) newWarnings[i].dataOrcamento = msg;
       }
 
-      if (!existeOrcamentoReferenteACompra) {
+      if (
+        !existeOrcamentoReferenteACompra &&
+        !item.isNaturezaSingular &&
+        needsOrcamentos
+      ) {
         propriedadesParaAdicionarAoItem.isOrcamentoCompra =
           "Não há nenhum orçamento referente à compra";
       } else {

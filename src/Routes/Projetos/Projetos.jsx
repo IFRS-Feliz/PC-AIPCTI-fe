@@ -2,6 +2,7 @@ import axios from "../../axios";
 import { useEffect, useContext, useRef, useState } from "react";
 import AuthContext from "../../Contexts/Auth";
 import EditalUsuario from "../../Components/Usuario/EditalUsuario";
+import Loading from "../../Components/Loading";
 
 import style from "../../assets/css/routes/usuarios.module.css";
 
@@ -11,10 +12,14 @@ export default function Projetos() {
   const [projetos, setProjetos] = useState([]);
   const [searchResults, setSearchResults] = useState(editais);
 
+  const [isFetchingProjetos, setIsFetchingProjetos] = useState(false);
+  const [isFetchingEditais, setIsFetchingEditais] = useState(false);
+
   const filterRef = useRef(null);
 
   useEffect(() => {
-    user.cpf &&
+    if (user.cpf) {
+      setIsFetchingProjetos(true);
       axios
         .get(`/projeto?cpfUsuario=${user.cpf}`)
         .then((response) => {
@@ -22,13 +27,17 @@ export default function Projetos() {
         })
         .catch((e) => {
           console.log(e);
-        });
+        })
+        .finally(() => setIsFetchingProjetos(false));
+    }
   }, [user.cpf]);
 
   useEffect(() => {
     let editaisProjetos = [];
     let editaisFiltrado = [];
-    projetos.length &&
+    if (projetos.length) {
+      setIsFetchingEditais(true);
+
       axios
         .get("/edital")
         .then((response) => {
@@ -48,7 +57,9 @@ export default function Projetos() {
         })
         .catch((e) => {
           console.log(e);
-        });
+        })
+        .finally(() => setIsFetchingEditais(false));
+    }
   }, [projetos]);
 
   function handleFilterChange(inputValue) {
@@ -86,6 +97,8 @@ export default function Projetos() {
     );
   }, [editais, projetos]);
 
+  const isFetching = isFetchingEditais || isFetchingProjetos;
+
   return (
     <>
       <h1 className={style.h1}>Meus projetos</h1>
@@ -100,26 +113,46 @@ export default function Projetos() {
           />
         </div>
       </div>
-      <div className={style.container}>
-        <h3>
-          Para prestar contas de um projeto, escolha o edital ao qual ele
-          pertence:
-        </h3>
-      </div>
-      <div className={"users"}>
-        {searchResults.map((edital) => {
-          return (
-            <EditalUsuario
-              key={edital.id}
-              editalInfo={edital}
-              todosProjetos={projetos}
-              setTodosProjetos={setProjetos}
-              todosEditais={editais}
-              setTodosEditais={setEditais}
-            />
-          );
-        })}
-      </div>
+      {isFetching ? (
+        <Loading />
+      ) : (
+        <>
+          <div className={style.container}>
+            {editais.length ? (
+              <h3>
+                Para prestar contas de um projeto, escolha o edital ao qual ele
+                pertence:
+              </h3>
+            ) : (
+              <h3>
+                {/* caso nenhum projeto exista na conta da pessoa */}
+                Sua conta ainda não possui projetos registrados. Caso ache que
+                isso é um erro, contate o DPPI para adicioná-los.
+              </h3>
+            )}
+          </div>
+          <div className={"users"}>
+            {searchResults.map((edital) => {
+              return (
+                <EditalUsuario
+                  key={edital.id}
+                  editalInfo={edital}
+                  todosProjetos={projetos}
+                  setTodosProjetos={setProjetos}
+                  todosEditais={editais}
+                  setTodosEditais={setEditais}
+                />
+              );
+            })}
+            {/* mostrar mensagem quando nenhum resultado for encontrado */}
+            {searchResults.length === 0 && editais.length !== 0 && (
+              <div className={style.container}>
+                <h3>Nada encontrado com este filtro</h3>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </>
   );
 }

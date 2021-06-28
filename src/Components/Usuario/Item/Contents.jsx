@@ -233,6 +233,7 @@ function ContentInformacoes({
               setDirtyFields={setDirtyItemFields}
               warnings={warnings}
               handleTogglingModal={handleTogglingModal}
+              maxLength={14 + 4}
             />
             <TextInput
               name="quantidade"
@@ -660,6 +661,7 @@ function ContentOrcamentos({
                   setDirtyFields={setDirtyOrcamentoFields}
                   warnings={warningsOrcamentos}
                   handleTogglingModal={handleTogglingModal}
+                  maxLength={14 + 4}
                 />
                 <TextInput
                   name="quantidade"
