@@ -280,6 +280,16 @@
   color: white;
 }
 
+.divButtonCreatePDF {
+  display: flex;
+  align-items: center;
+  margin: auto 0 auto auto;
+  background-color: #91211f;
+  height: 100%;
+  width: 4rem;
+  z-index: 30;
+}
+
 .buttonCreatePDF {
   position: fixed;
   right: 0;
@@ -296,7 +306,7 @@
   border-radius: 50rem;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  transition: 0.3s ease width;
+  transition: 0.2s ease width;
   z-index: 1;
 }
 
@@ -322,6 +332,8 @@
   color: white;
   font-size: 1rem;
   white-space: nowrap;
+
+  position: absolute;
 }
 
 .buttonCreatePDF button svg {
