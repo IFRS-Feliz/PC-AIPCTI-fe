@@ -989,6 +989,8 @@ function AnexoContent({
 
   const blobURL = blob ? URL.createObjectURL(blob) : "";
 
+  const [modalTiposOrcamento, setModalTiposOrcamento] = useState(true);
+
   return (
     <div
       className={style.anexoRiseUpMenuContent}
@@ -997,7 +999,62 @@ function AnexoContent({
       {hasId ? (
         <>
           {isFetching && <Loading />}
+          {/* Modal informações sobre os tipos de orçamentos */}
+          {modalTiposOrcamento === false && (
+            <div
+              className={style.modalTiposOrcamento}
+              onClick={() => {
+                setModalTiposOrcamento(true);
+              }}
+            >
+              <div
+                className={style.contentFormTiposOrcamento}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <h2>Tipos de orçamento</h2>
+                <p>
+                  Os orçamentos que não se enquadram em nenhum dos casos abaixo
+                  têm validade de 180 dias e deverão ter data igual ou anterior
+                  à compra, devendo constar: nome e CPF do(a) coordenador(a) do
+                  programa ou projeto, objeto, quantitativo, valores em reais já
+                  incluídos todos os custos do fornecedor (fretes, impostos,
+                  carga e descarga), Razão Social, CNPJ, data, validade,
+                  telefone de contato e/ou e-mail e/ou site, nome e assinatura
+                  do responsável e carimbo.
+                </p>
+                <p>
+                  Nos casos de orçamentos recebidos por <strong>e-mail</strong>,
+                  dispensa-se carimbo e assinatura, devendo ser enviada cópia do
+                  e-mail junto ao orçamento.
+                </p>
+                <p>
+                  Nos casos de orçamentos da <strong>internet</strong>, é
+                  necessário realizar uma captura de tela em que apareça:
+                  objeto, quantitativo, valores em reais, data e hora, frete (se
+                  houver), CNPJ, identificação da empresa e link do site.
+                </p>
+                <p>
+                  Nos casos de orçamentos em{" "}
+                  <strong>plataformas de vendas (marketplace)</strong> é
+                  necessário informar o CNPJ da empresa vendedora do produto.
+                </p>
+              </div>
+            </div>
+          )}
           <div>
+            {index !== null && (
+              <div
+                className={style.tiposOrcamento}
+                title="Informações sobre o que deve conter cada tipo de orçamento possível"
+                onClick={() => {
+                  setModalTiposOrcamento(false);
+                }}
+              >
+                ?
+              </div>
+            )}
             <label
               className={style.anexoRiseUpMenuContentSelecionar}
               htmlFor="a"
