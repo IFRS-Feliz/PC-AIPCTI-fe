@@ -8,6 +8,7 @@ const instance = axios.create({
   withCredentials: true,
 });
 
+//instancia para realizar login
 export const loginAxios = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: { "Content-Type": "application/json" },
@@ -16,6 +17,7 @@ export const loginAxios = axios.create({
   withCredentials: true,
 }); //instancia sem interceptors para Login
 
+//instacia para requisitar arquivos
 export const fileBufferAxios = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: { "Content-Type": "application/json" },
@@ -25,20 +27,24 @@ export const fileBufferAxios = axios.create({
 
 //enviar token nos headers do request caso ele exista
 //caso ele nao exista, servidor respondera se deu refresh ou nao
-instance.interceptors.request.use((config) => {
+function AddbearerTokenInterceptor(config) {
   const token = localStorage.getItem("token");
   if (token) {
     config.headers.authorization = `Bearer ${token}`;
   }
 
   return config;
-});
+}
+
+instance.interceptors.request.use(AddbearerTokenInterceptor);
+fileBufferAxios.interceptors.request.use(AddbearerTokenInterceptor);
 
 //setar novo token
 //em casos de erro redirecionar para o lugar certo
 instance.interceptors.response.use(
   (response) => {
-    localStorage.setItem("token", response.data.token);
+    const token = response.data.token;
+    if (token) localStorage.setItem("token", token);
     return response;
   },
   (error) => {
@@ -50,13 +56,13 @@ instance.interceptors.response.use(
     }
 
     if (error.response.status === 403) {
-      //nao admin tentando acessar paginas do admin
-      window.location.href = "/projetos";
+      //usuario tentnado acessar conteudo que nao lhe pertence
+      window.location.href = "/";
       return Promise.reject(error);
     }
 
     if (error.response.status === 500) {
-      //erros nos querys do banco e outros
+      //erros nos querys do banco e outros erros internos inesperados
       alert("Erro no servidor (500). Tente novamente.");
       return Promise.reject(error);
     }

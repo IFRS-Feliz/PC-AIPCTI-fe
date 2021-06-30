@@ -6,23 +6,37 @@ import { loginAxios } from "../axios";
 const AuthContext = createContext({});
 
 export function AuthContextProvider({ children }) {
+  //caso haja uma token no localStorage, o user é setado com o seu valor
+  //isso acontece porque os componentes que verificam se o user esta logado
+  //verificam se o estado user é truthy
+  //ao setar ele para null, eles redirecionariam o user. dessa maneira é possivel que o
+  //useEffect desse componente rode antes e decida se o token é valido ou nao
   const [user, setUser] = useState(localStorage.getItem("token") || null);
   const history = useHistory();
 
   function Login(token) {
-    localStorage.setItem("token", token);
+    try {
+      //pegar payload do token com informacoes do usuario
+      const decodedToken = jwt_decode(token);
 
-    const decodedToken = jwt_decode(token);
-    setUser({
-      nome: decodedToken.name,
-      email: decodedToken.email,
-      cpf: decodedToken.cpf,
-    });
+      localStorage.setItem("token", token);
 
-    if (decodedToken.isAdmin === 1) {
-      history.push("/admin");
-    } else {
-      history.push("/projetos");
+      //setar usuario para outros componentes terem informacoes sobre ele
+      setUser({
+        nome: decodedToken.name,
+        email: decodedToken.email,
+        cpf: decodedToken.cpf,
+      });
+
+      //redirecionar dependendo do role do usuario
+      if (decodedToken.isAdmin === 1) {
+        history.push("/admin");
+      } else {
+        history.push("/projetos");
+      }
+    } catch (error) {
+      //caso o token seja invalido
+      setUser(null);
     }
   }
 
@@ -35,15 +49,25 @@ export function AuthContextProvider({ children }) {
     setUser(null);
   }
 
+  //logar o usuario ao carregar a pagina pela primeira vez ou ao recarregar
   useEffect(() => {
     const token = localStorage.getItem("token");
+
+    //casi haja um token no localStorage
     if (token) {
-      const decodedToken = jwt_decode(token);
-      setUser({
-        nome: decodedToken.name,
-        email: decodedToken.email,
-        cpf: decodedToken.cpf,
-      });
+      try {
+        const decodedToken = jwt_decode(token);
+
+        setUser({
+          nome: decodedToken.name,
+          email: decodedToken.email,
+          cpf: decodedToken.cpf,
+        });
+      } catch (error) {
+        //caso o token seja invalido, remover e deslogar o usuario
+        localStorage.removeItem("token");
+        setUser(null);
+      }
     }
   }, []);
 
@@ -67,9 +91,13 @@ export function AuthContextProvider({ children }) {
 export function isAdmin() {
   const token = localStorage.getItem("token");
   if (!token) return false;
-  const isAdmin = jwt_decode(token).isAdmin;
 
-  return isAdmin;
+  try {
+    const isAdmin = jwt_decode(token).isAdmin;
+    return isAdmin;
+  } catch (error) {
+    return false;
+  }
 }
 
 export default AuthContext;
