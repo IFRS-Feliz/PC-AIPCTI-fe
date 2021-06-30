@@ -8,6 +8,7 @@ import Item from "../../Components/Usuario/Item";
 import style from "../../assets/css/routes/relatorio.module.css";
 import Loading from "../../Components/Loading";
 import Gru from "./Gru";
+import NotFound404 from "../NotFound404";
 
 export default function Relatorio() {
   const { id } = useParams();
@@ -59,13 +60,17 @@ export default function Relatorio() {
 
   const [isFetchingProjeto, setIsFetchingProjeto] = useState(true);
   const [isFetchingItens, setIsFetchingItens] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   useEffect(() => {
     setIsFetchingProjeto(true);
     setIsFetchingItens(true);
     axios
       .get(`/projeto/${id}`)
       .then((response) => {
-        setProjeto(response.data.results[0]);
+        if (response.data.results[0] === null) {
+          setNotFound(true);
+        }
+        setProjeto(response.data.results[0] || {});
       })
       .catch((e) => console.log(e))
       .finally(() => setIsFetchingProjeto(false));
@@ -164,6 +169,10 @@ export default function Relatorio() {
 
   if (isFetching) {
     return <Loading />;
+  }
+
+  if (notFound) {
+    return <NotFound404 />;
   }
 
   return (
