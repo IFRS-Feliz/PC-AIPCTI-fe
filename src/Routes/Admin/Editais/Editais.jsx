@@ -7,7 +7,7 @@ import Edital from "../../../Components/Admin/Edital";
 import style from "../../../assets/css/routes/usuarios.module.css";
 import { Link } from "react-router-dom";
 import { useRef } from "react";
-import Paginacao from "../../../Components/Paginacao";
+import Paginacao, { SortOptions } from "../../../Components/Paginacao";
 
 export default function Editais() {
   const [editais, setEditais] = useState([]);
@@ -20,11 +20,16 @@ export default function Editais() {
 
   const filterRef = useRef(null);
 
+  const [sortBy, setSortBy] = useState("nome"); //id | nome | dataInicio
+  const [order, setOrder] = useState("ASC"); //ASC | DESC
   useEffect(() => {
     axios
-      .get(`/edital`)
+      .get(
+        `/edital?limit=${limit}&page=${currentPage}&sortBy=${sortBy}&order=${order}`
+      )
       .then((response) => {
         setEditais(response.data.results);
+        SetNextPage(response.data.next);
       })
       .catch((e) => {
         console.log(e);
@@ -37,24 +42,13 @@ export default function Editais() {
       .catch((e) => {
         console.log(e);
       });
-  }, []);
+  }, [currentPage, sortBy, order]);
 
   useEffect(() => {
-    setSearchResults(
-      editais.slice((currentPage - 1) * limit, limit * currentPage)
-    );
-
-    if (currentPage * limit < editais.length) {
-      SetNextPage({
-        page: currentPage + 1,
-        limit: limit,
-        nextPagesCount: Math.ceil(editais.length / limit - currentPage),
-      });
-    } else {
-      SetNextPage();
-    }
+    //manter search results sempre em sync
+    setSearchResults(editais);
     filterRef.current.value = "";
-  }, [currentPage, editais]);
+  }, [editais]);
 
   let typingTimer;
   function handleFilterChange(e) {
@@ -70,10 +64,7 @@ export default function Editais() {
     clearTimeout(typingTimer);
     if (e.target.value) {
       typingTimer = setTimeout(finishedTyping, 1000);
-    } else
-      setSearchResults(
-        editais.slice((currentPage - 1) * limit, limit * currentPage)
-      );
+    } else setSearchResults(editais);
   }
 
   return (
@@ -83,7 +74,7 @@ export default function Editais() {
         <div className={style.filtrarContainer}>
           <input
             type="text"
-            placeholder="Filtrar por nome"
+            placeholder="Filtrar por nome ou ano"
             className={style.filtrar}
             onChange={(e) => handleFilterChange(e)}
             ref={filterRef}
@@ -103,7 +94,17 @@ export default function Editais() {
           </Link>
         </div>
       </div>
-
+      <div
+        style={{ margin: "auto", display: "flex", justifyContent: "center" }}
+      >
+        <SortOptions
+          setSortBy={setSortBy}
+          setOrder={setOrder}
+          sortBy={sortBy}
+          order={order}
+          options={["id", "nome", "dataInicio"]}
+        />
+      </div>
       <div className={"users"}>
         {searchResults.map((edital) => {
           return (
@@ -119,8 +120,7 @@ export default function Editais() {
       </div>
 
       {/* paginacao */}
-      {searchResults[0] ===
-        editais.slice((currentPage - 1) * limit, limit * currentPage)[0] && (
+      {searchResults === editais && (
         //somente mostrar paginacao quando nao filtrando
         <Paginacao
           currentPage={currentPage}

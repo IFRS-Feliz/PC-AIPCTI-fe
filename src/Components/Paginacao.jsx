@@ -68,3 +68,59 @@ export default function Paginacao({ currentPage, setCurrentPage, nextPage }) {
     </div>
   );
 }
+
+export function SortOptions({ setSortBy, setOrder, sortBy, order, options }) {
+  const style = {
+    padding: "0 0.4rem",
+    margin: "0 0.2rem",
+    display: "flex",
+    alignItems: "center",
+    borderRadius: "5px",
+    border: "none",
+    height: "100%",
+  };
+  const optionButtons = options.map((option) => (
+    <button
+      key={option}
+      id={option}
+      style={
+        sortBy === option ? { ...style, border: "3px solid black" } : style
+      }
+      onClick={() => {
+        if (sortBy === option) {
+          setOrder((order) => (order === "ASC" ? "DESC" : "ASC"));
+        } else {
+          setSortBy(option);
+          setOrder("ASC");
+        }
+      }}
+    >
+      {sortBy === option && (
+        <span style={{ fontSize: "1.5rem" }}>
+          {order === "ASC" ? "↓" : "↑"}
+        </span>
+      )}
+      {getOptionName(option)}
+    </button>
+  ));
+
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <p style={{ paddingRight: "0.5rem" }}>Ordenar:</p>
+      {optionButtons}
+    </div>
+  );
+
+  function getOptionName(option) {
+    switch (option) {
+      case "id":
+        return "Data de criação";
+
+      case "dataInicio":
+        return "Data de início do edital";
+
+      default:
+        return option.charAt(0).toUpperCase() + option.slice(1);
+    }
+  }
+}

@@ -7,7 +7,7 @@ import Projeto from "../../../Components/Admin/Projeto";
 import style from "../../../assets/css/routes/usuarios.module.css";
 import NovoProjeto from "../../../Components/Admin/NovoProjeto";
 import { useRef } from "react";
-import Paginacao from "../../../Components/Paginacao";
+import Paginacao, { SortOptions } from "../../../Components/Paginacao";
 
 export default function Projetos() {
   const [projetos, setProjetos] = useState([]);
@@ -15,7 +15,7 @@ export default function Projetos() {
   const [editais, setEditais] = useState([]);
 
   const [searchResults, setSearchResults] = useState(projetos);
-  const limit = 10;
+  const limit = 20;
   const [currentPage, setCurrentPage] = useState(1);
   const [nextPage, SetNextPage] = useState({});
 
@@ -23,10 +23,14 @@ export default function Projetos() {
   const [modal, setModal] = useState(true);
 
   const filterRef = useRef(null);
+  const [sortBy, setSortBy] = useState("nome"); //id | nome
+  const [order, setOrder] = useState("ASC"); //ASC | DESC
 
   useEffect(() => {
     axios
-      .get(`/projeto?limit=${limit}&page=${currentPage}`)
+      .get(
+        `/projeto?limit=${limit}&page=${currentPage}&sortBy=${sortBy}&order=${order}`
+      )
       .then((response) => {
         setProjetos(response.data.results);
         SetNextPage(response.data.next);
@@ -34,7 +38,7 @@ export default function Projetos() {
       .catch((e) => {
         console.log(e);
       });
-  }, [currentPage]);
+  }, [currentPage, sortBy, order]);
 
   useEffect(() => {
     axios
@@ -180,6 +184,18 @@ export default function Projetos() {
             </svg>
           </button>
         </div>
+      </div>
+
+      <div
+        style={{ margin: "auto", display: "flex", justifyContent: "center" }}
+      >
+        <SortOptions
+          setSortBy={setSortBy}
+          setOrder={setOrder}
+          sortBy={sortBy}
+          order={order}
+          options={["id", "nome"]}
+        />
       </div>
 
       {/*verificacao para prevenir bug nas listas de editais e usuarios. 

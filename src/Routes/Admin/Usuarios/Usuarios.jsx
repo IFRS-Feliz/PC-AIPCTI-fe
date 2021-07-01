@@ -5,7 +5,7 @@ import User from "../../../Components/Admin/User";
 import { Link } from "react-router-dom";
 
 import style from "../../../assets/css/routes/usuarios.module.css";
-import Paginacao from "../../../Components/Paginacao";
+import Paginacao, { SortOptions } from "../../../Components/Paginacao";
 
 export default function Admin() {
   const [users, setUsers] = useState([]);
@@ -18,9 +18,13 @@ export default function Admin() {
 
   const filterRef = useRef(null);
 
+  const [sortBy, setSortBy] = useState("nome"); //nome | cpf
+  const [order, setOrder] = useState("ASC"); //ASC | DESC
   useEffect(() => {
     axios
-      .get(`/usuario?limit=${limit}&page=${currentPage}`)
+      .get(
+        `/usuario?limit=${limit}&page=${currentPage}&sortBy=${sortBy}&order=${order}`
+      )
       .then((response) => {
         console.log(response.data);
         setUsers(response.data.results);
@@ -29,7 +33,7 @@ export default function Admin() {
       .catch((e) => {
         console.log(e);
       });
-  }, [currentPage]); //requisitar ao mudar de pagina e ao apagar users
+  }, [currentPage, sortBy, order]); //requisitar ao mudar de pagina e ao apagar users
 
   useEffect(() => {
     axios
@@ -91,6 +95,18 @@ export default function Admin() {
             </svg>
           </Link>
         </div>
+      </div>
+
+      <div
+        style={{ margin: "auto", display: "flex", justifyContent: "center" }}
+      >
+        <SortOptions
+          setSortBy={setSortBy}
+          setOrder={setOrder}
+          sortBy={sortBy}
+          order={order}
+          options={["nome"]}
+        />
       </div>
 
       <div className="users">
