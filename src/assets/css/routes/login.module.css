@@ -103,3 +103,17 @@
   font-size: larger;
   opacity: 0;
 }
+
+.modalContent {
+  height: 15rem;
+  width: 20rem;
+  background-color: white;
+  padding: 1rem;
+  text-align: justify;
+  border-radius: 4px;
+}
+
+.modalContent h3,
+.modalContent p {
+  margin-bottom: 1rem;
+}

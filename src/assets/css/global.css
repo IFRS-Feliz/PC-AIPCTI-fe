@@ -24,6 +24,19 @@ button:disabled {
   cursor: initial;
 }
 
+.modalBackground {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
 /* form control */
 
 .wrongInput {

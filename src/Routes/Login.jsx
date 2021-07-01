@@ -14,6 +14,11 @@ export default function Login() {
 
   const { Login, user } = useContext(AuthContext);
 
+  const [showModal, setShowModal] = useState(false);
+  function toggleModal() {
+    setShowModal((showModal) => !showModal);
+  }
+
   //Realocar redirect futuramente para melhor organização
   if (user) {
     if (isAdmin()) return <Redirect to="/admin" />;
@@ -130,8 +135,34 @@ export default function Login() {
           </span>
         </div>
 
-        <p className={style.pLogin}>não consegue acessar?</p>
+        <p
+          className={style.pLogin}
+          onClick={toggleModal}
+          style={{ cursor: "pointer" }}
+        >
+          não consegue acessar?
+        </p>
       </form>
+      {showModal && (
+        <div onClick={toggleModal} className="modalBackground">
+          <div
+            className={style.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>Caso tenha esquecido sua senha:</h3>
+
+            <p>
+              Todas as mudanças de senha realizadas por você ou por um
+              administrador devem ter sido enviadas para o seu email.
+            </p>
+
+            <p>
+              Caso não tenha recebido, mande um email para
+              dppi@feliz.ifrs.edu.br pedindo uma restauração de senha.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

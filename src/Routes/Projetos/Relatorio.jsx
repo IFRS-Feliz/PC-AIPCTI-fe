@@ -16,11 +16,17 @@ export default function Relatorio() {
   const [projeto, setProjeto] = useState({});
   const [itens, setItens] = useState([]);
 
+  //estados para decidir se deve mostrar loading ao executar certas tarefas
   const [isPostingItem, setIsPostingItem] = useState(false);
   const [isReordenandoItens, setIsReordenandoItens] = useState(false);
 
+  //estado para decidir se deve ou nao renderizar o modal de warnings
+  //e sobre o que serao os warnings mostrados
   const [alertModalContent, setAlertModalContent] = useState({});
+  //deve ser estruturado assim: { itemIdx, highlitedFieldName, index, msg }
+  //index caso seja um orcamento
 
+  //mostrar e parar de mostrar o modal, setando o seu conteudo
   function handleTogglingModal(itemIdx, { highlitedFieldName, index }, msg) {
     if (alertModalContent.itemIdx === itemIdx) setAlertModalContent({});
     else {
@@ -28,12 +34,33 @@ export default function Relatorio() {
     }
   }
 
+  //funcao para criar um novo item/despesa
+  function handleAddItem() {
+    setIsPostingItem(true);
+    axios
+      .post(`/item`, {
+        itens: [{ idProjeto: id, posicao: itens.length }],
+      })
+      .then((response) => {
+        setItens([...itens, response.data.results[0]]);
+      })
+      .catch(() => {
+        alert("Não foi possível criar o novo item.");
+      })
+      .finally(() => setIsPostingItem(false));
+  }
+
+  //URL do blob do relatorio baixado
   const [relatorioUrl, setRelatorioUrl] = useState();
+  //ref para o anchor usado para fazer o trigger do download do relatorio
   const relatorioDownload = useRef();
 
+  //estados relativos ao download do relatorio
   const [isDownloadingRelatorio, setIsDownloadingRelatorio] = useState(false);
   const [showDownloadingRelatorioModal, setShowDownloadingRelatorioModal] =
     useState(false);
+
+  //funcao para requisitar a geracao do relatorio e criar o url para seu blob
   function handleRequestRelatorio() {
     setIsDownloadingRelatorio(true);
     setShowDownloadingRelatorioModal(true);
@@ -54,6 +81,8 @@ export default function Relatorio() {
       .finally(() => setIsDownloadingRelatorio(false));
   }
 
+  //baixar o relatorio automaticamente assim que o url for setado pela funcao acima
+  //utilizando o ref do anchor
   useEffect(() => {
     if (relatorioUrl) relatorioDownload.current.click();
   }, [relatorioUrl]);
@@ -91,10 +120,6 @@ export default function Relatorio() {
 
   const isFetching = isFetchingItens || isFetchingProjeto;
 
-  const [totalDevolvidoGru, setTotalDevolvidoGru] = useState({
-    capital: 0,
-    custeio: 0,
-  });
   useEffect(() => {
     if (projeto.idEdital) {
       axios
@@ -106,6 +131,7 @@ export default function Relatorio() {
     }
   }, [projeto]);
 
+  //funcao para calcular diversos valores relativos as despesas ja cadastradas da lista itens
   function valorTotalItens() {
     let somaCusteio = 0;
     let somaCapital = 0;
@@ -144,6 +170,14 @@ export default function Relatorio() {
     restoCapital,
   } = valorTotalItens();
 
+  //guardar os valores devolvidos na gru para mostrar no resumo
+  const [totalDevolvidoGru, setTotalDevolvidoGru] = useState({
+    capital: 0,
+    custeio: 0,
+  });
+
+  //funcao para calcular quais itens tem mudancas nao salvas para mostrar
+  //na secao de verificar itens
   function getDirtyItens() {
     const filtered = itens.filter(
       (item) => item.isDirty || (item.warnings && item.warnings[2])
@@ -152,25 +186,12 @@ export default function Relatorio() {
   }
   const dirtyItens = getDirtyItens();
 
-  function handleAddItem() {
-    setIsPostingItem(true);
-    axios
-      .post(`/item`, {
-        itens: [{ idProjeto: id, posicao: itens.length }],
-      })
-      .then((response) => {
-        setItens([...itens, response.data.results[0]]);
-      })
-      .catch(() => {
-        alert("Não foi possível criar o novo item.");
-      })
-      .finally(() => setIsPostingItem(false));
-  }
-
+  //caso esteja carregando
   if (isFetching) {
     return <Loading />;
   }
 
+  //caso o id do projeto da url nao exista no banco
   if (notFound) {
     return <NotFound404 />;
   }
@@ -484,25 +505,13 @@ export default function Relatorio() {
   );
 }
 
+//modal mostrado ao clicar no botao de gerar o relatorio
 function DownloadingRelatorioModal({ isDownloading, setShowModal }) {
   function closeModal() {
     setShowModal(false);
   }
   return (
-    <div
-      onClick={closeModal}
-      style={{
-        position: "fixed",
-        top: "0",
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: "1",
-        backgroundColor: "rgba(0,0,0,0.5)",
-      }}
-    >
+    <div onClick={closeModal} className="modalBackground">
       <div onClick={(e) => e.stopPropagation()} className={style.modalWarning}>
         <div className={style.tituloModal}>
           <div>
@@ -543,6 +552,9 @@ function DownloadingRelatorioModal({ isDownloading, setShowModal }) {
   );
 }
 
+//modal de warnings mostrado ao clicar no simbolo amarelo
+//ao lado de itens, em campos com warnings ou na lista de itens para
+//verificar no fim da tela
 function WarningsModal({
   warnings,
   isDirty,
@@ -553,21 +565,27 @@ function WarningsModal({
   highlitedFieldNameIndex,
   msg,
 }) {
+  //warnings a serem mostrados em tela
   const informacoes = warnings ? warnings[0] : null;
   const orcamentos = warnings ? warnings[1] : null;
 
+  //ref para realizar o scroll automatico ate um orcamento se for o caso
   const scrollToHighlitedField = useRef();
 
+  //elementos montados dos warnings do item
   const informacoesContent = informacoes
-    ? Object.keys(informacoes).reduce((result, propriedade) => {
+    ? //para cada propriedade do item criar um elemento
+      Object.keys(informacoes).reduce((result, propriedade) => {
         const warning = informacoes[propriedade];
         let name = getName(propriedade);
         if (warning) {
+          //checar se o campo deve ser destacado em vermelho
           if (
             propriedade === highlitedFieldName &&
             (highlitedFieldNameIndex === undefined ||
               highlitedFieldNameIndex === null)
           ) {
+            //colocar no inicio da lista em vermelho
             result.unshift(
               <li
                 key={propriedade}
@@ -586,6 +604,7 @@ function WarningsModal({
             );
             return result;
           }
+          //se nao precisar ser destacado, adicionar ao fim da lista
           result.push(
             <li
               key={propriedade}
@@ -598,17 +617,24 @@ function WarningsModal({
         return result;
       }, [])
     : [];
+
+  //elementos montados dos warnings dos orcamentos
   const orcamentoContent = orcamentos
-    ? orcamentos.reduce((result, orcamento, i) => {
+    ? //para cada orcamento
+      orcamentos.reduce((result, orcamento, i) => {
         let content = [];
+
+        //para cada campo do orcamento, gerar um elemento
         Object.keys(orcamento).forEach((propriedade) => {
           const warning = orcamento[propriedade];
           let name = getName(propriedade);
           if (warning) {
+            //checar se o campo deve ser destacado em vermelho
             if (
               propriedade === highlitedFieldName &&
               highlitedFieldNameIndex === i
             ) {
+              //colocar no inicio da lista em vermelho
               content.unshift(
                 <li
                   key={propriedade}
@@ -624,6 +650,7 @@ function WarningsModal({
               );
               return;
             }
+            //se nao precisar ser destacado, adicionar ao fim da lista
             content.push(
               <li
                 key={propriedade}
@@ -635,6 +662,7 @@ function WarningsModal({
           }
         });
 
+        //se houveram campos adicionados para o orcamento atual, criar um elemento para tal
         if (content.length > 0) {
           result.push(
             <div key={i} style={{ margin: "1rem 0" }}>
@@ -647,6 +675,7 @@ function WarningsModal({
       }, [])
     : [];
 
+  //usar o ref para scrollar ate o orcamento se for o caso no render inicial
   useEffect(() => {
     if (
       highlitedFieldNameIndex !== undefined &&
@@ -657,7 +686,6 @@ function WarningsModal({
   }, [highlitedFieldNameIndex]);
 
   const history = useHistory();
-
   function closeModal() {
     //fazer o modal desaparecer
     setAlertModalContent({});
@@ -666,21 +694,9 @@ function WarningsModal({
   }
 
   return (
-    <div
-      onClick={closeModal}
-      style={{
-        position: "fixed",
-        top: "0",
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: "1",
-        backgroundColor: "rgba(0,0,0,0.5)",
-      }}
-    >
+    <div onClick={closeModal} className="modalBackground">
       <div onClick={(e) => e.stopPropagation()} className={style.modalWarning}>
+        {/* anchor hidden para scrollar ate o orcamento se for o caso */}
         <a
           href={`#warningsModalPosition${highlitedFieldNameIndex}`}
           ref={scrollToHighlitedField}
@@ -741,6 +757,8 @@ function WarningsModal({
   );
 }
 
+//funcao para printar o nome do campo de acordo
+//com o nome de sua propriedade no modal de warnings
 function getName(propriedade) {
   switch (propriedade) {
     case "descricao":
